@@ -8,25 +8,39 @@ config({
 });
 
 const runMigrate = async () => {
-  if (!process.env.POSTGRES_URL) {
-    throw new Error('POSTGRES_URL is not defined');
+  const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL or POSTGRES_URL must be defined');
   }
 
-  const connection = postgres(process.env.POSTGRES_URL, { max: 1 });
-  const db = drizzle(connection);
+  const isFileUrl = databaseUrl.startsWith('file:');
 
   console.log('⏳ Running migrations...');
 
-  const start = Date.now();
-  await migrate(db, { migrationsFolder: './lib/db/migrations' });
-  const end = Date.now();
+  if (isFileUrl) {
+    console.log('Mock database detected - skipping migrations for local development');
+    console.log('✅ Mock database ready for local development');
+    return;
+  }
 
-  console.log('✅ Migrations completed in', end - start, 'ms');
-  process.exit(0);
+  console.log('Database type: PostgreSQL');
+
+  const start = Date.now();
+
+  try {
+    const connection = postgres(databaseUrl, { max: 1 });
+    const db = drizzle(connection);
+    await migrate(db, { migrationsFolder: './lib/db/migrations' });
+    await connection.end();
+
+    const end = Date.now();
+    console.log('✅ Migrations completed in', end - start, 'ms');
+  } catch (error) {
+    console.error('❌ Migration failed');
+    console.error(error);
+    process.exit(1);
+  }
 };
 
-runMigrate().catch((err) => {
-  console.error('❌ Migration failed');
-  console.error(err);
-  process.exit(1);
-});
+runMigrate();
