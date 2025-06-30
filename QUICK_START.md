@@ -45,6 +45,8 @@ The app will be available at **http://localhost:3000**
 - **Citation System**: Interactive citations with source highlighting
 - **Responsive Design**: Works on desktop and mobile
 - **OpenTelemetry**: Basic monitoring and logging
+- **Mock Database**: Runs locally without PostgreSQL dependency
+- **Guest Authentication**: Works without complex auth setup
 
 ## 🛠️ Available Commands
 

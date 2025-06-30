@@ -3,13 +3,13 @@ import { Artifact } from '@/components/create-artifact';
 import { DiffView } from '@/components/diffview';
 import { DocumentSkeleton } from '@/components/document-skeleton';
 import {
-  BarChartIcon,
+  LineChartIcon,
   ClockRewind,
   CopyIcon,
-  FileTextIcon,
-  LinkIcon,
+  FileIcon,
+  GlobeIcon,
   RedoIcon,
-  RefreshCwIcon,
+  WarningIcon,
   UndoIcon,
 } from '@/components/icons';
 import type { CitationArtifactMetadata } from '@/lib/types/citation';
@@ -155,7 +155,7 @@ export const citationArtifact = new Artifact<
       isDisabled: ({ isCurrentVersion }) => isCurrentVersion,
     },
     {
-      icon: <BarChartIcon size={18} />,
+      icon: <LineChartIcon size={18} />,
       description: 'Toggle statistics',
       onClick: ({ setMetadata }) => {
         setMetadata((metadata) => ({
@@ -175,7 +175,7 @@ export const citationArtifact = new Artifact<
   ],
   toolbar: [
     {
-      icon: <FileTextIcon />,
+      icon: <FileIcon />,
       description: 'Add more citations',
       onClick: ({ appendMessage }) => {
         appendMessage({
@@ -186,7 +186,7 @@ export const citationArtifact = new Artifact<
       },
     },
     {
-      icon: <LinkIcon />,
+      icon: <GlobeIcon />,
       description: 'Verify sources',
       onClick: ({ appendMessage }) => {
         appendMessage({
@@ -197,7 +197,7 @@ export const citationArtifact = new Artifact<
       },
     },
     {
-      icon: <RefreshCwIcon />,
+      icon: <WarningIcon />,
       description: 'Update citations',
       onClick: ({ appendMessage }) => {
         appendMessage({
