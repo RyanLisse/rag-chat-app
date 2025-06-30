@@ -1,11 +1,7 @@
 // Example of how to integrate monitoring into the chat route
 // This shows the monitoring patterns without modifying the existing route
 
-import {
-  logger,
-  trackChatMetrics,
-  createRequestLogger,
-} from '@/lib/monitoring';
+import { createRequestLogger, trackChatMetrics } from '@/lib/monitoring';
 import {
   monitorModelCall,
   monitorStreamingResponse,

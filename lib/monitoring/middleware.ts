@@ -1,7 +1,7 @@
+import { trace } from '@opentelemetry/api';
+import { nanoid } from 'nanoid';
 import { NextRequest, NextResponse } from 'next/server';
 import { createRequestTracker, logger, ragMetrics } from './index';
-import { nanoid } from 'nanoid';
-import { context, trace } from '@opentelemetry/api';
 
 // Create the request tracker
 const requestTracker = createRequestTracker();

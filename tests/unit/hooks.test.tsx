@@ -10,14 +10,13 @@ import { useMobile } from '@/hooks/use-mobile';
 
 // Mock external dependencies
 const mockUpdateChatVisibility = vi.fn(() => Promise.resolve());
-mock.module('@/app/(chat)/actions', () => ({
+vi.mock('@/app/(chat)/actions', () => ({
   updateChatVisibility: mockUpdateChatVisibility,
 }));
 
 const mockGetChatHistoryPaginationKey = vi.fn(() => ['history', 'key']);
-mock.module('@/components/sidebar-history', () => ({
+vi.mock('@/components/sidebar-history', () => ({
   getChatHistoryPaginationKey: mockGetChatHistoryPaginationKey,
-  type ChatHistory: {},
 }));
 
 // Helper to create SWR wrapper

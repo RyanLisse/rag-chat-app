@@ -1,4 +1,15 @@
-import { trace } from '@opentelemetry/api';
+// Optional OpenTelemetry imports with fallbacks
+let trace: any = null;
+try {
+  const otelApi = require('@opentelemetry/api');
+  trace = otelApi.trace;
+} catch (error) {
+  // OpenTelemetry not available, use no-op implementation
+  trace = {
+    getActiveSpan: () => null,
+    setSpan: (context: any, span: any) => context,
+  };
+}
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 

@@ -1,88 +1,28 @@
-import * as Sentry from '@sentry/nextjs';
+// Sentry temporarily removed for simplified setup
+// TODO: Re-add Sentry integration once core monitoring is stable
+
 import { logger } from './logger';
 
 export function initializeSentry() {
-  const dsn = process.env.SENTRY_DSN;
-
-  if (!dsn) {
-    logger.warn('Sentry DSN not configured, error tracking disabled');
-    return;
-  }
-
-  Sentry.init({
-    dsn,
-    environment: process.env.NODE_ENV || 'development',
-    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-
-    // Performance Monitoring
-    integrations: [
-      // Automatically instrument Node.js libraries and frameworks
-      Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
-    ],
-
-    // Set sample rates
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-
-    // Custom error filtering
-    beforeSend(event, _hint) {
-      // Filter out non-critical errors
-      if (event.level === 'warning') {
-        return null;
-      }
-
-      // Add custom context
-      if (event.contexts) {
-        event.contexts.app = {
-          ...event.contexts.app,
-          service: 'rag-chat-app',
-        };
-      }
-
-      return event;
-    },
-
-    // Custom breadcrumb filtering
-    beforeBreadcrumb(breadcrumb) {
-      // Filter out noisy breadcrumbs
-      if (breadcrumb.category === 'console' && breadcrumb.level === 'debug') {
-        return null;
-      }
-
-      return breadcrumb;
-    },
-  });
-
-  logger.info('Sentry initialized successfully');
+  logger.info('Sentry disabled - using console logging only');
 }
 
 // Helper to capture exceptions with additional context
 export function captureException(error: Error, context?: Record<string, any>) {
-  logger.error('Exception captured', context, error);
-
-  Sentry.withScope((scope) => {
-    if (context) {
-      scope.setContext('additional', context);
-    }
-    Sentry.captureException(error);
+  logger.error('Exception captured (Sentry disabled)', { 
+    error: error.message, 
+    stack: error.stack,
+    context 
   });
 }
 
 // Helper to capture messages
 export function captureMessage(
   message: string,
-  level: Sentry.SeverityLevel = 'info',
+  level: string = 'info',
   context?: Record<string, any>
 ) {
-  logger.info('Message captured', { message, level, ...context });
-
-  Sentry.withScope((scope) => {
-    if (context) {
-      scope.setContext('additional', context);
-    }
-    Sentry.captureMessage(message, level);
-  });
+  logger.info('Message captured (Sentry disabled)', { message, level, ...context });
 }
 
 // Helper to set user context
@@ -91,17 +31,18 @@ export function setUser(user: {
   email?: string;
   username?: string;
 }) {
-  Sentry.setUser(user);
+  logger.info('User context set (Sentry disabled)', { user });
 }
 
 // Helper to add breadcrumb
-export function addBreadcrumb(breadcrumb: Sentry.Breadcrumb) {
-  Sentry.addBreadcrumb(breadcrumb);
+export function addBreadcrumb(breadcrumb: any) {
+  logger.info('Breadcrumb added (Sentry disabled)', { breadcrumb });
 }
 
 // Helper to measure transactions
 export function startTransaction(name: string, op: string) {
-  return Sentry.startTransaction({ name, op });
+  logger.info('Transaction started (Sentry disabled)', { name, op });
+  return { finish: () => logger.info('Transaction finished (Sentry disabled)', { name, op }) };
 }
 
 // RAG-specific error tracking

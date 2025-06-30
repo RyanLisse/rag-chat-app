@@ -9,7 +9,7 @@ import type { Session } from 'next-auth';
 
 // Mock the server action
 const mockSaveChatModelAsCookie = vi.fn(() => Promise.resolve());
-mock.module('@/app/(chat)/actions', () => ({
+vi.mock('@/app/(chat)/actions', () => ({
   saveChatModelAsCookie: mockSaveChatModelAsCookie,
 }));
 

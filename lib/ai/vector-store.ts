@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import { z } from 'zod';
 
 // File upload options
 export interface FileUploadOptions {

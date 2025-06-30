@@ -1,31 +1,28 @@
 'use client';
 
-import { useCallback, useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import {
-  Citation,
-  CitationSource,
-  CitationArtifactMetadata,
-  CitationHighlight,
-} from '@/lib/types/citation';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import type {
+  CitationArtifactMetadata,
+  CitationSource,
+} from '@/lib/types/citation';
+import { cn } from '@/lib/utils';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
+  BarChart2Icon,
+  CalendarIcon,
+  ChevronRightIcon,
+  ExternalLinkIcon,
   FileTextIcon,
   LinkIcon,
-  CalendarIcon,
   UserIcon,
-  ExternalLinkIcon,
-  ChevronRightIcon,
-  BarChart2Icon,
 } from 'lucide-react';
-import { SourcePreviewModal } from './source-preview-modal';
-import { CitationStatisticsPanel } from './citation-statistics-panel';
+import { useCallback, useMemo, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
+import { CitationStatisticsPanel } from './citation-statistics-panel';
+import { SourcePreviewModal } from './source-preview-modal';
 
 interface CitationContentProps {
   title: string;

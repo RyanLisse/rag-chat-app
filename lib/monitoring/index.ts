@@ -1,4 +1,3 @@
-import { SpanStatusCode, context, trace } from '@opentelemetry/api';
 import { logger } from './logger';
 import {
   captureException,
@@ -8,10 +7,11 @@ import {
 } from './sentry';
 import {
   initializeTelemetry,
-  measureAsync,
-  ragMetrics,
-  shutdownTelemetry,
-  tracer,
+  trackRAGOperation,
+  trackModelInference,
+  trackVectorSearch,
+  trackDocumentProcessing,
+  trackCitationGeneration,
 } from './telemetry';
 
 // Re-export commonly used functions
@@ -20,17 +20,20 @@ export {
   captureException,
   captureMessage,
   setUser,
-  ragMetrics,
-  measureAsync,
+  trackRAGOperation,
+  trackModelInference,
+  trackVectorSearch,
+  trackDocumentProcessing,
+  trackCitationGeneration,
 };
 
 // Initialize all monitoring systems
 export async function initializeMonitoring() {
   try {
-    // Initialize OpenTelemetry
-    await initializeTelemetry();
+    // Initialize OpenTelemetry (simplified)
+    initializeTelemetry();
 
-    // Initialize Sentry
+    // Initialize Sentry (disabled for now)
     initializeSentry();
 
     logger.info('Monitoring systems initialized successfully');
@@ -39,17 +42,7 @@ export async function initializeMonitoring() {
   }
 }
 
-// Shutdown all monitoring systems
-export async function shutdownMonitoring() {
-  try {
-    await shutdownTelemetry();
-    logger.info('Monitoring systems shut down successfully');
-  } catch (error) {
-    console.error('Failed to shutdown monitoring:', error);
-  }
-}
-
-// Middleware to track HTTP requests
+// Simplified request tracker for middleware
 export function createRequestTracker() {
   return async (req: Request, next: () => Promise<Response>) => {
     const startTime = Date.now();
@@ -57,189 +50,67 @@ export function createRequestTracker() {
     const url = new URL(req.url);
     const path = url.pathname;
 
-    // Create a new span for this request
-    const span = tracer.startSpan(`${method} ${path}`, {
-      attributes: {
-        'http.method': method,
-        'http.url': url.toString(),
-        'http.target': path,
-        'http.host': url.host,
-        'http.scheme': url.protocol.replace(':', ''),
-      },
-    });
+    try {
+      const response = await next();
+      const duration = Date.now() - startTime;
 
-    // Set the span as active for this request
-    return context.with(trace.setSpan(context.active(), span), async () => {
-      try {
-        const response = await next();
-        const duration = Date.now() - startTime;
+      // Log the request
+      logger.info(`${method} ${path}`, {
+        status: response.status,
+        duration,
+      });
 
-        // Update span with response information
-        span.setAttributes({
-          'http.status_code': response.status,
-          'http.response_content_length':
-            response.headers.get('content-length') || 0,
-        });
+      return response;
+    } catch (error) {
+      const duration = Date.now() - startTime;
 
-        // Set span status based on HTTP status
-        if (response.status >= 400) {
-          span.setStatus({ code: SpanStatusCode.ERROR });
-        } else {
-          span.setStatus({ code: SpanStatusCode.OK });
-        }
+      // Log and capture the error
+      logger.error(`Request failed: ${method} ${path}`, {
+        method,
+        path,
+        duration,
+        error: (error as Error).message,
+      });
 
-        // Record metrics
-        ragMetrics.apiRequestDuration.record(duration, {
-          method,
-          path,
-          status: response.status.toString(),
-        });
+      captureException(error as Error, {
+        method,
+        path,
+        duration,
+      });
 
-        ragMetrics.apiRequestCount.add(1, {
-          method,
-          path,
-          status: response.status.toString(),
-        });
-
-        if (response.status >= 500) {
-          ragMetrics.apiErrorCount.add(1, {
-            method,
-            path,
-            status: response.status.toString(),
-          });
-        }
-
-        // Log the request
-        logger.logApiRequest(method, path, response.status, duration);
-
-        return response;
-      } catch (error) {
-        const duration = Date.now() - startTime;
-
-        // Record error in span
-        span.recordException(error as Error);
-        span.setStatus({
-          code: SpanStatusCode.ERROR,
-          message: (error as Error).message,
-        });
-
-        // Record error metrics
-        ragMetrics.apiErrorCount.add(1, {
-          method,
-          path,
-          error: (error as Error).name,
-        });
-
-        // Log and capture the error
-        logger.error(
-          `Request failed: ${method} ${path}`,
-          {
-            method,
-            path,
-            duration,
-          },
-          error as Error
-        );
-
-        captureException(error as Error, {
-          method,
-          path,
-          duration,
-        });
-
-        throw error;
-      } finally {
-        span.end();
-      }
-    });
+      throw error;
+    }
   };
 }
 
-// Helper to track RAG operations
-export async function trackRAGOperation<T>(
+// Helper to track RAG operations (simplified)
+export async function trackRAGOperationAsync<T>(
   operation: string,
   metadata: Record<string, any>,
   fn: () => Promise<T>
 ): Promise<T> {
-  return measureAsync(
-    `rag.${operation}`,
-    async () => {
-      const startTime = Date.now();
+  const startTime = Date.now();
 
-      try {
-        const result = await fn();
-        const duration = Date.now() - startTime;
+  try {
+    const result = await fn();
+    const duration = Date.now() - startTime;
 
-        // Log based on operation type
-        switch (operation) {
-          case 'vector_search': {
-            ragMetrics.vectorSearchDuration.record(duration, metadata);
-            if (metadata.resultCount !== undefined) {
-              ragMetrics.vectorSearchResults.record(metadata.resultCount);
-            }
-            logger.logVectorSearch(
-              metadata.query || '',
-              metadata.resultCount || 0,
-              duration
-            );
-            break;
-          }
+    // Track the operation
+    trackRAGOperation(operation, duration, metadata);
 
-          case 'model_inference': {
-            ragMetrics.modelInferenceDuration.record(duration, {
-              model: metadata.model,
-            });
-            if (metadata.tokens) {
-              ragMetrics.modelTokensUsed.record(metadata.tokens, {
-                model: metadata.model,
-              });
-            }
-            logger.logModelInference(
-              metadata.model || '',
-              metadata.promptTokens || 0,
-              metadata.completionTokens || 0,
-              duration
-            );
-            break;
-          }
+    return result;
+  } catch (error) {
+    const duration = Date.now() - startTime;
 
-          case 'document_processing': {
-            ragMetrics.documentProcessingDuration.record(duration);
-            if (metadata.chunkCount !== undefined) {
-              ragMetrics.documentChunkCount.record(metadata.chunkCount);
-            }
-            logger.logDocumentProcessing(
-              metadata.documentId || '',
-              metadata.chunkCount || 0,
-              duration
-            );
-            break;
-          }
+    logger.error(`RAG operation failed: ${operation}`, {
+      ...metadata,
+      duration,
+      error: (error as Error).message,
+    });
 
-          default:
-            logger.info(`RAG operation completed: ${operation}`, {
-              ...metadata,
-              duration,
-            });
-        }
-
-        return result;
-      } catch (error) {
-        if (operation === 'model_inference') {
-          ragMetrics.modelErrors.add(1, { model: metadata.model });
-        }
-
-        logger.error(
-          `RAG operation failed: ${operation}`,
-          metadata,
-          error as Error
-        );
-        captureException(error as Error, { operation, ...metadata });
-        throw error;
-      }
-    },
-    metadata
-  );
+    captureException(error as Error, { operation, ...metadata });
+    throw error;
+  }
 }
 
 // Helper to create child logger with request context
@@ -248,9 +119,10 @@ export function createRequestLogger(
   userId?: string,
   sessionId?: string
 ) {
-  return logger.child({
-    requestId,
-    userId,
-    sessionId,
-  });
+  return {
+    info: (message: string, meta?: any) => logger.info(message, { requestId, userId, sessionId, ...meta }),
+    error: (message: string, meta?: any) => logger.error(message, { requestId, userId, sessionId, ...meta }),
+    warn: (message: string, meta?: any) => logger.warn(message, { requestId, userId, sessionId, ...meta }),
+    debug: (message: string, meta?: any) => logger.debug(message, { requestId, userId, sessionId, ...meta }),
+  };
 }

@@ -1,111 +1,113 @@
-# Makefile for RAG Chat Docker operations
+# Makefile for RAG Chat Application
+.PHONY: setup dev dev-local test build clean help install kill-ports
 
-.PHONY: help
+PORTS = 3000 3001 3002 6379 5432
+
 help: ## Show this help message
-	@echo 'Usage: make [target]'
+	@echo 'RAG Chat Application - Available Commands:'
 	@echo ''
-	@echo 'Targets:'
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-20s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.PHONY: dev
-dev: ## Start development environment
-	docker-compose up -d app-dev postgres redis otel-collector
+kill-ports: ## Kill processes on development ports
+	@echo "🔌 Killing processes on ports: $(PORTS)"
+	@for port in $(PORTS); do \
+		lsof -ti:$$port | xargs kill -9 2>/dev/null || true; \
+	done
 
-.PHONY: dev-logs
-dev-logs: ## Show development logs
-	docker-compose logs -f app-dev
+install: ## Install dependencies with Bun
+	@echo "📦 Installing dependencies with Bun..."
+	bun install
 
-.PHONY: build
-build: ## Build all Docker images
-	docker-compose build
+setup: kill-ports install ## Complete setup (install dependencies, setup environment)
+	@echo "🚀 Setting up RAG Chat Application..."
+	@if [ ! -f .env.local ]; then \
+		cp .env.local.example .env.local; \
+		echo "📋 Created .env.local from example - please configure your API keys"; \
+	fi
+	@echo "✅ Setup complete! Configure .env.local with your API keys and run 'make dev'"
 
-.PHONY: test
-test: ## Run tests in Docker
-	docker-compose run --rm app-test
+dev-local: kill-ports ## Start development server (local only, no Docker)
+	@echo "🚀 Starting local development server..."
+	bun run dev
 
-.PHONY: prod
-prod: ## Start production environment
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+dev-docker: ## Start with Docker containers (requires Docker)
+	@echo "🐳 Starting Docker development environment..."
+	@if command -v docker compose >/dev/null 2>&1; then \
+		docker compose up -d app-dev postgres redis otel-collector; \
+	elif command -v docker-compose >/dev/null 2>&1; then \
+		docker-compose up -d app-dev postgres redis otel-collector; \
+	else \
+		echo "❌ Docker Compose not found. Use 'make dev-local' instead"; \
+		exit 1; \
+	fi
 
-.PHONY: down
-down: ## Stop all containers
-	docker-compose down
+dev: dev-local ## Default development (use dev-local)
 
-.PHONY: clean
-clean: ## Stop containers and remove volumes
-	docker-compose down -v
+test: ## Run all tests
+	@echo "🧪 Running tests..."
+	bun run test:unit
 
-.PHONY: db-migrate
+test-e2e: ## Run E2E tests
+	@echo "🎭 Running E2E tests..."
+	bun run test:e2e
+
+test-coverage: ## Run tests with coverage
+	@echo "📊 Running tests with coverage..."
+	bun run test:coverage
+
+build: ## Build the application
+	@echo "🔨 Building application..."
+	bun run build
+
+typecheck: ## Run TypeScript type checking
+	@echo "🔍 Running type check..."
+	bun run typecheck
+
+lint: ## Run linting
+	@echo "🧹 Running linter..."
+	bun run lint
+
+lint-fix: ## Fix linting issues
+	@echo "🛠️  Fixing linting issues..."
+	bun run lint:fix
+
+format: ## Format code
+	@echo "✨ Formatting code..."
+	bun run format
+
 db-migrate: ## Run database migrations
-	docker-compose exec app-dev bun run db:migrate
+	@echo "🗃️  Running database migrations..."
+	bun run db:migrate
 
-.PHONY: db-studio
 db-studio: ## Open Drizzle Studio
-	docker-compose exec app-dev bun run db:studio
+	@echo "🎯 Opening Drizzle Studio..."
+	bun run db:studio
 
-.PHONY: shell
-shell: ## Open shell in development container
-	docker-compose exec app-dev sh
+docker-down: ## Stop Docker containers
+	@if command -v docker compose >/dev/null 2>&1; then \
+		docker compose down; \
+	elif command -v docker-compose >/dev/null 2>&1; then \
+		docker-compose down; \
+	else \
+		echo "❌ Docker Compose not found"; \
+	fi
 
-.PHONY: logs
-logs: ## Show all logs
-	docker-compose logs -f
+docker-clean: ## Stop containers and remove volumes  
+	@if command -v docker compose >/dev/null 2>&1; then \
+		docker compose down -v; \
+	elif command -v docker-compose >/dev/null 2>&1; then \
+		docker-compose down -v; \
+	else \
+		echo "❌ Docker Compose not found"; \
+	fi
 
-.PHONY: ps
-ps: ## Show running containers
-	docker-compose ps
+clean: kill-ports docker-clean ## Clean up everything
+	@echo "🧹 Cleaning up..."
+	rm -rf node_modules .next out dist coverage
+	@echo "✅ Cleanup complete"
 
-.PHONY: restart
-restart: ## Restart all containers
-	docker-compose restart
+# Quick development workflow
+quick-start: setup dev ## Quick start for new developers
 
-.PHONY: prod-build
-prod-build: ## Build production image
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml build app
-
-.PHONY: prod-deploy
-prod-deploy: prod-build ## Deploy to production
-	docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --no-deps app
-
-.PHONY: backup-db
-backup-db: ## Backup database
-	@mkdir -p backups
-	docker-compose exec postgres pg_dump -U postgres rag_chat | gzip > backups/rag_chat_backup_$$(date +%Y%m%d_%H%M%S).sql.gz
-	@echo "Database backup created in backups/"
-
-.PHONY: restore-db
-restore-db: ## Restore database from backup (usage: make restore-db FILE=backup.sql.gz)
-	@if [ -z "$(FILE)" ]; then echo "Please specify FILE=backup.sql.gz"; exit 1; fi
-	gunzip -c $(FILE) | docker-compose exec -T postgres psql -U postgres rag_chat
-	@echo "Database restored from $(FILE)"
-
-# Worktree operations
-.PHONY: wt-setup
-wt-setup: ## Setup Git worktrees for parallel development
-	./scripts/setup-worktrees.sh
-
-.PHONY: wt-create
-wt-create: ## Create new worktree (usage: make wt-create TYPE=feature NAME=my-feature)
-	@if [ -z "$(NAME)" ]; then echo "Please specify NAME=feature-name"; exit 1; fi
-	./scripts/worktree-create.sh $(TYPE) $(NAME)
-
-.PHONY: wt-switch
-wt-switch: ## Switch to worktree (usage: make wt-switch NAME=my-feature)
-	./scripts/worktree-switch.sh $(NAME)
-
-.PHONY: wt-sync
-wt-sync: ## Sync all worktrees with main
-	./scripts/worktree-sync.sh
-
-.PHONY: wt-merge
-wt-merge: ## Merge worktree to main (usage: make wt-merge NAME=my-feature)
-	@if [ -z "$(NAME)" ]; then echo "Please specify NAME=feature-name"; exit 1; fi
-	./scripts/worktree-merge.sh $(NAME)
-
-.PHONY: wt-clean
-wt-clean: ## Clean up old worktrees
-	./scripts/worktree-cleanup.sh clean
-
-.PHONY: wt-health
-wt-health: ## Check worktree health
-	./scripts/worktree-health.sh check
+# Full development with Docker
+full-dev: setup dev-docker ## Full development environment with Docker

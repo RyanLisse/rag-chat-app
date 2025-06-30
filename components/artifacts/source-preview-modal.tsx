@@ -1,25 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Citation, CitationSource } from '@/lib/types/citation';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import type { Citation, CitationSource } from '@/lib/types/citation';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  XIcon,
-  ExternalLinkIcon,
-  FileTextIcon,
-  LinkIcon,
-  DatabaseIcon,
-  ServerIcon,
-  FileIcon,
   CalendarIcon,
-  UserIcon,
   ClockIcon,
   CopyIcon,
+  DatabaseIcon,
+  ExternalLinkIcon,
+  FileIcon,
+  FileTextIcon,
+  LinkIcon,
+  ServerIcon,
+  UserIcon,
+  XIcon,
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 interface SourcePreviewModalProps {
