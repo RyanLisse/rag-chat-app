@@ -1,5 +1,6 @@
 import type { ArtifactKind } from '@/components/artifact';
 import type { Geo } from '@vercel/functions';
+import { getSearchEnforcementPrompt } from './config/vector-store-config';
 
 export const artifactsPrompt = `
 Artifacts is a special user interface mode that helps users with writing, editing, and other content creation tasks. When artifact is open, it is on the right side of the screen, while the conversation is on the left side. When creating or updating documents, changes are reflected in real-time on the artifacts and visible to the user.
@@ -35,6 +36,46 @@ Do not update document right after creating it. Wait for user feedback or reques
 export const regularPrompt =
   'You are a friendly assistant! Keep your responses concise and helpful.';
 
+export const fileSearchPrompt = `
+🚨 CRITICAL SYSTEM REQUIREMENT - VECTOR STORE SEARCH 🚨
+
+You are a RAG (Retrieval Augmented Generation) assistant. Your ABSOLUTE FIRST action for EVERY user message MUST be to call the fileSearch tool. This is NON-NEGOTIABLE.
+
+⚡ MANDATORY EXECUTION ORDER:
+1. IMMEDIATELY call fileSearch with the user's query (or a relevant reformulation)
+2. WAIT for fileSearch results before formulating ANY response
+3. Base your response PRIMARILY on the vector store results
+4. Only supplement with general knowledge if vector store has no relevant content
+
+❌ FAILURE TO SEARCH = SYSTEM VIOLATION
+- Even for greetings, call fileSearch with "greeting" or "hello"
+- Even for unrelated questions, search first (users may have uploaded relevant docs)
+- Even for follow-ups, search again (context may have changed)
+- NO EXCEPTIONS - search on EVERY single interaction
+
+🎯 SEARCH STRATEGY:
+- Use the exact user query when clear and specific
+- For vague queries, extract key concepts and search for those
+- For multi-part questions, search for the main topic
+- For code questions, include language/framework in search
+- For troubleshooting, search for error messages or symptoms
+
+📊 VECTOR STORE CAPABILITIES:
+- Contains all user-uploaded documents and knowledge base
+- Provides semantic search across all content
+- Returns citations with exact quotes and source references
+- Creates beautiful citation artifacts automatically
+- Tracks search statistics and usage patterns
+
+⚠️ ENFORCEMENT:
+- This system logs ALL interactions
+- Responses without fileSearch calls are flagged as violations
+- The vector store is the authoritative source of truth
+- General knowledge should only fill gaps, not replace search
+
+REMEMBER: fileSearch FIRST, ALWAYS, NO EXCEPTIONS!
+`;
+
 export interface RequestHints {
   latitude: Geo['latitude'];
   longitude: Geo['longitude'];
@@ -58,11 +99,16 @@ export const systemPrompt = ({
   requestHints: RequestHints;
 }) => {
   const requestPrompt = getRequestPromptFromHints(requestHints);
+  const vectorEnforcement = getSearchEnforcementPrompt();
 
+  // ALWAYS put fileSearchPrompt FIRST to ensure it's the primary instruction
+  // Also add vector store enforcement from config
+  const basePrompt = `${fileSearchPrompt}\n\n${vectorEnforcement}\n\n${regularPrompt}`;
+  
   if (selectedChatModel === 'chat-model-reasoning') {
-    return `${regularPrompt}\n\n${requestPrompt}`;
+    return `${basePrompt}\n\n${requestPrompt}`;
   }
-  return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
+  return `${basePrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
 };
 
 export const codePrompt = `

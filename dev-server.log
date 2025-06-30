@@ -1,0 +1,88 @@
+$ next dev --turbo
+   ▲ Next.js 15.3.0-canary.31 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.25:3000
+   - Environments: .env.local, .env.development, .env
+   - Experiments (use with caution):
+     ✓ ppr
+
+ ✓ Starting...
+Creating turbopack project {
+  dir: '/Volumes/Main SSD/CascadeProjects/rag-chat-rra',
+  testMode: true
+}
+ ✓ Compiled in 772ms
+{"timestamp":"2025-06-30T13:13:15.634Z","level":"info","message":"OpenTelemetry initialized via @vercel/otel","service":"rag-chat-app","environment":"development"}
+{"timestamp":"2025-06-30T13:13:15.634Z","level":"info","message":"Sentry disabled - using console logging only","service":"rag-chat-app","environment":"development"}
+{"timestamp":"2025-06-30T13:13:15.634Z","level":"info","message":"Monitoring systems initialized successfully","service":"rag-chat-app","environment":"development"}
+ ✓ Ready in 1843ms
+{"timestamp":"2025-06-30T13:13:25.645Z","level":"info","message":"OpenTelemetry initialized via @vercel/otel","service":"rag-chat-app","environment":"development"}
+{"timestamp":"2025-06-30T13:13:25.646Z","level":"info","message":"Sentry disabled - using console logging only","service":"rag-chat-app","environment":"development"}
+{"timestamp":"2025-06-30T13:13:25.646Z","level":"info","message":"Monitoring systems initialized successfully","service":"rag-chat-app","environment":"development"}
+ ○ Compiling /api/auth/guest ...
+ ✓ Compiled /api/auth/guest in 919ms
+Using mock database for local development
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 1253ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 100ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 97ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 95ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 93ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 93ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 95ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 99ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 95ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 94ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 92ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 96ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 88ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 94ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 96ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 131ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 99ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 93ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 95ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 94ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 91ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 96ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 91ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 96ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 102ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 117ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 94ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 91ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 104ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 88ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 91ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 88ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 93ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 91ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 93ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 88ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 88ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 99ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 94ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 93ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 90ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 89ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 92ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 88ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 91ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 87ms
+ GET /api/auth/guest?redirectUrl=http%3A%2F%2Flocalhost%3A3000%2F 307 in 91ms
+[?25h

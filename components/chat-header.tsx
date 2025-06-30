@@ -1,15 +1,15 @@
 'use client';
 
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useWindowSize } from 'usehooks-ts';
 
 import { ModelSelector } from '@/components/model-selector';
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Button } from '@/components/ui/button';
+import { FileManagerDialog } from '@/components/file-manager-dialog';
 import type { Session } from 'next-auth';
-import { memo } from 'react';
-import { PlusIcon, VercelIcon } from './icons';
+import { memo, useState, useEffect } from 'react';
+import { FileIcon, PlusIcon } from './icons';
 import { useSidebar } from './ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { VisibilitySelector, type VisibilityType } from './visibility-selector';
@@ -29,8 +29,37 @@ function PureChatHeader({
 }) {
   const router = useRouter();
   const { open } = useSidebar();
+  const [fileManagerOpen, setFileManagerOpen] = useState(false);
+  const [vectorStoreId, setVectorStoreId] = useState<string | undefined>();
 
   const { width: windowWidth } = useWindowSize();
+
+  // Get or create vector store ID
+  useEffect(() => {
+    const initVectorStore = async () => {
+      try {
+        const response = await fetch('/api/files/upload', {
+          method: 'POST',
+          body: new FormData(), // Empty form data to trigger vector store creation
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.vectorStoreId) {
+            setVectorStoreId(data.vectorStoreId);
+          }
+        }
+      } catch (error) {
+        console.error('Error initializing vector store:', error);
+      }
+    };
+
+    if (!vectorStoreId && process.env.NEXT_PUBLIC_OPENAI_VECTORSTORE_ID) {
+      setVectorStoreId(process.env.NEXT_PUBLIC_OPENAI_VECTORSTORE_ID);
+    } else {
+      initVectorStore();
+    }
+  }, []);
 
   return (
     <header className="sticky top-0 flex items-center gap-2 bg-background px-2 py-1.5 md:px-2">
@@ -71,18 +100,39 @@ function PureChatHeader({
         />
       )}
 
-      <Button
-        className="order-4 hidden h-fit bg-zinc-900 px-2 py-1.5 text-zinc-50 hover:bg-zinc-800 md:ml-auto md:flex md:h-[34px] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-        asChild
-      >
-        <Link
-          href={`https://vercel.com/new/clone?repository-url=https://github.com/vercel/ai-chatbot&env=AUTH_SECRET&envDescription=Learn more about how to get the API Keys for the application&envLink=https://github.com/vercel/ai-chatbot/blob/main/.env.example&demo-title=AI Chatbot&demo-description=An Open-Source AI Chatbot Template Built With Next.js and the AI SDK by Vercel.&demo-url=https://chat.vercel.ai&products=[{"type":"integration","protocol":"ai","productSlug":"grok","integrationSlug":"xai"},{"type":"integration","protocol":"storage","productSlug":"neon","integrationSlug":"neon"},{"type":"integration","protocol":"storage","productSlug":"upstash-kv","integrationSlug":"upstash"},{"type":"blob"}]`}
-          target="_noblank"
-        >
-          <VercelIcon size={16} />
-          Deploy with Vercel
-        </Link>
-      </Button>
+      {!isReadonly && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              size="icon"
+              className="order-3 md:order-4 h-[34px] w-[34px] relative"
+              onClick={() => setFileManagerOpen(true)}
+            >
+              <FileIcon size={16} />
+              {vectorStoreId && (
+                <span className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full" />
+              )}
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            {vectorStoreId ? 'Knowledge Base Active' : 'Manage Knowledge Base'}
+          </TooltipContent>
+        </Tooltip>
+      )}
+      
+      {vectorStoreId && (
+        <div className="order-4 ml-auto hidden items-center gap-2 text-sm text-muted-foreground md:flex">
+          <span className="h-2 w-2 bg-green-500 rounded-full" />
+          <span>Vector Store Connected</span>
+        </div>
+      )}
+
+      <FileManagerDialog
+        open={fileManagerOpen}
+        onOpenChange={setFileManagerOpen}
+        vectorStoreId={vectorStoreId}
+      />
     </header>
   );
 }

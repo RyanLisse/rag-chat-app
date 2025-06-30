@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { Greeting } from './greeting';
 import { PreviewMessage, ThinkingMessage } from './message';
+import type { VisibilityType } from './visibility-selector';
 
 interface MessagesProps {
   chatId: string;
@@ -17,6 +18,8 @@ interface MessagesProps {
   reload: UseChatHelpers['reload'];
   isReadonly: boolean;
   isArtifactVisible: boolean;
+  append?: UseChatHelpers['append'];
+  selectedVisibilityType?: VisibilityType;
 }
 
 function PureMessages({
@@ -27,6 +30,8 @@ function PureMessages({
   setMessages,
   reload,
   isReadonly,
+  append,
+  selectedVisibilityType,
 }: MessagesProps) {
   const {
     containerRef: messagesContainerRef,
@@ -44,7 +49,13 @@ function PureMessages({
       ref={messagesContainerRef}
       className="relative flex min-w-0 flex-1 flex-col gap-6 overflow-y-scroll pt-4"
     >
-      {messages.length === 0 && <Greeting />}
+      {messages.length === 0 && append && selectedVisibilityType && (
+        <Greeting 
+          chatId={chatId}
+          append={append}
+          selectedVisibilityType={selectedVisibilityType}
+        />
+      )}
 
       {messages.map((message, index) => (
         <PreviewMessage

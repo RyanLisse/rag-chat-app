@@ -19,24 +19,24 @@ function PureSuggestedActions({
 }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: 'How do I calibrate',
+      label: 'the RoboRail system?',
+      action: 'How do I calibrate the RoboRail system?',
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: 'What are the safety procedures',
+      label: 'for RoboRail?',
+      action: 'What are the safety procedures for RoboRail?',
     },
     {
-      title: 'Help me write an essay',
-      label: 'about silicon valley',
-      action: 'Help me write an essay about silicon valley',
+      title: 'Explain the error codes',
+      label: 'for RoboRail diagnostics',
+      action: 'Explain the error codes for RoboRail diagnostics',
     },
     {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      title: 'How do I perform maintenance',
+      label: 'on the RoboRail system?',
+      action: 'How do I perform maintenance on the RoboRail system?',
     },
   ];
 

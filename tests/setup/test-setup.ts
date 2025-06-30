@@ -3,42 +3,50 @@ import '@testing-library/jest-dom';
 
 // Mock environment variables for testing
 process.env.NODE_ENV = 'test';
-process.env.OPENAI_API_KEY = 'test-openai-key';
-process.env.ANTHROPIC_API_KEY = 'test-anthropic-key';
-process.env.GOOGLE_API_KEY = 'test-google-key';
-process.env.XAI_API_KEY = 'test-xai-key';
+process.env.OPENAI_API_KEY = 'sk-test-openai-key-1234567890';
+process.env.ANTHROPIC_API_KEY = 'sk-ant-test-anthropic-key-1234567890';
+process.env.GOOGLE_API_KEY = 'test-google-key-1234567890';
+process.env.XAI_API_KEY = 'test-xai-key-1234567890';
+// Set test environment flag
+process.env.PLAYWRIGHT_TEST_BASE_URL = 'http://localhost:3000';
 
 // Mock fetch globally
 global.fetch = vi.fn();
 
 // Mock window.matchMedia for components that use it
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation((query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-});
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+}
 
 // Mock IntersectionObserver
-global.IntersectionObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+if (typeof global !== 'undefined') {
+  global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  }));
+}
 
 // Mock ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+if (typeof global !== 'undefined') {
+  global.ResizeObserver = vi.fn().mockImplementation(() => ({
+    observe: vi.fn(),
+    unobserve: vi.fn(),
+    disconnect: vi.fn(),
+  }));
+}
 
 // Mock crypto for Node.js compatibility
 if (!global.crypto) {

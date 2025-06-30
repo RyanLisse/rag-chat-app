@@ -1,4 +1,6 @@
-import { xai } from '@ai-sdk/xai';
+import { openai } from '@ai-sdk/openai';
+import { anthropic } from '@ai-sdk/anthropic';
+import { google } from '@ai-sdk/google';
 import {
   customProvider,
   extractReasoningMiddleware,
@@ -29,16 +31,25 @@ export const myProvider = isTestEnvironment
     })
   : customProvider({
       languageModels: {
-        'chat-model': xai('grok-2-vision-1212'),
+        // OpenAI models
+        'gpt-4.1': openai('gpt-4.1'),
+        'o4-mini': openai('o4-mini'),
+        
+        // Anthropic models
+        'claude-4': anthropic('claude-4'),
+        
+        // Google models
+        'gemini-2.5-pro': google('gemini-2.5-pro'),
+        'gemini-2.5-flash': google('gemini-2.5-flash'),
+        
+        // Legacy model aliases for backward compatibility
+        'chat-model': openai('gpt-4.1'),
         'chat-model-reasoning': wrapLanguageModel({
-          model: xai('grok-3-mini-beta'),
+          model: openai('o4-mini'),
           middleware: extractReasoningMiddleware({ tagName: 'think' }),
         }),
-        'title-model': xai('grok-2-1212'),
-        'artifact-model': xai('grok-2-1212'),
-      },
-      imageModels: {
-        'small-model': xai.image('grok-2-image'),
+        'title-model': openai('gpt-4.1'),
+        'artifact-model': openai('gpt-4.1'),
       },
     });
 

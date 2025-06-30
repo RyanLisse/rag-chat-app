@@ -6,6 +6,8 @@ import { createDocument } from '@/lib/ai/tools/create-document';
 import { getWeather } from '@/lib/ai/tools/get-weather';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { updateDocument } from '@/lib/ai/tools/update-document';
+import { fileSearchTool } from '@/lib/ai/tools/file-search';
+import { createCitationTool } from '@/lib/ai/tools/create-citation';
 import { isProductionEnvironment } from '@/lib/constants';
 import {
   createStreamId,
@@ -20,6 +22,8 @@ import {
 import type { Chat } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/errors';
 import { generateUUID, getTrailingMessageId } from '@/lib/utils';
+import { enforceVectorSearch } from '@/lib/ai/middleware/enforce-vector-search';
+import { injectFileSearchDirective } from '@/lib/ai/tools/force-file-search';
 import { geolocation } from '@vercel/functions';
 import {
   appendClientMessage,
@@ -108,11 +112,17 @@ export async function POST(request: Request) {
 
     const previousMessages = await getMessagesByChatId({ id });
 
-    const messages = appendClientMessage({
+    let messages = appendClientMessage({
       // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
       messages: previousMessages,
       message,
     });
+    
+    // Enforce vector search on every request
+    messages = enforceVectorSearch(messages);
+    
+    // Also inject a directive to ensure immediate file search
+    messages = injectFileSearchDirective(messages);
 
     const { longitude, latitude, city, country } = geolocation(request);
 
@@ -145,7 +155,7 @@ export async function POST(request: Request) {
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
           messages,
-          maxSteps: 5,
+          maxSteps: 10, // Increase to ensure file search has enough steps
           experimental_activeTools:
             selectedChatModel === 'chat-model-reasoning'
               ? []
@@ -154,6 +164,8 @@ export async function POST(request: Request) {
                   'createDocument',
                   'updateDocument',
                   'requestSuggestions',
+                  'fileSearch',
+                  'createCitation',
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
           experimental_generateMessageId: generateUUID,
@@ -165,6 +177,19 @@ export async function POST(request: Request) {
               session,
               dataStream,
             }),
+            fileSearch: {
+              ...fileSearchTool({ dataStream }),
+              // Wrap the execute function to add logging
+              execute: async (args: any) => {
+                console.log('🎯 FILE SEARCH TOOL CALLED!');
+                console.log('Query:', args.query);
+                console.log('User message:', message.content);
+                const result = await fileSearchTool({ dataStream }).execute(args);
+                console.log('✅ File search completed, found', result.citations?.length || 0, 'citations');
+                return result;
+              },
+            },
+            createCitation: createCitationTool,
           },
           onFinish: async ({ response }) => {
             if (session.user?.id) {

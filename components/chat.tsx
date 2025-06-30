@@ -58,18 +58,33 @@ export function Chat({
     experimental_resume,
     data,
   } = useChat({
+    api: '/api/chat',
     id,
     initialMessages,
     experimental_throttle: 100,
     sendExtraMessageFields: true,
     generateId: generateUUID,
     fetch: fetchWithErrorHandlers,
-    experimental_prepareRequestBody: (body) => ({
-      id,
-      message: body.messages.at(-1),
-      selectedChatModel: initialChatModel,
-      selectedVisibilityType: visibilityType,
-    }),
+    experimental_prepareRequestBody: (body) => {
+      const lastMessage = body.messages.at(-1);
+      
+      // Ensure the message has the correct format
+      const formattedMessage = {
+        ...lastMessage,
+        parts: lastMessage.parts || [{ type: 'text', text: lastMessage.content || '' }],
+      };
+      
+      const requestBody = {
+        id,
+        message: formattedMessage,
+        selectedChatModel: initialChatModel,
+        selectedVisibilityType: visibilityType,
+      };
+      
+      console.log('Sending message to API:', JSON.stringify(requestBody, null, 2));
+      
+      return requestBody;
+    },
     onFinish: () => {
       mutate(unstable_serialize(getChatHistoryPaginationKey));
     },
@@ -136,6 +151,8 @@ export function Chat({
           reload={reload}
           isReadonly={isReadonly}
           isArtifactVisible={isArtifactVisible}
+          append={append}
+          selectedVisibilityType={visibilityType}
         />
 
         <form className="mx-auto flex w-full gap-2 bg-background px-4 pb-4 md:max-w-3xl md:pb-6">

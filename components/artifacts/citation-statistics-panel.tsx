@@ -65,24 +65,28 @@ export function CitationStatisticsPanel({
     <div className="space-y-4 p-4">
       {/* Overview Cards */}
       <div className="grid grid-cols-2 gap-3">
-        <Card className="p-3">
+        <Card className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200 dark:border-blue-800">
           <div className="flex items-center gap-2">
-            <BarChart3Icon className="h-4 w-4 text-blue-500" />
+            <div className="p-2 rounded-lg bg-blue-500/20">
+              <BarChart3Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            </div>
             <div>
-              <p className="text-muted-foreground text-xs">Total Citations</p>
-              <p className="font-semibold text-lg">
+              <p className="text-blue-700 dark:text-blue-300 text-xs font-medium">Total Citations</p>
+              <p className="font-bold text-xl text-blue-900 dark:text-blue-100">
                 {statistics.totalCitations}
               </p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-3">
+        <Card className="p-3 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200 dark:border-green-800">
           <div className="flex items-center gap-2">
-            <TargetIcon className="h-4 w-4 text-green-500" />
+            <div className="p-2 rounded-lg bg-green-500/20">
+              <TargetIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
+            </div>
             <div>
-              <p className="text-muted-foreground text-xs">Unique Sources</p>
-              <p className="font-semibold text-lg">
+              <p className="text-green-700 dark:text-green-300 text-xs font-medium">Unique Sources</p>
+              <p className="font-bold text-xl text-green-900 dark:text-green-100">
                 {statistics.uniqueSources}
               </p>
             </div>
@@ -91,15 +95,17 @@ export function CitationStatisticsPanel({
       </div>
 
       {/* Relevance Score */}
-      <Card className="p-4">
+      <Card className="p-4 bg-gradient-to-r from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 border-purple-200/50 dark:border-purple-800/50">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TrendingUpIcon className="h-4 w-4 text-purple-500" />
-            <span className="font-medium text-sm">Relevance Quality</span>
+            <div className="p-2 rounded-lg bg-purple-500/20">
+              <TrendingUpIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+            </div>
+            <span className="font-semibold text-sm text-purple-900 dark:text-purple-100">Relevance Quality</span>
           </div>
           <Badge
             variant="secondary"
-            className={`${qualityRating.color} border-none text-white`}
+            className={`${qualityRating.color} border-none text-white shadow-sm`}
           >
             {qualityRating.label}
           </Badge>
@@ -123,10 +129,12 @@ export function CitationStatisticsPanel({
       </Card>
 
       {/* Source Distribution */}
-      <Card className="p-4">
+      <Card className="p-4 bg-gradient-to-br from-indigo-50/50 to-blue-50/50 dark:from-indigo-900/10 dark:to-blue-900/10 border-indigo-200/50 dark:border-indigo-800/50">
         <div className="mb-3 flex items-center gap-2">
-          <FileTextIcon className="h-4 w-4 text-indigo-500" />
-          <span className="font-medium text-sm">Source Types</span>
+          <div className="p-2 rounded-lg bg-indigo-500/20">
+            <FileTextIcon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+          </div>
+          <span className="font-semibold text-sm text-indigo-900 dark:text-indigo-100">Source Types</span>
         </div>
 
         <div className="space-y-3">
@@ -163,11 +171,13 @@ export function CitationStatisticsPanel({
       </Card>
 
       {/* Citation Density */}
-      <Card className="p-4">
+      <Card className="p-4 bg-gradient-to-br from-cyan-50/50 to-teal-50/50 dark:from-cyan-900/10 dark:to-teal-900/10 border-cyan-200/50 dark:border-cyan-800/50">
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <BarChart3Icon className="h-4 w-4 text-cyan-500" />
-            <span className="font-medium text-sm">Citation Density</span>
+            <div className="p-2 rounded-lg bg-cyan-500/20">
+              <BarChart3Icon className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+            </div>
+            <span className="font-semibold text-sm text-cyan-900 dark:text-cyan-100">Citation Density</span>
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -192,8 +202,10 @@ export function CitationStatisticsPanel({
       </Card>
 
       {/* Quality Insights */}
-      <Card className="bg-gray-50 p-4 dark:bg-gray-800/50">
-        <h3 className="mb-2 font-medium text-sm">Quality Insights</h3>
+      <Card className="bg-gradient-to-br from-amber-50/30 to-orange-50/30 dark:from-amber-900/10 dark:to-orange-900/10 border-amber-200/50 dark:border-amber-800/50 p-4">
+        <h3 className="mb-2 font-semibold text-sm text-amber-900 dark:text-amber-100 flex items-center gap-2">
+          <span className="text-lg">✨</span> Quality Insights
+        </h3>
         <div className="space-y-2 text-muted-foreground text-xs">
           {statistics.avgRelevanceScore >= 0.8 ? (
             <p>✅ Excellent citation quality with highly relevant sources</p>

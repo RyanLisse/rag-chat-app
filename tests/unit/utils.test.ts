@@ -144,6 +144,13 @@ describe('fetchWithErrorHandlers', () => {
     
     global.fetch = mockFetch as any;
     originalNavigator = global.navigator;
+    
+    // Set navigator.onLine to true by default
+    Object.defineProperty(global, 'navigator', {
+      value: { onLine: true },
+      writable: true,
+      configurable: true,
+    });
   });
 
   afterEach(() => {

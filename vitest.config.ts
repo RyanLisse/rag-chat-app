@@ -6,6 +6,8 @@ export default defineConfig({
     globals: true,
     environment: 'happy-dom',
     setupFiles: ['./tests/setup/test-setup.ts'],
+    testTimeout: 10000, // 10 seconds
+    hookTimeout: 10000,
     include: ['tests/**/*.{test,spec}.{js,ts,tsx}'],
     exclude: [
       'node_modules/**',

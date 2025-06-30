@@ -8,6 +8,7 @@ import cx from 'classnames';
 import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState } from 'react';
+import { CitationDisplay } from './citation-display';
 import { DocumentToolCall, DocumentToolResult } from './document';
 import { DocumentPreview } from './document-preview';
 import { PencilEditIcon, SparklesIcon } from './icons';
@@ -183,6 +184,10 @@ const PurePreviewMessage = ({
                           args={args}
                           isReadonly={isReadonly}
                         />
+                      ) : toolName === 'fileSearch' ? (
+                        <div className="skeleton">
+                          Searching documents...
+                        </div>
                       ) : null}
                     </div>
                   );
@@ -212,6 +217,18 @@ const PurePreviewMessage = ({
                           result={result}
                           isReadonly={isReadonly}
                         />
+                      ) : toolName === 'fileSearch' ? (
+                        result.success && result.content ? (
+                          <CitationDisplay
+                            content={result.content}
+                            citations={result.citations || []}
+                            sources={result.sources || []}
+                          />
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            {result.error || 'No results found'}
+                          </div>
+                        )
                       ) : (
                         <pre>{JSON.stringify(result, null, 2)}</pre>
                       )}

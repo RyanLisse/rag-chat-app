@@ -1,7 +1,10 @@
 import { config } from 'dotenv';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import { drizzle as drizzleTurso } from 'drizzle-orm/libsql';
 import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import { migrate as migrateTurso } from 'drizzle-orm/libsql/migrator';
 import postgres from 'postgres';
+import { createClient } from '@libsql/client';
 
 config({
   path: '.env.local',
@@ -9,30 +12,46 @@ config({
 
 const runMigrate = async () => {
   const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  const tursoUrl = process.env.TURSO_DATABASE_URL;
+  const tursoAuthToken = process.env.TURSO_AUTH_TOKEN;
   
-  if (!databaseUrl) {
-    throw new Error('DATABASE_URL or POSTGRES_URL must be defined');
+  if (!databaseUrl && !tursoUrl) {
+    throw new Error('DATABASE_URL, POSTGRES_URL, or TURSO_DATABASE_URL must be defined');
   }
 
-  const isFileUrl = databaseUrl.startsWith('file:');
+  const isTurso = !!tursoUrl;
+  const isFileUrl = databaseUrl?.startsWith('file:');
+  const isPostgres = databaseUrl?.startsWith('postgres');
 
   console.log('⏳ Running migrations...');
 
-  if (isFileUrl) {
+  if (!isTurso && isFileUrl) {
     console.log('Mock database detected - skipping migrations for local development');
     console.log('✅ Mock database ready for local development');
     return;
   }
 
-  console.log('Database type: PostgreSQL');
-
   const start = Date.now();
 
   try {
-    const connection = postgres(databaseUrl, { max: 1 });
-    const db = drizzle(connection);
-    await migrate(db, { migrationsFolder: './lib/db/migrations' });
-    await connection.end();
+    if (isTurso) {
+      console.log('Database type: Turso');
+      const client = createClient({
+        url: tursoUrl,
+        authToken: tursoAuthToken,
+      });
+      const db = drizzleTurso(client);
+      await migrateTurso(db, { migrationsFolder: './lib/db/turso-migrations' });
+      console.log('✅ Turso migrations completed');
+    } else if (isPostgres) {
+      console.log('Database type: PostgreSQL');
+      const connection = postgres(databaseUrl!, { max: 1 });
+      const db = drizzle(connection);
+      await migrate(db, { migrationsFolder: './lib/db/migrations' });
+      await connection.end();
+    } else {
+      throw new Error('Unsupported database type');
+    }
 
     const end = Date.now();
     console.log('✅ Migrations completed in', end - start, 'ms');

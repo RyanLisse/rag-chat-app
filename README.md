@@ -1,62 +1,87 @@
 <a href="https://github.com/RyanLisse/rag-chat-app">
   <img alt="Production-ready RAG Chat Application with citations." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">RAG Chat Application</h1>
+  <h1 align="center">RAG Chat Application with OpenAI Vector Store</h1>
 </a>
 
 <p align="center">
-    A production-ready RAG chat application built with Next.js, AI SDK, and comprehensive citation support for document-based conversations.
+    A production-ready RAG (Retrieval Augmented Generation) chat application built with Next.js, AI SDK, OpenAI Vector Store, and comprehensive citation support for document-based conversations.
 </p>
 
 <p align="center">
-  <a href="https://chat-sdk.dev"><strong>Read Docs</strong></a> ·
   <a href="#features"><strong>Features</strong></a> ·
+  <a href="#vector-store"><strong>Vector Store</strong></a> ·
+  <a href="#examples"><strong>Examples</strong></a> ·
   <a href="#model-providers"><strong>Model Providers</strong></a> ·
-  <a href="#deploy-your-own"><strong>Deploy Your Own</strong></a> ·
   <a href="#running-locally"><strong>Running locally</strong></a>
 </p>
 <br/>
 
 ## Features
 
-- [Next.js](https://nextjs.org) App Router
-  - Advanced routing for seamless navigation and performance
-  - React Server Components (RSCs) and Server Actions for server-side rendering and increased performance
-- [AI SDK](https://sdk.vercel.ai/docs)
-  - Unified API for generating text, structured objects, and tool calls with LLMs
-  - Hooks for building dynamic chat and generative user interfaces
-  - Supports xAI (default), OpenAI, Fireworks, and other model providers
-- [shadcn/ui](https://ui.shadcn.com)
-  - Styling with [Tailwind CSS](https://tailwindcss.com)
-  - Component primitives from [Radix UI](https://radix-ui.com) for accessibility and flexibility
-- Data Persistence
-  - [Neon Serverless Postgres](https://vercel.com/marketplace/neon) for saving chat history and user data
-  - [Vercel Blob](https://vercel.com/storage/blob) for efficient file storage
-- [Auth.js](https://authjs.dev)
-  - Simple and secure authentication
+- **RAG with OpenAI Vector Store**
+  - Upload and process documents (PDF, TXT, DOCX, etc.)
+  - Automatic document chunking and embedding generation
+  - Semantic search across your knowledge base
+  - Source citations with every response
+  
+- **Multi-Model Support**
+  - GPT-4.1 (default)
+  - GPT-4 and GPT-4 Turbo
+  - Claude 4 (Anthropic)
+  - Gemini 2.5 Pro/Flash (Google)
+  - o4-mini with reasoning capabilities
+  
+- **Advanced Chat Interface**
+  - Real-time streaming responses
+  - Code syntax highlighting
+  - Markdown support
+  - File attachments
+  - Chat history with search
+  
+- **Production-Ready Infrastructure**
+  - [Next.js 15](https://nextjs.org) with App Router and Turbopack
+  - [Turso DB](https://turso.tech) for edge-compatible SQLite database
+  - [Auth.js](https://authjs.dev) for secure authentication
+  - [Vercel Blob](https://vercel.com/storage/blob) for file storage
+  - OpenTelemetry monitoring and observability
+  
+- **Developer Experience**
+  - TypeScript throughout
+  - Comprehensive test suite (unit, integration, E2E)
+  - CI/CD with GitHub Actions
+  - Docker support for containerized deployment
 
-## Model Providers
+## Vector Store
 
-This template ships with [xAI](https://x.ai) `grok-2-1212` as the default chat model. However, with the [AI SDK](https://sdk.vercel.ai/docs), you can switch LLM providers to [OpenAI](https://openai.com), [Anthropic](https://anthropic.com), [Cohere](https://cohere.com/), and [many more](https://sdk.vercel.ai/providers/ai-sdk-providers) with just a few lines of code.
+The application integrates with OpenAI's Vector Store for advanced document retrieval:
 
-## Deploy Your Own
+### How It Works
 
-You can deploy your own version of the Next.js AI Chatbot to Vercel with one click:
+1. **Document Upload**: Upload documents through the chat interface
+2. **Processing**: Documents are automatically:
+   - Chunked into optimal segments
+   - Converted to embeddings using OpenAI's embedding models
+   - Stored in the vector database
+3. **Retrieval**: When you ask questions, the system:
+   - Searches for relevant document chunks
+   - Provides context to the AI model
+   - Returns answers with source citations
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot&env=AUTH_SECRET&envDescription=Learn+more+about+how+to+get+the+API+Keys+for+the+application&envLink=https%3A%2F%2Fgithub.com%2Fvercel%2Fai-chatbot%2Fblob%2Fmain%2F.env.example&demo-title=AI+Chatbot&demo-description=An+Open-Source+AI+Chatbot+Template+Built+With+Next.js+and+the+AI+SDK+by+Vercel.&demo-url=https%3A%2F%2Fchat.vercel.ai&products=%5B%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22ai%22%2C%22productSlug%22%3A%22grok%22%2C%22integrationSlug%22%3A%22xai%22%7D%2C%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22neon%22%2C%22integrationSlug%22%3A%22neon%22%7D%2C%7B%22type%22%3A%22integration%22%2C%22protocol%22%3A%22storage%22%2C%22productSlug%22%3A%22upstash-kv%22%2C%22integrationSlug%22%3A%22upstash%22%7D%2C%7B%22type%22%3A%22blob%22%7D%5D)
+### Supported File Types
+- PDF documents
+- Text files (.txt, .md)
+- Word documents (.docx)
+- Code files (.py, .js, .ts, etc.)
+- CSV and JSON data files
 
-## Running locally
-
-You will need to use the environment variables [defined in `.env.example`](.env.example) to run Next.js AI Chatbot. It's recommended you use [Vercel Environment Variables](https://vercel.com/docs/projects/environment-variables) for this, but a `.env` file is all that is necessary.
-
-> Note: You should not commit your `.env` file or it will expose secrets that will allow others to control access to your various AI and authentication provider accounts.
-
-1. Install Vercel CLI: `npm i -g vercel`
-2. Link local instance with Vercel and GitHub accounts (creates `.vercel` directory): `vercel link`
-3. Download your environment variables: `vercel env pull`
-
-```bash
-bun install
-bun dev
+### Configuration
+Set your OpenAI Vector Store ID in the environment variables:
+```env
+OPENAI_VECTORSTORE_ID=vs_your_vector_store_id
 ```
 
-Your app template should now be running on [localhost:3000](http://localhost:3000).
+## Examples
+
+### Example 1: Technical Documentation Assistant
+```
+User: How do I calibrate the RoboRail system?

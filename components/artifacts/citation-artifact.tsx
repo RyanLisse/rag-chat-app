@@ -124,14 +124,15 @@ export function CitationContent({
           <sup
             key={`citation-${index}`}
             className={cn(
-              'inline-flex items-center justify-center w-5 h-5 text-xs rounded-full cursor-pointer transition-all',
-              'hover:scale-110 hover:shadow-md focus:scale-110 focus:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1',
+              'inline-flex items-center justify-center w-6 h-6 text-xs font-semibold rounded-full cursor-pointer transition-all mx-0.5',
+              'hover:scale-125 hover:shadow-lg focus:scale-125 focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2',
+              'backdrop-blur-sm border',
               isHighlighted &&
-                'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-              isSelected && 'bg-blue-500 text-white',
+                'bg-gradient-to-br from-blue-500 to-purple-500 text-white border-blue-400 shadow-blue-500/30 shadow-md',
+              isSelected && 'bg-gradient-to-br from-purple-600 to-pink-600 text-white border-purple-500 shadow-purple-500/30 shadow-lg scale-110',
               !isHighlighted &&
                 !isSelected &&
-                'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                'bg-white/80 text-gray-700 border-gray-300 dark:bg-gray-800/80 dark:text-gray-300 dark:border-gray-600 hover:border-blue-400'
             )}
             onClick={() => handleCitationClick(citationId)}
             onMouseEnter={() => handleCitationHover(citationId, true)}
@@ -177,25 +178,34 @@ export function CitationContent({
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-full">
+    <div className="flex flex-col lg:flex-row h-full bg-gradient-to-br from-blue-50/30 via-white to-purple-50/30 dark:from-blue-950/20 dark:via-gray-900 dark:to-purple-950/20">
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 sm:p-6 lg:p-8 xl:p-12 max-w-4xl mx-auto">
-          <h1
-            className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6"
-            role="main"
-            aria-label={`Citation article: ${title}`}
-          >
-            {title}
-          </h1>
+          <div className="mb-6 p-6 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg">
+            <h1
+              className="text-2xl sm:text-3xl font-bold mb-2"
+              role="main"
+              aria-label={`Citation article: ${title}`}
+            >
+              {title}
+            </h1>
+            <p className="text-blue-100">
+              Verified information from your documents
+            </p>
+          </div>
 
           <div className="prose prose-gray dark:prose-invert max-w-none">
             <div
-              className="whitespace-pre-wrap leading-relaxed"
-              role="article"
-              aria-label="Article content with citations"
+              className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-gray-200/50 dark:border-gray-700/50"
             >
-              {renderContentWithCitations()}
+              <div
+                className="whitespace-pre-wrap leading-relaxed text-gray-800 dark:text-gray-200"
+                role="article"
+                aria-label="Article content with citations"
+              >
+                {renderContentWithCitations()}
+              </div>
             </div>
           </div>
 
@@ -216,7 +226,7 @@ export function CitationContent({
       </div>
 
       {/* Citation Sidebar */}
-      <div className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-gray-800 flex flex-col bg-gray-50 dark:bg-gray-900/50 max-h-96 lg:max-h-none">
+      <div className="w-full lg:w-96 border-t lg:border-t-0 lg:border-l border-gray-200/50 dark:border-gray-800/50 flex flex-col bg-gradient-to-b from-gray-50/80 to-white/80 dark:from-gray-900/80 dark:to-gray-800/80 backdrop-blur-sm max-h-96 lg:max-h-none shadow-xl">
         <div className="p-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between">
             <h2
@@ -278,9 +288,10 @@ export function CitationContent({
                       <Card
                         key={source.id}
                         className={cn(
-                          'p-4 cursor-pointer transition-all hover:shadow-md focus-within:shadow-md focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-1',
+                          'p-4 cursor-pointer transition-all hover:shadow-lg hover:scale-[1.02] focus-within:shadow-lg focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2',
+                          'bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-gray-200/50 dark:border-gray-700/50',
                           isRelatedHighlighted &&
-                            'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                            'ring-2 ring-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 shadow-blue-500/20 shadow-lg scale-[1.02]'
                         )}
                         onClick={() => setSelectedSource(source)}
                         onKeyDown={(e) => {

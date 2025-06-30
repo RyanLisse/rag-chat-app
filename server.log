@@ -1,0 +1,43 @@
+$ next dev --turbo
+   ▲ Next.js 15.3.0-canary.31 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.25:3000
+   - Environments: .env.local, .env.development, .env
+   - Experiments (use with caution):
+     ✓ ppr
+
+ ✓ Starting...
+Creating turbopack project {
+  dir: '/Volumes/Main SSD/CascadeProjects/rag-chat-rra',
+  testMode: true
+}
+ ✓ Compiled in 633ms
+{"timestamp":"2025-06-30T17:30:35.790Z","level":"info","message":"OpenTelemetry initialized via @vercel/otel","service":"rag-chat-app","environment":"development"}
+{"timestamp":"2025-06-30T17:30:35.790Z","level":"info","message":"Sentry disabled - using console logging only","service":"rag-chat-app","environment":"development"}
+{"timestamp":"2025-06-30T17:30:35.790Z","level":"info","message":"Monitoring systems initialized successfully","service":"rag-chat-app","environment":"development"}
+ ✓ Ready in 1529ms
+{"timestamp":"2025-06-30T17:30:44.858Z","level":"info","message":"OpenTelemetry initialized via @vercel/otel","service":"rag-chat-app","environment":"development"}
+{"timestamp":"2025-06-30T17:30:44.858Z","level":"info","message":"Sentry disabled - using console logging only","service":"rag-chat-app","environment":"development"}
+{"timestamp":"2025-06-30T17:30:44.858Z","level":"info","message":"Monitoring systems initialized successfully","service":"rag-chat-app","environment":"development"}
+ ○ Compiling /api/history ...
+ ✓ Compiled /api/history in 973ms
+Using Turso database
+ GET /api/history?limit=20 200 in 1830ms
+ ✓ Compiled /api/health in 332ms
+ GET /api/health 200 in 376ms
+ GET /api/health 200 in 18ms
+ ○ Compiling /api/vector-store/stats ...
+ ✓ Compiled /api/vector-store/stats in 1073ms
+Redis connected successfully
+ GET /api/vector-store/stats 200 in 4207ms
+ ✓ Compiled /api/auth/guest in 447ms
+ GET /api/auth/guest 307 in 806ms
+ GET /api/vector-store/stats 200 in 3042ms
+ GET /api/vector-store/stats 200 in 2680ms
+ ○ Compiling /api/files/list ...
+ ✓ Compiled /api/files/list in 587ms
+ GET /api/files/list 405 in 622ms
+ GET /api/files/list 405 in 30ms
+ GET /api/vector-store/stats 200 in 2298ms
+ POST /api/files/list 200 in 645ms
+[?25h

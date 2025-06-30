@@ -7,8 +7,10 @@ import {
   SearchOptionsSchema 
 } from '@/lib/types/vector-store';
 
-// Mock OpenAI for Bun test
-const mockOpenAI = vi.fn();
+// Mock OpenAI
+vi.mock('openai', () => ({
+  default: vi.fn().mockImplementation(() => ({}))
+}));
 
 describe('VectorStoreClient', () => {
   let client: VectorStoreClient;
@@ -36,7 +38,8 @@ describe('VectorStoreClient', () => {
       },
     };
 
-    (OpenAI as any).mockImplementation(() => mockOpenAI);
+    // Replace the client's openai instance with our mock
+    (client as any).openai = mockOpenAI;
     
     client = new VectorStoreClient('test-api-key');
   });

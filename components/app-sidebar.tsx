@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { PlusIcon } from '@/components/icons';
 import { SidebarHistory } from '@/components/sidebar-history';
 import { SidebarUserNav } from '@/components/sidebar-user-nav';
+import { VectorStoreStatus } from '@/components/vector-store-status';
 import { Button } from '@/components/ui/button';
 import {
   Sidebar,
@@ -59,7 +60,10 @@ export function AppSidebar({ user }: { user: User | undefined }) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <SidebarHistory user={user} />
+        <div className="space-y-4 px-2">
+          <VectorStoreStatus />
+          <SidebarHistory user={user} />
+        </div>
       </SidebarContent>
       <SidebarFooter>{user && <SidebarUserNav user={user} />}</SidebarFooter>
     </Sidebar>

@@ -40,12 +40,7 @@ export const citationArtifact = new Artifact<
         return {
           ...draftArtifact,
           content: draftArtifact.content + (streamPart.content as string),
-          isVisible:
-            draftArtifact.status === 'streaming' &&
-            draftArtifact.content.length > 300 &&
-            draftArtifact.content.length < 350
-              ? true
-              : draftArtifact.isVisible,
+          isVisible: true, // Always show citation artifacts immediately
           status: 'streaming',
         };
       });
