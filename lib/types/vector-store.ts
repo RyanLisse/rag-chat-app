@@ -14,7 +14,13 @@ export const FileUploadOptionsSchema = z.object({
 });
 
 // File status schemas
-export const FileStatusEnum = z.enum(['uploading', 'uploaded', 'processing', 'completed', 'failed']);
+export const FileStatusEnum = z.enum([
+  'uploading',
+  'uploaded',
+  'processing',
+  'completed',
+  'failed',
+]);
 
 export const FileStatusSchema = z.object({
   id: z.string(),
@@ -44,7 +50,12 @@ export const SearchResultSchema = z.object({
 });
 
 // Vector store batch schemas
-export const BatchStatusEnum = z.enum(['in_progress', 'completed', 'failed', 'cancelled']);
+export const BatchStatusEnum = z.enum([
+  'in_progress',
+  'completed',
+  'failed',
+  'cancelled',
+]);
 
 export const BatchStatusSchema = z.object({
   batchId: z.string(),
@@ -134,24 +145,31 @@ export const VectorStoreErrorSchema = z.object({
 export const VectorStoreConfigSchema = z.object({
   apiKey: z.string().min(1),
   vectorStoreId: z.string().optional(),
-  maxFileSize: z.number().positive().default(512 * 1024 * 1024), // 512MB
+  maxFileSize: z
+    .number()
+    .positive()
+    .default(512 * 1024 * 1024), // 512MB
   maxFiles: z.number().positive().default(20),
-  supportedTypes: z.array(z.string()).default([
-    'text/plain',
-    'text/markdown',
-    'text/csv',
-    'application/pdf',
-    'application/json',
-    'application/vnd.ms-excel',
-    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  ]),
-  retryConfig: z.object({
-    maxRetries: z.number().min(0).default(3),
-    retryDelay: z.number().min(0).default(1000),
-    backoffMultiplier: z.number().min(1).default(2),
-  }).default({}),
+  supportedTypes: z
+    .array(z.string())
+    .default([
+      'text/plain',
+      'text/markdown',
+      'text/csv',
+      'application/pdf',
+      'application/json',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    ]),
+  retryConfig: z
+    .object({
+      maxRetries: z.number().min(0).default(3),
+      retryDelay: z.number().min(0).default(1000),
+      backoffMultiplier: z.number().min(1).default(2),
+    })
+    .default({}),
 });
 
 // Export inferred types

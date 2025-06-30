@@ -1,8 +1,8 @@
-import { DataStreamWriter, tool } from 'ai';
-import { Session } from 'next-auth';
-import { z } from 'zod';
-import { getDocumentById, saveDocument } from '@/lib/db/queries';
 import { documentHandlersByArtifactKind } from '@/lib/artifacts/server';
+import { getDocumentById } from '@/lib/db/queries';
+import { type DataStreamWriter, tool } from 'ai';
+import type { Session } from 'next-auth';
+import { z } from 'zod';
 
 interface UpdateDocumentProps {
   session: Session;
@@ -34,7 +34,7 @@ export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
 
       const documentHandler = documentHandlersByArtifactKind.find(
         (documentHandlerByArtifactKind) =>
-          documentHandlerByArtifactKind.kind === document.kind,
+          documentHandlerByArtifactKind.kind === document.kind
       );
 
       if (!documentHandler) {

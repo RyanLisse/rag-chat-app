@@ -1,10 +1,10 @@
 'use client';
 
 import { ChevronUp } from 'lucide-react';
-import Image from 'next/image';
 import type { User } from 'next-auth';
 import { signOut, useSession } from 'next-auth/react';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
 
 import {
   DropdownMenu,
@@ -18,10 +18,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { useRouter } from 'next/navigation';
-import { toast } from './toast';
-import { LoaderIcon } from './icons';
 import { guestRegex } from '@/lib/constants';
+import { useRouter } from 'next/navigation';
+import { LoaderIcon } from './icons';
+import { toast } from './toast';
 
 export function SidebarUserNav({ user }: { user: User }) {
   const router = useRouter();
@@ -36,10 +36,10 @@ export function SidebarUserNav({ user }: { user: User }) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             {status === 'loading' ? (
-              <SidebarMenuButton className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10 justify-between">
+              <SidebarMenuButton className="h-10 justify-between bg-background data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
                 <div className="flex flex-row gap-2">
-                  <div className="size-6 bg-zinc-500/30 rounded-full animate-pulse" />
-                  <span className="bg-zinc-500/30 text-transparent rounded-md animate-pulse">
+                  <div className="size-6 animate-pulse rounded-full bg-zinc-500/30" />
+                  <span className="animate-pulse rounded-md bg-zinc-500/30 text-transparent">
                     Loading auth status
                   </span>
                 </div>
@@ -50,7 +50,7 @@ export function SidebarUserNav({ user }: { user: User }) {
             ) : (
               <SidebarMenuButton
                 data-testid="user-nav-button"
-                className="data-[state=open]:bg-sidebar-accent bg-background data-[state=open]:text-sidebar-accent-foreground h-10"
+                className="h-10 bg-background data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Image
                   src={`https://avatar.vercel.sh/${user.email}`}
@@ -74,7 +74,9 @@ export function SidebarUserNav({ user }: { user: User }) {
             <DropdownMenuItem
               data-testid="user-nav-item-theme"
               className="cursor-pointer"
-              onSelect={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              onSelect={() =>
+                setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')
+              }
             >
               {`Toggle ${resolvedTheme === 'light' ? 'dark' : 'light'} mode`}
             </DropdownMenuItem>

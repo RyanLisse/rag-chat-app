@@ -339,11 +339,7 @@
     "parser": {
       "unsafeParameterDecoratorsEnabled": true
     },
-    "globals": [
-      "React",
-      "JSX",
-      "NodeJS"
-    ]
+    "globals": ["React", "JSX", "NodeJS"]
   },
   "json": {
     "formatter": {
@@ -395,7 +391,13 @@
       }
     },
     {
-      "include": ["app/**/page.tsx", "app/**/layout.tsx", "app/**/error.tsx", "app/**/loading.tsx", "app/**/not-found.tsx"],
+      "include": [
+        "app/**/page.tsx",
+        "app/**/layout.tsx",
+        "app/**/error.tsx",
+        "app/**/loading.tsx",
+        "app/**/not-found.tsx"
+      ],
       "linter": {
         "rules": {
           "style": {
@@ -416,7 +418,12 @@
     },
     // Test files
     {
-      "include": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      "include": [
+        "**/*.test.ts",
+        "**/*.test.tsx",
+        "**/*.spec.ts",
+        "**/*.spec.tsx"
+      ],
       "linter": {
         "rules": {
           "suspicious": {

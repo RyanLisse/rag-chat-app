@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { sql } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 
@@ -28,13 +28,13 @@ async function checkDatabase(): Promise<CheckResult> {
     await db.execute(sql`SELECT 1`);
     return {
       status: 'pass',
-      responseTime: Date.now() - start
+      responseTime: Date.now() - start,
     };
   } catch (error) {
     return {
       status: 'fail',
       message: error instanceof Error ? error.message : 'Database check failed',
-      responseTime: Date.now() - start
+      responseTime: Date.now() - start,
     };
   }
 }
@@ -44,7 +44,7 @@ async function checkRedis(): Promise<CheckResult> {
   // For now, return a pass since it's optional
   return {
     status: 'pass',
-    message: 'Redis check not implemented'
+    message: 'Redis check not implemented',
   };
 }
 
@@ -52,7 +52,7 @@ async function checkStorage(): Promise<CheckResult> {
   // Implement blob storage health check if needed
   return {
     status: 'pass',
-    message: 'Storage check not implemented'
+    message: 'Storage check not implemented',
   };
 }
 
@@ -61,10 +61,10 @@ export async function GET() {
     const [databaseCheck, redisCheck, storageCheck] = await Promise.all([
       checkDatabase(),
       checkRedis(),
-      checkStorage()
+      checkStorage(),
     ]);
 
-    const allChecksPass = 
+    const allChecksPass =
       databaseCheck.status === 'pass' &&
       redisCheck.status === 'pass' &&
       storageCheck.status === 'pass';
@@ -76,30 +76,30 @@ export async function GET() {
       checks: {
         database: databaseCheck,
         redis: redisCheck,
-        storage: storageCheck
-      }
+        storage: storageCheck,
+      },
     };
 
     return NextResponse.json(healthStatus, {
       status: allChecksPass ? 200 : 503,
       headers: {
         'Cache-Control': 'no-store, no-cache, must-revalidate',
-        'X-Health-Check': allChecksPass ? 'pass' : 'fail'
-      }
+        'X-Health-Check': allChecksPass ? 'pass' : 'fail',
+      },
     });
   } catch (error) {
     return NextResponse.json(
       {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Health check failed'
+        error: error instanceof Error ? error.message : 'Health check failed',
       },
-      { 
+      {
         status: 503,
         headers: {
           'Cache-Control': 'no-store, no-cache, must-revalidate',
-          'X-Health-Check': 'fail'
-        }
+          'X-Health-Check': 'fail',
+        },
       }
     );
   }

@@ -50,6 +50,10 @@ export class ChatSDKError extends Error {
     this.statusCode = getStatusCodeByType(this.type);
   }
 
+  get code(): ErrorCode {
+    return `${this.type}:${this.surface}`;
+  }
+
   public toResponse() {
     const code: ErrorCode = `${this.type}:${this.surface}`;
     const visibility = visibilityBySurface[this.surface];
@@ -65,7 +69,7 @@ export class ChatSDKError extends Error {
 
       return Response.json(
         { code: '', message: 'Something went wrong. Please try again later.' },
-        { status: statusCode },
+        { status: statusCode }
       );
     }
 

@@ -6,8 +6,13 @@
 import { openai } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { BaseProvider } from './base';
+import {
+  AuthenticationError,
+  NetworkError,
+  RateLimitError,
+  TimeoutError,
+} from './errors';
 import type { GenerationOptions, ProviderCapabilities } from './types';
-import { AuthenticationError, NetworkError, RateLimitError, TimeoutError } from './errors';
 import { withTimeout } from './utils';
 
 /**
@@ -71,11 +76,7 @@ export class OpenAIProvider extends BaseProvider {
   private client?: typeof openai;
 
   constructor() {
-    super(
-      'openai',
-      Object.keys(OPENAI_MODELS),
-      OPENAI_CAPABILITIES
-    );
+    super('openai', Object.keys(OPENAI_MODELS), OPENAI_CAPABILITIES);
   }
 
   /**
@@ -114,7 +115,7 @@ export class OpenAIProvider extends BaseProvider {
       // Use the models endpoint as a health check
       const response = await fetch('https://api.openai.com/v1/models', {
         headers: {
-          'Authorization': `Bearer ${this.config?.apiKey}`,
+          Authorization: `Bearer ${this.config?.apiKey}`,
           'Content-Type': 'application/json',
         },
       });
@@ -130,7 +131,10 @@ export class OpenAIProvider extends BaseProvider {
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new TimeoutError(this.name, this.getConfigValue('timeout', 10000));
+        throw new TimeoutError(
+          this.name,
+          this.getConfigValue('timeout', 10000)
+        );
       }
       throw error;
     }
@@ -139,7 +143,10 @@ export class OpenAIProvider extends BaseProvider {
   /**
    * Create a language model instance
    */
-  protected createModel(modelId: string, options?: GenerationOptions): LanguageModel {
+  protected createModel(
+    modelId: string,
+    options?: GenerationOptions
+  ): LanguageModel {
     if (!this.client) {
       throw new Error('Provider not initialized');
     }
@@ -151,19 +158,22 @@ export class OpenAIProvider extends BaseProvider {
 
     // Map our options to OpenAI format
     const openAIOptions: any = {};
-    
+
     if (options?.temperature !== undefined) {
       openAIOptions.temperature = Math.max(0, Math.min(2, options.temperature));
     }
-    
+
     if (options?.maxTokens !== undefined) {
-      openAIOptions.maxTokens = Math.min(options.maxTokens, modelConfig.maxOutputTokens);
+      openAIOptions.maxTokens = Math.min(
+        options.maxTokens,
+        modelConfig.maxOutputTokens
+      );
     }
-    
+
     if (options?.topP !== undefined) {
       openAIOptions.topP = Math.max(0, Math.min(1, options.topP));
     }
-    
+
     if (options?.seed !== undefined) {
       openAIOptions.seed = options.seed;
     }
@@ -185,24 +195,33 @@ export class OpenAIProvider extends BaseProvider {
   private handleConnectionError(error: unknown): never {
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
-      
-      if (message.includes('unauthorized') || message.includes('invalid api key')) {
+
+      if (
+        message.includes('unauthorized') ||
+        message.includes('invalid api key')
+      ) {
         throw new AuthenticationError(this.name);
       }
-      
-      if (message.includes('rate limit') || message.includes('too many requests')) {
+
+      if (
+        message.includes('rate limit') ||
+        message.includes('too many requests')
+      ) {
         throw new RateLimitError(this.name);
       }
-      
+
       if (message.includes('timeout') || message.includes('aborted')) {
-        throw new TimeoutError(this.name, this.getConfigValue('timeout', 10000));
+        throw new TimeoutError(
+          this.name,
+          this.getConfigValue('timeout', 10000)
+        );
       }
-      
+
       if (message.includes('network') || message.includes('connection')) {
         throw new NetworkError(this.name, error);
       }
     }
-    
+
     throw new NetworkError(this.name, error as Error);
   }
 

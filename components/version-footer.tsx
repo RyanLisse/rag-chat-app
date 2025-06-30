@@ -9,13 +9,13 @@ import { useWindowSize } from 'usehooks-ts';
 import type { Document } from '@/lib/db/schema';
 import { getDocumentTimestampByIndex } from '@/lib/utils';
 
+import { useArtifact } from '@/hooks/use-artifact';
 import { LoaderIcon } from './icons';
 import { Button } from './ui/button';
-import { useArtifact } from '@/hooks/use-artifact';
 
 interface VersionFooterProps {
   handleVersionChange: (type: 'next' | 'prev' | 'toggle' | 'latest') => void;
-  documents: Array<Document> | undefined;
+  documents: Document[] | undefined;
   currentVersionIndex: number;
 }
 
@@ -32,11 +32,13 @@ export const VersionFooter = ({
   const { mutate } = useSWRConfig();
   const [isMutating, setIsMutating] = useState(false);
 
-  if (!documents) return;
+  if (!documents) {
+    return;
+  }
 
   return (
     <motion.div
-      className="absolute flex flex-col gap-4 lg:flex-row bottom-0 bg-background p-4 w-full border-t z-50 justify-between"
+      className="absolute bottom-0 z-50 flex w-full flex-col justify-between gap-4 border-t bg-background p-4 lg:flex-row"
       initial={{ y: isMobile ? 200 : 77 }}
       animate={{ y: 0 }}
       exit={{ y: isMobile ? 200 : 77 }}
@@ -60,11 +62,11 @@ export const VersionFooter = ({
               await fetch(
                 `/api/document?id=${artifact.documentId}&timestamp=${getDocumentTimestampByIndex(
                   documents,
-                  currentVersionIndex,
+                  currentVersionIndex
                 )}`,
                 {
                   method: 'DELETE',
-                },
+                }
               ),
               {
                 optimisticData: documents
@@ -75,14 +77,14 @@ export const VersionFooter = ({
                           new Date(
                             getDocumentTimestampByIndex(
                               documents,
-                              currentVersionIndex,
-                            ),
-                          ),
-                        ),
+                              currentVersionIndex
+                            )
+                          )
+                        )
                       ),
                     ]
                   : [],
-              },
+              }
             );
           }}
         >

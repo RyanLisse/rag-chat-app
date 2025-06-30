@@ -1,4 +1,4 @@
-import { describe, it, expect, mock, beforeEach, afterEach } from 'bun:test';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { ModelSelector } from '@/components/model-selector';
@@ -8,7 +8,7 @@ import { entitlementsByUserType } from '@/lib/ai/entitlements';
 import type { Session } from 'next-auth';
 
 // Mock the server action
-const mockSaveChatModelAsCookie = mock(() => Promise.resolve());
+const mockSaveChatModelAsCookie = vi.fn(() => Promise.resolve());
 mock.module('@/app/(chat)/actions', () => ({
   saveChatModelAsCookie: mockSaveChatModelAsCookie,
 }));
@@ -28,8 +28,10 @@ describe('ModelSelector', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     // Clean up any remaining state
     mockSaveChatModelAsCookie.mockClear();
+  
   });
 
   it('renders with selected model', () => {
@@ -133,7 +135,7 @@ describe('ModelSelector', () => {
   });
 
   it('selects a new model and saves it', async () => {
-    const mockOnModelChange = mock(() => {});
+    const mockOnModelChange = vi.fn(() => {});
     const user = userEvent.setup();
     render(
       <ModelSelector

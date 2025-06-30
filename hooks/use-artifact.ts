@@ -1,8 +1,8 @@
 'use client';
 
-import useSWR from 'swr';
-import { UIArtifact } from '@/components/artifact';
+import type { UIArtifact } from '@/components/artifact';
 import { useCallback, useMemo } from 'react';
+import useSWR from 'swr';
 
 export const initialArtifactData: UIArtifact = {
   documentId: 'init',
@@ -27,7 +27,9 @@ export function useArtifactSelector<Selected>(selector: Selector<Selected>) {
   });
 
   const selectedValue = useMemo(() => {
-    if (!localArtifact) return selector(initialArtifactData);
+    if (!localArtifact) {
+      return selector(initialArtifactData);
+    }
     return selector(localArtifact);
   }, [localArtifact, selector]);
 
@@ -40,11 +42,13 @@ export function useArtifact() {
     null,
     {
       fallbackData: initialArtifactData,
-    },
+    }
   );
 
   const artifact = useMemo(() => {
-    if (!localArtifact) return initialArtifactData;
+    if (!localArtifact) {
+      return initialArtifactData;
+    }
     return localArtifact;
   }, [localArtifact]);
 
@@ -60,7 +64,7 @@ export function useArtifact() {
         return updaterFn;
       });
     },
-    [setLocalArtifact],
+    [setLocalArtifact]
   );
 
   const { data: localArtifactMetadata, mutate: setLocalArtifactMetadata } =
@@ -70,7 +74,7 @@ export function useArtifact() {
       null,
       {
         fallbackData: null,
-      },
+      }
     );
 
   return useMemo(
@@ -80,6 +84,6 @@ export function useArtifact() {
       metadata: localArtifactMetadata,
       setMetadata: setLocalArtifactMetadata,
     }),
-    [artifact, setArtifact, localArtifactMetadata, setLocalArtifactMetadata],
+    [artifact, setArtifact, localArtifactMetadata, setLocalArtifactMetadata]
   );
 }

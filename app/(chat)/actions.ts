@@ -1,14 +1,14 @@
 'use server';
 
-import { generateText, type UIMessage } from 'ai';
-import { cookies } from 'next/headers';
+import type { VisibilityType } from '@/components/visibility-selector';
+import { myProvider } from '@/lib/ai/providers';
 import {
   deleteMessagesByChatIdAfterTimestamp,
   getMessageById,
   updateChatVisiblityById,
 } from '@/lib/db/queries';
-import type { VisibilityType } from '@/components/visibility-selector';
-import { myProvider } from '@/lib/ai/providers';
+import { type UIMessage, generateText } from 'ai';
+import { cookies } from 'next/headers';
 
 export async function saveChatModelAsCookie(model: string) {
   const cookieStore = await cookies();

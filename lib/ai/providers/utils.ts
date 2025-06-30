@@ -2,8 +2,8 @@
  * Utility functions for the provider system
  */
 
-import type { RetryConfig, ResponseMetadata } from './types';
 import { isRetryableError } from './errors';
+import type { ResponseMetadata, RetryConfig } from './types';
 
 /**
  * Default retry configuration
@@ -36,7 +36,7 @@ export async function retryWithBackoff<T>(
       return await fn();
     } catch (error) {
       lastError = error;
-      
+
       // Don't retry on last attempt or if error is not retryable
       if (attempt === config.maxRetries || !isRetryableError(error)) {
         break;
@@ -55,7 +55,7 @@ export async function retryWithBackoff<T>(
  * Sleep utility function
  */
 export function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -131,21 +131,27 @@ export function calculateCost(
  * Format bytes to human readable size
  */
 export function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  
+  if (bytes === 0) {
+    return '0 B';
+  }
+
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }
 
 /**
  * Format duration to human readable string
  */
 export function formatDuration(ms: number): string {
-  if (ms < 1000) return `${Math.round(ms)}ms`;
-  if (ms < 60000) return `${(ms / 1000).toFixed(2)}s`;
+  if (ms < 1000) {
+    return `${Math.round(ms)}ms`;
+  }
+  if (ms < 60000) {
+    return `${(ms / 1000).toFixed(2)}s`;
+  }
   return `${(ms / 60000).toFixed(2)}m`;
 }
 
@@ -157,7 +163,7 @@ export function deepMerge<T extends Record<string, any>>(
   source: Partial<T>
 ): T {
   const result = { ...target };
-  
+
   for (const key in source) {
     if (source[key] !== undefined) {
       if (
@@ -174,7 +180,7 @@ export function deepMerge<T extends Record<string, any>>(
       }
     }
   }
-  
+
   return result;
 }
 
@@ -206,7 +212,10 @@ export function isDevelopment(): boolean {
 /**
  * Get environment variable with default
  */
-export function getEnvVar(name: string, defaultValue?: string): string | undefined {
+export function getEnvVar(
+  name: string,
+  defaultValue?: string
+): string | undefined {
   return process.env[name] || defaultValue;
 }
 
@@ -214,13 +223,20 @@ export function getEnvVar(name: string, defaultValue?: string): string | undefin
  * Validate model ID format
  */
 export function validateModelId(modelId: string): boolean {
-  return typeof modelId === 'string' && modelId.length > 0 && /^[a-zA-Z0-9._-]+$/.test(modelId);
+  return (
+    typeof modelId === 'string' &&
+    modelId.length > 0 &&
+    /^[a-zA-Z0-9._-]+$/.test(modelId)
+  );
 }
 
 /**
  * Parse model ID to extract provider and model name
  */
-export function parseModelId(modelId: string): { provider?: string; model: string } {
+export function parseModelId(modelId: string): {
+  provider?: string;
+  model: string;
+} {
   const parts = modelId.split('/');
   if (parts.length === 2) {
     return { provider: parts[0], model: parts[1] };
@@ -268,7 +284,7 @@ export class CircuitBreaker {
   private onFailure(): void {
     this.failures++;
     this.lastFailureTime = Date.now();
-    
+
     if (this.failures >= this.threshold) {
       this.state = 'open';
     }

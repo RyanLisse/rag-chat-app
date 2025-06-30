@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { VectorStoreClient } from '@/lib/ai/vector-store';
 import { 
   FileStatusSchema, 
@@ -6,10 +6,9 @@ import {
   FileUploadOptionsSchema,
   SearchOptionsSchema 
 } from '@/lib/types/vector-store';
-import OpenAI from 'openai';
 
-// Mock OpenAI
-vi.mock('openai');
+// Mock OpenAI for Bun test
+const mockOpenAI = vi.fn();
 
 describe('VectorStoreClient', () => {
   let client: VectorStoreClient;
@@ -43,7 +42,9 @@ describe('VectorStoreClient', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.clearAllMocks();
+  
   });
 
   describe('constructor', () => {
@@ -335,8 +336,10 @@ describe('VectorStoreClient', () => {
     });
 
     afterEach(() => {
+    vi.restoreAllMocks();
       vi.useRealTimers();
-    });
+    
+  });
 
     it('should wait for batch completion', async () => {
       const batchId = 'batch-123';
@@ -376,7 +379,12 @@ describe('VectorStoreClient', () => {
       // Advance past max wait time
       await vi.advanceTimersByTimeAsync(6000);
       
-      await expect(promise).rejects.toThrow('Processing timeout');
+      try {
+        await promise;
+        expect.fail('Should have thrown timeout error');
+      } catch (error) {
+        expect((error as Error).message).toBe('Processing timeout');
+      }
     });
 
     it('should handle failed batch status', async () => {

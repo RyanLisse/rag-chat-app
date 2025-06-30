@@ -1,9 +1,9 @@
+import { xai } from '@ai-sdk/xai';
 import {
   customProvider,
   extractReasoningMiddleware,
   wrapLanguageModel,
 } from 'ai';
-import { xai } from '@ai-sdk/xai';
 import { isTestEnvironment } from '../constants';
 import {
   artifactModel,
@@ -11,8 +11,8 @@ import {
   reasoningModel,
   titleModel,
 } from './models.test';
-import { createModelRouter } from './providers/router';
 import { getProviderFactory } from './providers/factory';
+import { createModelRouter } from './providers/router';
 
 /**
  * Legacy provider for backward compatibility

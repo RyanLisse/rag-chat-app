@@ -61,9 +61,8 @@ export const systemPrompt = ({
 
   if (selectedChatModel === 'chat-model-reasoning') {
     return `${regularPrompt}\n\n${requestPrompt}`;
-  } else {
-    return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
   }
+  return `${regularPrompt}\n\n${requestPrompt}\n\n${artifactsPrompt}`;
 };
 
 export const codePrompt = `
@@ -98,7 +97,7 @@ You are a spreadsheet creation assistant. Create a spreadsheet in csv format bas
 
 export const updateDocumentPrompt = (
   currentContent: string | null,
-  type: ArtifactKind,
+  type: ArtifactKind
 ) =>
   type === 'text'
     ? `\

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { z } from 'zod';
 import OpenAI from 'openai';
+import { z } from 'zod';
 
 import { auth } from '@/app/(auth)/auth';
 
@@ -40,12 +40,14 @@ const FileSchema = z.object({
 // Response schema
 const UploadResponseSchema = z.object({
   success: z.boolean(),
-  files: z.array(z.object({
-    id: z.string(),
-    filename: z.string(),
-    status: z.enum(['uploaded', 'processing', 'completed', 'failed']),
-    error: z.string().optional(),
-  })),
+  files: z.array(
+    z.object({
+      id: z.string(),
+      filename: z.string(),
+      status: z.enum(['uploaded', 'processing', 'completed', 'failed']),
+      error: z.string().optional(),
+    })
+  ),
   vectorStoreId: z.string().optional(),
   message: z.string().optional(),
 });
@@ -100,8 +102,7 @@ export async function POST(request: Request) {
         // Try to retrieve existing vector store
         vectorStore = await openai.vectorStores.retrieve(vectorStoreId);
       }
-    } catch (error) {
-      console.log('Vector store not found, creating new one');
+    } catch (_error) {
       vectorStoreId = undefined;
     }
 
@@ -112,7 +113,6 @@ export async function POST(request: Request) {
         description: 'Vector store for RAG chat application file search',
       });
       vectorStoreId = vectorStore.id;
-      console.log('Created new vector store:', vectorStoreId);
     }
 
     // Upload files to OpenAI
@@ -124,10 +124,10 @@ export async function POST(request: Request) {
         // Convert file to proper format for OpenAI
         const buffer = await file.arrayBuffer();
         const fileBlob = new Blob([buffer], { type: file.type });
-        
+
         // Create a File object with proper name
         const openaiFile = new File([fileBlob], file.name, { type: file.type });
-        
+
         // Upload to OpenAI Files API
         const uploadedFile = await openai.files.create({
           file: openaiFile,
@@ -184,7 +184,8 @@ export async function POST(request: Request) {
             files: uploadResults,
             vectorStoreId,
             message: 'Files uploaded but failed to add to vector store',
-            error: error instanceof Error ? error.message : 'Vector store error',
+            error:
+              error instanceof Error ? error.message : 'Vector store error',
           },
           { status: 500 }
         );
@@ -199,9 +200,9 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to process request',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

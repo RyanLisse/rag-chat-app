@@ -1,5 +1,5 @@
 // Unit Tests for Citation Artifact Components
-import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { CitationContent } from '@/components/artifacts/citation-artifact';
@@ -16,7 +16,7 @@ mock.module('framer-motion', () => ({
 }));
 
 // Mock toast
-const mockToast = mock(() => {});
+const mockToast = vi.fn(() => {});
 mock.module('sonner', () => ({
   toast: {
     success: mockToast,
@@ -27,12 +27,12 @@ mock.module('sonner', () => ({
 // Mock clipboard API
 Object.assign(navigator, {
   clipboard: {
-    writeText: mock(() => Promise.resolve()),
+    writeText: vi.fn(() => Promise.resolve()),
   },
 });
 
 // Mock window.open
-const mockWindowOpen = mock(() => null);
+const mockWindowOpen = vi.fn(() => null);
 Object.assign(window, {
   open: mockWindowOpen,
 });
@@ -101,10 +101,10 @@ describe('CitationContent', () => {
     title: 'Test Article',
     content: 'This is the first cited text from the document. [1] More content here. This is the second cited text from another source. [2]',
     metadata: mockMetadata,
-    setMetadata: mock(() => {}),
+    setMetadata: vi.fn(() => {}),
     isCurrentVersion: true,
     status: 'idle' as const,
-    onSaveContent: mock(() => {}),
+    onSaveContent: vi.fn(() => {}),
   };
 
   beforeEach(() => {
@@ -141,7 +141,7 @@ describe('CitationContent', () => {
   });
 
   it('handles citation clicks', async () => {
-    const setMetadata = mock(() => {});
+    const setMetadata = vi.fn(() => {});
     render(<CitationContent {...defaultProps} setMetadata={setMetadata} />);
     
     const firstCitation = screen.getByRole('button', { name: /Citation 1/ });
@@ -151,7 +151,7 @@ describe('CitationContent', () => {
   });
 
   it('handles citation keyboard navigation', async () => {
-    const setMetadata = mock(() => {});
+    const setMetadata = vi.fn(() => {});
     render(<CitationContent {...defaultProps} setMetadata={setMetadata} />);
     
     const firstCitation = screen.getByRole('button', { name: /Citation 1/ });
@@ -270,7 +270,7 @@ describe('SourcePreviewModal', () => {
   const defaultProps = {
     source: mockSource,
     citations: relatedCitations,
-    onClose: mock(() => {}),
+    onClose: vi.fn(() => {}),
   };
 
   beforeEach(() => {
@@ -293,7 +293,7 @@ describe('SourcePreviewModal', () => {
   });
 
   it('handles close button click', async () => {
-    const onClose = mock(() => {});
+    const onClose = vi.fn(() => {});
     render(<SourcePreviewModal {...defaultProps} onClose={onClose} />);
     
     const closeButton = screen.getByRole('button', { name: /close/i });
@@ -303,7 +303,7 @@ describe('SourcePreviewModal', () => {
   });
 
   it('handles escape key', async () => {
-    const onClose = mock(() => {});
+    const onClose = vi.fn(() => {});
     render(<SourcePreviewModal {...defaultProps} onClose={onClose} />);
     
     await userEvent.keyboard('{Escape}');
@@ -312,7 +312,7 @@ describe('SourcePreviewModal', () => {
   });
 
   it('handles backdrop click', async () => {
-    const onClose = mock(() => {});
+    const onClose = vi.fn(() => {});
     render(<SourcePreviewModal {...defaultProps} onClose={onClose} />);
     
     const backdrop = screen.getByRole('dialog').parentElement;
@@ -472,7 +472,7 @@ describe('CitationStatisticsPanel', () => {
 
 describe('Citation Integration Tests', () => {
   it('should handle citation selection flow', async () => {
-    const setMetadata = mock(() => {});
+    const setMetadata = vi.fn(() => {});
     render(<CitationContent {...{
       title: 'Integration Test',
       content: 'Content with citation [1]',
@@ -480,7 +480,7 @@ describe('Citation Integration Tests', () => {
       setMetadata,
       isCurrentVersion: true,
       status: 'idle' as const,
-      onSaveContent: mock(() => {}),
+      onSaveContent: vi.fn(() => {}),
     }} />);
     
     // Click citation
@@ -503,10 +503,10 @@ describe('Citation Integration Tests', () => {
       title: 'Statistics Test',
       content: 'Content with citations',
       metadata: mockMetadata,
-      setMetadata: mock(() => {}),
+      setMetadata: vi.fn(() => {}),
       isCurrentVersion: true,
       status: 'idle' as const,
-      onSaveContent: mock(() => {}),
+      onSaveContent: vi.fn(() => {}),
     }} />);
     
     // Toggle statistics

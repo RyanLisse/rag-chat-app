@@ -1,5 +1,10 @@
-import { Artifact } from '@/components/create-artifact';
 import { CodeEditor } from '@/components/code-editor';
+import {
+  Console,
+  type ConsoleOutput,
+  type ConsoleOutputContent,
+} from '@/components/console';
+import { Artifact } from '@/components/create-artifact';
 import {
   CopyIcon,
   LogsIcon,
@@ -8,13 +13,8 @@ import {
   RedoIcon,
   UndoIcon,
 } from '@/components/icons';
-import { toast } from 'sonner';
 import { generateUUID } from '@/lib/utils';
-import {
-  Console,
-  ConsoleOutput,
-  ConsoleOutputContent,
-} from '@/components/console';
+import { toast } from 'sonner';
 
 const OUTPUT_HANDLERS = {
   matplotlib: `
@@ -63,7 +63,7 @@ function detectRequiredHandlers(code: string): string[] {
 }
 
 interface Metadata {
-  outputs: Array<ConsoleOutput>;
+  outputs: ConsoleOutput[];
 }
 
 export const codeArtifact = new Artifact<'code', Metadata>({
@@ -118,7 +118,7 @@ export const codeArtifact = new Artifact<'code', Metadata>({
       description: 'Execute code',
       onClick: async ({ content, setMetadata }) => {
         const runId = generateUUID();
-        const outputContent: Array<ConsoleOutputContent> = [];
+        const outputContent: ConsoleOutputContent[] = [];
 
         setMetadata((metadata) => ({
           ...metadata,
@@ -169,12 +169,12 @@ export const codeArtifact = new Artifact<'code', Metadata>({
           for (const handler of requiredHandlers) {
             if (OUTPUT_HANDLERS[handler as keyof typeof OUTPUT_HANDLERS]) {
               await currentPyodideInstance.runPythonAsync(
-                OUTPUT_HANDLERS[handler as keyof typeof OUTPUT_HANDLERS],
+                OUTPUT_HANDLERS[handler as keyof typeof OUTPUT_HANDLERS]
               );
 
               if (handler === 'matplotlib') {
                 await currentPyodideInstance.runPythonAsync(
-                  'setup_matplotlib_output()',
+                  'setup_matplotlib_output()'
                 );
               }
             }

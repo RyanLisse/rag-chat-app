@@ -1,10 +1,15 @@
+import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import type { Chat } from '@/lib/db/schema';
-import {
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from './ui/sidebar';
 import Link from 'next/link';
+import { memo } from 'react';
+import {
+  CheckCircleFillIcon,
+  GlobeIcon,
+  LockIcon,
+  MoreHorizontalIcon,
+  ShareIcon,
+  TrashIcon,
+} from './icons';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,15 +21,10 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import {
-  CheckCircleFillIcon,
-  GlobeIcon,
-  LockIcon,
-  MoreHorizontalIcon,
-  ShareIcon,
-  TrashIcon,
-} from './icons';
-import { memo } from 'react';
-import { useChatVisibility } from '@/hooks/use-chat-visibility';
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from './ui/sidebar';
 
 const PureChatItem = ({
   chat,
@@ -53,7 +53,7 @@ const PureChatItem = ({
       <DropdownMenu modal={true}>
         <DropdownMenuTrigger asChild>
           <SidebarMenuAction
-            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground mr-0.5"
+            className="mr-0.5 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             showOnHover={!isActive}
           >
             <MoreHorizontalIcon />
@@ -75,7 +75,7 @@ const PureChatItem = ({
                     setVisibilityType('private');
                   }}
                 >
-                  <div className="flex flex-row gap-2 items-center">
+                  <div className="flex flex-row items-center gap-2">
                     <LockIcon size={12} />
                     <span>Private</span>
                   </div>
@@ -89,7 +89,7 @@ const PureChatItem = ({
                     setVisibilityType('public');
                   }}
                 >
-                  <div className="flex flex-row gap-2 items-center">
+                  <div className="flex flex-row items-center gap-2">
                     <GlobeIcon />
                     <span>Public</span>
                   </div>
@@ -113,6 +113,8 @@ const PureChatItem = ({
 };
 
 export const ChatItem = memo(PureChatItem, (prevProps, nextProps) => {
-  if (prevProps.isActive !== nextProps.isActive) return false;
+  if (prevProps.isActive !== nextProps.isActive) {
+    return false;
+  }
   return true;
 });

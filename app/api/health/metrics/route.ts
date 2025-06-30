@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { logger } from '@/lib/monitoring';
+import { NextResponse } from 'next/server';
 
 interface Metrics {
   timestamp: string;
@@ -26,11 +26,11 @@ export async function GET(request: Request) {
     // Check if metrics endpoint is protected
     const authHeader = request.headers.get('authorization');
     const metricsToken = process.env.METRICS_AUTH_TOKEN;
-    
+
     if (metricsToken && authHeader !== `Bearer ${metricsToken}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
+
     const metrics: Metrics = {
       timestamp: new Date().toISOString(),
       process: {
@@ -50,9 +50,9 @@ export async function GET(request: Request) {
         version: process.env.npm_package_version || '1.0.0',
       },
     };
-    
+
     logger.info('Metrics endpoint accessed');
-    
+
     return NextResponse.json(metrics, {
       headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -60,12 +60,15 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     logger.error('Metrics endpoint failed', {}, error as Error);
-    
-    return NextResponse.json({
-      error: 'Internal Server Error',
-      timestamp: new Date().toISOString(),
-    }, {
-      status: 500,
-    });
+
+    return NextResponse.json(
+      {
+        error: 'Internal Server Error',
+        timestamp: new Date().toISOString(),
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

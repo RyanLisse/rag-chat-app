@@ -1,5 +1,5 @@
 // Unit Tests for AI Mocking Utilities
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'vitest';
 import { 
   AIResponseMocker,
   createModelMock,

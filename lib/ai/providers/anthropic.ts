@@ -6,8 +6,13 @@
 import { anthropic } from '@ai-sdk/anthropic';
 import type { LanguageModel } from 'ai';
 import { BaseProvider } from './base';
+import {
+  AuthenticationError,
+  NetworkError,
+  RateLimitError,
+  TimeoutError,
+} from './errors';
 import type { GenerationOptions, ProviderCapabilities } from './types';
-import { AuthenticationError, NetworkError, RateLimitError, TimeoutError } from './errors';
 import { withTimeout } from './utils';
 
 /**
@@ -78,11 +83,7 @@ export class AnthropicProvider extends BaseProvider {
   private client?: typeof anthropic;
 
   constructor() {
-    super(
-      'anthropic',
-      Object.keys(ANTHROPIC_MODELS),
-      ANTHROPIC_CAPABILITIES
-    );
+    super('anthropic', Object.keys(ANTHROPIC_MODELS), ANTHROPIC_CAPABILITIES);
   }
 
   /**
@@ -141,14 +142,19 @@ export class AnthropicProvider extends BaseProvider {
           const resetTime = response.headers.get('retry-after');
           throw new RateLimitError(
             this.name,
-            resetTime ? new Date(Date.now() + parseInt(resetTime) * 1000) : undefined
+            resetTime
+              ? new Date(Date.now() + Number.parseInt(resetTime) * 1000)
+              : undefined
           );
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new TimeoutError(this.name, this.getConfigValue('timeout', 10000));
+        throw new TimeoutError(
+          this.name,
+          this.getConfigValue('timeout', 10000)
+        );
       }
       throw error;
     }
@@ -157,31 +163,41 @@ export class AnthropicProvider extends BaseProvider {
   /**
    * Create a language model instance
    */
-  protected createModel(modelId: string, options?: GenerationOptions): LanguageModel {
+  protected createModel(
+    modelId: string,
+    options?: GenerationOptions
+  ): LanguageModel {
     if (!this.client) {
       throw new Error('Provider not initialized');
     }
 
-    const modelConfig = ANTHROPIC_MODELS[modelId as keyof typeof ANTHROPIC_MODELS];
+    const modelConfig =
+      ANTHROPIC_MODELS[modelId as keyof typeof ANTHROPIC_MODELS];
     if (!modelConfig) {
       throw new Error(`Unsupported model: ${modelId}`);
     }
 
     // Map our options to Anthropic format
     const anthropicOptions: any = {};
-    
+
     if (options?.temperature !== undefined) {
-      anthropicOptions.temperature = Math.max(0, Math.min(1, options.temperature));
+      anthropicOptions.temperature = Math.max(
+        0,
+        Math.min(1, options.temperature)
+      );
     }
-    
+
     if (options?.maxTokens !== undefined) {
-      anthropicOptions.maxTokens = Math.min(options.maxTokens, modelConfig.maxOutputTokens);
+      anthropicOptions.maxTokens = Math.min(
+        options.maxTokens,
+        modelConfig.maxOutputTokens
+      );
     }
-    
+
     if (options?.topP !== undefined) {
       anthropicOptions.topP = Math.max(0, Math.min(1, options.topP));
     }
-    
+
     if (options?.topK !== undefined) {
       anthropicOptions.topK = Math.max(1, Math.min(40, options.topK));
     }
@@ -204,14 +220,18 @@ export class AnthropicProvider extends BaseProvider {
     if (typeof toolChoice === 'string') {
       return toolChoice === 'auto' ? { type: 'auto' } : { type: 'none' };
     }
-    
-    if (toolChoice && typeof toolChoice === 'object' && 'function' in toolChoice) {
+
+    if (
+      toolChoice &&
+      typeof toolChoice === 'object' &&
+      'function' in toolChoice
+    ) {
       return {
         type: 'tool',
         name: toolChoice.function.name,
       };
     }
-    
+
     return { type: 'auto' };
   }
 
@@ -221,24 +241,33 @@ export class AnthropicProvider extends BaseProvider {
   private handleConnectionError(error: unknown): never {
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
-      
-      if (message.includes('unauthorized') || message.includes('invalid api key')) {
+
+      if (
+        message.includes('unauthorized') ||
+        message.includes('invalid api key')
+      ) {
         throw new AuthenticationError(this.name);
       }
-      
-      if (message.includes('rate limit') || message.includes('too many requests')) {
+
+      if (
+        message.includes('rate limit') ||
+        message.includes('too many requests')
+      ) {
         throw new RateLimitError(this.name);
       }
-      
+
       if (message.includes('timeout') || message.includes('aborted')) {
-        throw new TimeoutError(this.name, this.getConfigValue('timeout', 10000));
+        throw new TimeoutError(
+          this.name,
+          this.getConfigValue('timeout', 10000)
+        );
       }
-      
+
       if (message.includes('network') || message.includes('connection')) {
         throw new NetworkError(this.name, error);
       }
     }
-    
+
     throw new NetworkError(this.name, error as Error);
   }
 

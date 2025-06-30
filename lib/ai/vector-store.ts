@@ -39,6 +39,9 @@ export class VectorStoreClient {
   private vectorStoreId?: string;
 
   constructor(apiKey: string, vectorStoreId?: string) {
+    if (!apiKey || apiKey.trim() === '') {
+      throw new Error('API key is required');
+    }
     this.openai = new OpenAI({ apiKey });
     this.vectorStoreId = vectorStoreId;
   }
@@ -79,7 +82,9 @@ export class VectorStoreClient {
 
       // Upload file to OpenAI
       const uploadedFile = await this.openai.files.create({
-        file: new File([options.file], options.filename, { type: options.file.type }),
+        file: new File([options.file], options.filename, {
+          type: options.file.type,
+        }),
         purpose: 'assistants',
       });
 
@@ -124,7 +129,9 @@ export class VectorStoreClient {
       const startTime = new Date();
       try {
         const uploadedFile = await this.openai.files.create({
-          file: new File([fileOptions.file], fileOptions.filename, { type: fileOptions.file.type }),
+          file: new File([fileOptions.file], fileOptions.filename, {
+            type: fileOptions.file.type,
+          }),
           purpose: 'assistants',
         });
 
@@ -202,7 +209,7 @@ export class VectorStoreClient {
    */
   async checkFileStatus(fileIds: string[]): Promise<FileStatus[]> {
     const vectorStoreId = await this.ensureVectorStore();
-    
+
     return Promise.all(
       fileIds.map(async (fileId) => {
         try {
@@ -210,12 +217,16 @@ export class VectorStoreClient {
             vectorStoreId,
             fileId
           );
-          
+
           return {
             id: fileId,
             filename: fileId, // Note: OpenAI doesn't return filename in vector store file
-            status: file.status === 'completed' ? 'completed' : 
-                   file.status === 'failed' ? 'failed' : 'processing',
+            status:
+              file.status === 'completed'
+                ? 'completed'
+                : file.status === 'failed'
+                  ? 'failed'
+                  : 'processing',
             createdAt: new Date(file.created_at * 1000),
           };
         } catch (error) {
@@ -248,7 +259,7 @@ export class VectorStoreClient {
 
     while (Date.now() - startTime < maxWaitTime) {
       const status = await this.checkBatchStatus(batchId);
-      
+
       if (options.onProgress) {
         options.onProgress(status);
       }
@@ -262,7 +273,7 @@ export class VectorStoreClient {
       }
 
       // Wait before next poll
-      await new Promise(resolve => setTimeout(resolve, pollInterval));
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
     }
 
     throw new Error('Processing timeout');
@@ -273,11 +284,11 @@ export class VectorStoreClient {
    */
   async deleteFile(fileId: string): Promise<void> {
     const vectorStoreId = await this.ensureVectorStore();
-    
+
     try {
       // Delete from vector store
       await this.openai.vectorStores.files.del(vectorStoreId, fileId);
-      
+
       // Delete the file itself
       await this.openai.files.del(fileId);
     } catch (error) {
@@ -289,17 +300,19 @@ export class VectorStoreClient {
   /**
    * List all files in the vector store
    */
-  async listFiles(limit = 20): Promise<Array<{
-    id: string;
-    createdAt: Date;
-    status: string;
-  }>> {
+  async listFiles(limit = 20): Promise<
+    Array<{
+      id: string;
+      createdAt: Date;
+      status: string;
+    }>
+  > {
     const vectorStoreId = await this.ensureVectorStore();
     const files = await this.openai.vectorStores.files.list(vectorStoreId, {
       limit,
     });
 
-    return files.data.map(file => ({
+    return files.data.map((file) => ({
       id: file.id,
       createdAt: new Date(file.created_at * 1000),
       status: file.status,

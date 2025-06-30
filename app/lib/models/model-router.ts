@@ -1,8 +1,13 @@
 import type { LanguageModel, StreamingTextResponse } from 'ai';
-import { OpenAIProvider } from './openai-provider';
 import { AnthropicProvider } from './anthropic-provider';
 import { GoogleProvider } from './google-provider';
-import type { ModelProvider, ModelConfig, ChatParams, ProviderError } from './provider';
+import { OpenAIProvider } from './openai-provider';
+import type {
+  ChatParams,
+  ModelConfig,
+  ModelProvider,
+  ProviderError,
+} from './provider';
 
 export interface ModelRouterConfig {
   providers?: {
@@ -35,12 +40,16 @@ export class ModelRouter {
     this.initializeProviders(config?.providers);
   }
 
-  private initializeProviders(providersConfig?: ModelRouterConfig['providers']) {
+  private initializeProviders(
+    providersConfig?: ModelRouterConfig['providers']
+  ) {
     // Initialize OpenAI provider
     try {
-      const openaiProvider = new OpenAIProvider(providersConfig?.openai?.apiKey);
+      const openaiProvider = new OpenAIProvider(
+        providersConfig?.openai?.apiKey
+      );
       this.providers.set('openai', openaiProvider);
-      openaiProvider.models.forEach(model => {
+      openaiProvider.models.forEach((model) => {
         this.modelToProvider.set(model.id, 'openai');
       });
     } catch (error) {
@@ -49,9 +58,11 @@ export class ModelRouter {
 
     // Initialize Anthropic provider
     try {
-      const anthropicProvider = new AnthropicProvider(providersConfig?.anthropic?.apiKey);
+      const anthropicProvider = new AnthropicProvider(
+        providersConfig?.anthropic?.apiKey
+      );
       this.providers.set('anthropic', anthropicProvider);
-      anthropicProvider.models.forEach(model => {
+      anthropicProvider.models.forEach((model) => {
         this.modelToProvider.set(model.id, 'anthropic');
       });
     } catch (error) {
@@ -60,9 +71,11 @@ export class ModelRouter {
 
     // Initialize Google provider
     try {
-      const googleProvider = new GoogleProvider(providersConfig?.google?.apiKey);
+      const googleProvider = new GoogleProvider(
+        providersConfig?.google?.apiKey
+      );
       this.providers.set('google', googleProvider);
-      googleProvider.models.forEach(model => {
+      googleProvider.models.forEach((model) => {
         this.modelToProvider.set(model.id, 'google');
       });
     } catch (error) {
@@ -72,7 +85,7 @@ export class ModelRouter {
 
   getAllModels(): ModelConfig[] {
     const allModels: ModelConfig[] = [];
-    this.providers.forEach(provider => {
+    this.providers.forEach((provider) => {
       allModels.push(...provider.models);
     });
     return allModels;
@@ -94,17 +107,23 @@ export class ModelRouter {
 
   getModelConfig(modelId: string): ModelConfig | undefined {
     const providerId = this.modelToProvider.get(modelId);
-    if (!providerId) return undefined;
+    if (!providerId) {
+      return undefined;
+    }
 
     const provider = this.providers.get(providerId);
-    if (!provider) return undefined;
+    if (!provider) {
+      return undefined;
+    }
 
-    return provider.models.find(m => m.id === modelId);
+    return provider.models.find((m) => m.id === modelId);
   }
 
   getProvider(modelId: string): ModelProvider | undefined {
     const providerId = this.modelToProvider.get(modelId);
-    if (!providerId) return undefined;
+    if (!providerId) {
+      return undefined;
+    }
 
     return this.providers.get(providerId);
   }
@@ -137,7 +156,10 @@ export class ModelRouter {
         lastError = error;
 
         // Check if error is retryable
-        if (this.isRetryableError(error) && attempt < this.retryOptions.maxRetries) {
+        if (
+          this.isRetryableError(error) &&
+          attempt < this.retryOptions.maxRetries
+        ) {
           console.warn(
             `Attempt ${attempt + 1} failed for provider ${provider.id}:`,
             error instanceof Error ? error.message : error
@@ -145,9 +167,12 @@ export class ModelRouter {
 
           // Wait before retrying
           await this.sleep(delay);
-          
+
           // Exponential backoff
-          delay = Math.min(delay * this.retryOptions.backoffFactor, this.retryOptions.maxDelay);
+          delay = Math.min(
+            delay * this.retryOptions.backoffFactor,
+            this.retryOptions.maxDelay
+          );
         } else {
           // Non-retryable error or max retries reached
           throw error;
@@ -163,13 +188,13 @@ export class ModelRouter {
     if (error && typeof error === 'object' && 'retryable' in error) {
       return (error as ProviderError).retryable;
     }
-    
+
     // Default to retrying on unknown errors
     return true;
   }
 
   private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   // Utility method to get models by provider
@@ -179,7 +204,13 @@ export class ModelRouter {
   }
 
   // Utility method to check if a model supports a specific feature
-  modelSupports(modelId: string, feature: keyof Pick<ModelConfig, 'supportsFunctions' | 'supportsVision' | 'supportsSystemPrompt'>): boolean {
+  modelSupports(
+    modelId: string,
+    feature: keyof Pick<
+      ModelConfig,
+      'supportsFunctions' | 'supportsVision' | 'supportsSystemPrompt'
+    >
+  ): boolean {
     const config = this.getModelConfig(modelId);
     return config ? config[feature] : false;
   }

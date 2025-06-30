@@ -1,10 +1,10 @@
-<a href="https://chat.vercel.ai/">
-  <img alt="Next.js 14 and App Router-ready AI chatbot." src="app/(chat)/opengraph-image.png">
-  <h1 align="center">Chat SDK</h1>
+<a href="https://github.com/RyanLisse/rag-chat-app">
+  <img alt="Production-ready RAG Chat Application with citations." src="app/(chat)/opengraph-image.png">
+  <h1 align="center">RAG Chat Application</h1>
 </a>
 
 <p align="center">
-    Chat SDK is a free, open-source template built with Next.js and the AI SDK that helps you quickly build powerful chatbot applications.
+    A production-ready RAG chat application built with Next.js, AI SDK, and comprehensive citation support for document-based conversations.
 </p>
 
 <p align="center">

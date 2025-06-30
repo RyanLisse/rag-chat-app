@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   if (!chatId) {
     return new ChatSDKError(
       'bad_request:api',
-      'Parameter chatId is required.',
+      'Parameter chatId is required.'
     ).toResponse();
   }
 
@@ -42,10 +42,10 @@ export async function PATCH(request: Request) {
   }: { chatId: string; messageId: string; type: 'up' | 'down' } =
     await request.json();
 
-  if (!chatId || !messageId || !type) {
+  if (!(chatId && messageId && type)) {
     return new ChatSDKError(
       'bad_request:api',
-      'Parameters chatId, messageId, and type are required.',
+      'Parameters chatId, messageId, and type are required.'
     ).toResponse();
   }
 

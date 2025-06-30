@@ -1,7 +1,7 @@
+import { initialArtifactData, useArtifact } from '@/hooks/use-artifact';
 import { memo } from 'react';
 import { CrossIcon } from './icons';
 import { Button } from './ui/button';
-import { initialArtifactData, useArtifact } from '@/hooks/use-artifact';
 
 function PureArtifactCloseButton() {
   const { setArtifact } = useArtifact();
@@ -18,7 +18,7 @@ function PureArtifactCloseButton() {
                 ...currentArtifact,
                 isVisible: false,
               }
-            : { ...initialArtifactData, status: 'idle' },
+            : { ...initialArtifactData, status: 'idle' }
         );
       }}
     >

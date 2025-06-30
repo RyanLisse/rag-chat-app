@@ -1,7 +1,6 @@
 import { Artifact } from '@/components/create-artifact';
 import { DiffView } from '@/components/diffview';
 import { DocumentSkeleton } from '@/components/document-skeleton';
-import { Editor } from '@/components/text-editor';
 import {
   ClockRewind,
   CopyIcon,
@@ -10,12 +9,13 @@ import {
   RedoIcon,
   UndoIcon,
 } from '@/components/icons';
-import { Suggestion } from '@/lib/db/schema';
+import { Editor } from '@/components/text-editor';
+import type { Suggestion } from '@/lib/db/schema';
 import { toast } from 'sonner';
 import { getSuggestions } from '../actions';
 
 interface TextArtifactMetadata {
-  suggestions: Array<Suggestion>;
+  suggestions: Suggestion[];
 }
 
 export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
@@ -80,7 +80,7 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
 
     return (
       <>
-        <div className="flex flex-row py-8 md:p-20 px-4">
+        <div className="flex flex-row px-4 py-8 md:p-20">
           <Editor
             content={content}
             suggestions={metadata ? metadata.suggestions : []}
@@ -90,10 +90,8 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
             onSaveContent={onSaveContent}
           />
 
-          {metadata &&
-          metadata.suggestions &&
-          metadata.suggestions.length > 0 ? (
-            <div className="md:hidden h-dvh w-12 shrink-0" />
+          {metadata?.suggestions && metadata.suggestions.length > 0 ? (
+            <div className="h-dvh w-12 shrink-0 md:hidden" />
           ) : null}
         </div>
       </>

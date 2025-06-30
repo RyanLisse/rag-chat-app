@@ -1,4 +1,4 @@
-import { trace, context } from '@opentelemetry/api';
+import { trace } from '@opentelemetry/api';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
@@ -13,16 +13,20 @@ class Logger {
   private serviceName: string;
   private environment: string;
 
-  constructor(serviceName: string = 'rag-chat-app') {
+  constructor(serviceName = 'rag-chat-app') {
     this.serviceName = serviceName;
     this.environment = process.env.NODE_ENV || 'development';
   }
 
-  private formatMessage(level: LogLevel, message: string, context?: LogContext): string {
+  private formatMessage(
+    level: LogLevel,
+    message: string,
+    context?: LogContext
+  ): string {
     const timestamp = new Date().toISOString();
     const activeSpan = trace.getActiveSpan();
     const spanContext = activeSpan?.spanContext();
-    
+
     const logEntry = {
       timestamp,
       level,
@@ -37,9 +41,14 @@ class Logger {
     return JSON.stringify(logEntry);
   }
 
-  private log(level: LogLevel, message: string, context?: LogContext, error?: Error) {
+  private log(
+    level: LogLevel,
+    message: string,
+    context?: LogContext,
+    error?: Error
+  ) {
     const formattedMessage = this.formatMessage(level, message, context);
-    
+
     switch (level) {
       case 'debug':
         if (this.environment === 'development') {
@@ -52,12 +61,13 @@ class Logger {
       case 'warn':
         console.warn(formattedMessage);
         break;
-      case 'error':
+      case 'error': {
         console.error(formattedMessage);
         if (error) {
           console.error(error.stack);
         }
         break;
+      }
     }
 
     // Add to current span if available
@@ -68,7 +78,7 @@ class Logger {
         'log.severity': level,
         ...context,
       });
-      
+
       if (error) {
         activeSpan.recordException(error);
       }
@@ -95,16 +105,26 @@ class Logger {
   child(context: LogContext): Logger {
     const childLogger = new Logger(this.serviceName);
     const originalLog = childLogger.log.bind(childLogger);
-    
-    childLogger.log = (level: LogLevel, message: string, additionalContext?: LogContext, error?: Error) => {
+
+    childLogger.log = (
+      level: LogLevel,
+      message: string,
+      additionalContext?: LogContext,
+      error?: Error
+    ) => {
       originalLog(level, message, { ...context, ...additionalContext }, error);
     };
-    
+
     return childLogger;
   }
 
   // Log RAG-specific events
-  logVectorSearch(query: string, resultCount: number, duration: number, context?: LogContext) {
+  logVectorSearch(
+    query: string,
+    resultCount: number,
+    duration: number,
+    context?: LogContext
+  ) {
     this.info('Vector search completed', {
       ...context,
       query,
@@ -114,7 +134,13 @@ class Logger {
     });
   }
 
-  logModelInference(model: string, promptTokens: number, completionTokens: number, duration: number, context?: LogContext) {
+  logModelInference(
+    model: string,
+    promptTokens: number,
+    completionTokens: number,
+    duration: number,
+    context?: LogContext
+  ) {
     this.info('Model inference completed', {
       ...context,
       model,
@@ -126,7 +152,12 @@ class Logger {
     });
   }
 
-  logDocumentProcessing(documentId: string, chunkCount: number, duration: number, context?: LogContext) {
+  logDocumentProcessing(
+    documentId: string,
+    chunkCount: number,
+    duration: number,
+    context?: LogContext
+  ) {
     this.info('Document processed', {
       ...context,
       documentId,
@@ -136,8 +167,15 @@ class Logger {
     });
   }
 
-  logApiRequest(method: string, path: string, statusCode: number, duration: number, context?: LogContext) {
-    const level = statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
+  logApiRequest(
+    method: string,
+    path: string,
+    statusCode: number,
+    duration: number,
+    context?: LogContext
+  ) {
+    const level =
+      statusCode >= 500 ? 'error' : statusCode >= 400 ? 'warn' : 'info';
     this.log(level, `API ${method} ${path}`, {
       ...context,
       method,

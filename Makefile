@@ -78,3 +78,34 @@ restore-db: ## Restore database from backup (usage: make restore-db FILE=backup.
 	@if [ -z "$(FILE)" ]; then echo "Please specify FILE=backup.sql.gz"; exit 1; fi
 	gunzip -c $(FILE) | docker-compose exec -T postgres psql -U postgres rag_chat
 	@echo "Database restored from $(FILE)"
+
+# Worktree operations
+.PHONY: wt-setup
+wt-setup: ## Setup Git worktrees for parallel development
+	./scripts/setup-worktrees.sh
+
+.PHONY: wt-create
+wt-create: ## Create new worktree (usage: make wt-create TYPE=feature NAME=my-feature)
+	@if [ -z "$(NAME)" ]; then echo "Please specify NAME=feature-name"; exit 1; fi
+	./scripts/worktree-create.sh $(TYPE) $(NAME)
+
+.PHONY: wt-switch
+wt-switch: ## Switch to worktree (usage: make wt-switch NAME=my-feature)
+	./scripts/worktree-switch.sh $(NAME)
+
+.PHONY: wt-sync
+wt-sync: ## Sync all worktrees with main
+	./scripts/worktree-sync.sh
+
+.PHONY: wt-merge
+wt-merge: ## Merge worktree to main (usage: make wt-merge NAME=my-feature)
+	@if [ -z "$(NAME)" ]; then echo "Please specify NAME=feature-name"; exit 1; fi
+	./scripts/worktree-merge.sh $(NAME)
+
+.PHONY: wt-clean
+wt-clean: ## Clean up old worktrees
+	./scripts/worktree-cleanup.sh clean
+
+.PHONY: wt-health
+wt-health: ## Check worktree health
+	./scripts/worktree-health.sh check

@@ -20,11 +20,15 @@ const StatusRequestSchema = z.object({
 const StatusResponseSchema = z.object({
   success: z.boolean(),
   status: z.enum(['in_progress', 'completed', 'failed', 'cancelled']),
-  files: z.array(z.object({
-    id: z.string(),
-    status: z.enum(['in_progress', 'completed', 'failed', 'cancelled']),
-    error: z.string().optional(),
-  })).optional(),
+  files: z
+    .array(
+      z.object({
+        id: z.string(),
+        status: z.enum(['in_progress', 'completed', 'failed', 'cancelled']),
+        error: z.string().optional(),
+      })
+    )
+    .optional(),
   completedCount: z.number(),
   inProgressCount: z.number(),
   failedCount: z.number(),
@@ -45,7 +49,7 @@ export async function POST(request: Request) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { error: validation.error.errors.map(e => e.message).join(', ') },
+        { error: validation.error.errors.map((e) => e.message).join(', ') },
         { status: 400 }
       );
     }
@@ -92,7 +96,7 @@ export async function POST(request: Request) {
                 id: fileId,
                 status: file.status as any,
               };
-            } catch (error) {
+            } catch (_error) {
               return {
                 id: fileId,
                 status: 'failed' as const,
@@ -102,13 +106,24 @@ export async function POST(request: Request) {
           })
         );
 
-        const completedCount = fileStatuses.filter(f => f.status === 'completed').length;
-        const inProgressCount = fileStatuses.filter(f => f.status === 'in_progress').length;
-        const failedCount = fileStatuses.filter(f => f.status === 'failed').length;
+        const completedCount = fileStatuses.filter(
+          (f) => f.status === 'completed'
+        ).length;
+        const inProgressCount = fileStatuses.filter(
+          (f) => f.status === 'in_progress'
+        ).length;
+        const failedCount = fileStatuses.filter(
+          (f) => f.status === 'failed'
+        ).length;
 
-        const overallStatus = inProgressCount > 0 ? 'in_progress' :
-                            failedCount === fileStatuses.length ? 'failed' :
-                            completedCount === fileStatuses.length ? 'completed' : 'in_progress';
+        const overallStatus =
+          inProgressCount > 0
+            ? 'in_progress'
+            : failedCount === fileStatuses.length
+              ? 'failed'
+              : completedCount === fileStatuses.length
+                ? 'completed'
+                : 'in_progress';
 
         const response: StatusResponse = {
           success: true,
@@ -137,9 +152,9 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Status check error:', error);
     return NextResponse.json(
-      { 
+      {
         error: 'Failed to process request',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

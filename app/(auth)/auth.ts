@@ -1,10 +1,10 @@
+import { DUMMY_PASSWORD } from '@/lib/constants';
+import { createGuestUser, getUser } from '@/lib/db/queries';
 import { compare } from 'bcrypt-ts';
 import NextAuth, { type DefaultSession } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import { createGuestUser, getUser } from '@/lib/db/queries';
-import { authConfig } from './auth.config';
-import { DUMMY_PASSWORD } from '@/lib/constants';
 import type { DefaultJWT } from 'next-auth/jwt';
+import Credentials from 'next-auth/providers/credentials';
+import { authConfig } from './auth.config';
 
 export type UserType = 'guest' | 'regular';
 
@@ -24,7 +24,7 @@ declare module 'next-auth' {
 }
 
 declare module 'next-auth/jwt' {
-  interface JWT extends DefaultJWT {
+  interface Jwt extends DefaultJWT {
     id: string;
     type: UserType;
   }
@@ -57,7 +57,9 @@ export const {
 
         const passwordsMatch = await compare(password, user.password);
 
-        if (!passwordsMatch) return null;
+        if (!passwordsMatch) {
+          return null;
+        }
 
         return { ...user, type: 'regular' };
       },

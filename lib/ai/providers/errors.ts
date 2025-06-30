@@ -23,7 +23,13 @@ export class ProviderError extends Error {
  */
 export class ModelNotFoundError extends ProviderError {
   constructor(modelId: string, provider: string) {
-    super(`Model '${modelId}' not found in provider '${provider}'`, provider, 'MODEL_NOT_FOUND', 404, false);
+    super(
+      `Model '${modelId}' not found in provider '${provider}'`,
+      provider,
+      'MODEL_NOT_FOUND',
+      404,
+      false
+    );
     this.name = 'ModelNotFoundError';
   }
 }
@@ -33,7 +39,13 @@ export class ModelNotFoundError extends ProviderError {
  */
 export class AuthenticationError extends ProviderError {
   constructor(provider: string) {
-    super(`Authentication failed for provider '${provider}'`, provider, 'AUTH_FAILED', 401, false);
+    super(
+      `Authentication failed for provider '${provider}'`,
+      provider,
+      'AUTH_FAILED',
+      401,
+      false
+    );
     this.name = 'AuthenticationError';
   }
 }
@@ -72,7 +84,13 @@ export class NetworkError extends ProviderError {
  */
 export class TimeoutError extends ProviderError {
   constructor(provider: string, timeout: number) {
-    super(`Request timeout for provider '${provider}' after ${timeout}ms`, provider, 'TIMEOUT', 408, true);
+    super(
+      `Request timeout for provider '${provider}' after ${timeout}ms`,
+      provider,
+      'TIMEOUT',
+      408,
+      true
+    );
     this.name = 'TimeoutError';
   }
 }
@@ -124,7 +142,13 @@ export class ProviderUnavailableError extends ProviderError {
  */
 export class ConfigurationError extends ProviderError {
   constructor(provider: string, message: string) {
-    super(`Configuration error for provider '${provider}': ${message}`, provider, 'CONFIG_ERROR', 400, false);
+    super(
+      `Configuration error for provider '${provider}': ${message}`,
+      provider,
+      'CONFIG_ERROR',
+      400,
+      false
+    );
     this.name = 'ConfigurationError';
   }
 }
@@ -152,7 +176,7 @@ export function isRetryableError(error: unknown): boolean {
   if (error instanceof ProviderError) {
     return error.retryable;
   }
-  
+
   // Check for common retryable error patterns
   if (error instanceof Error) {
     const message = error.message.toLowerCase();
@@ -166,10 +190,10 @@ export function isRetryableError(error: unknown): boolean {
       'bad gateway',
       'gateway timeout',
     ];
-    
-    return retryablePatterns.some(pattern => message.includes(pattern));
+
+    return retryablePatterns.some((pattern) => message.includes(pattern));
   }
-  
+
   return false;
 }
 
@@ -190,14 +214,14 @@ export function extractErrorDetails(error: unknown): {
       retryable: error.retryable,
     };
   }
-  
+
   if (error instanceof Error) {
     return {
       message: error.message,
       retryable: isRetryableError(error),
     };
   }
-  
+
   return {
     message: String(error),
     retryable: false,

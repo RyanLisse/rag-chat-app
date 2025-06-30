@@ -1,5 +1,5 @@
 // Unit Tests for Custom Hooks
-import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { SWRConfig } from 'swr';
 import React from 'react';
@@ -9,12 +9,12 @@ import { useAutoResume } from '@/hooks/use-auto-resume';
 import { useMobile } from '@/hooks/use-mobile';
 
 // Mock external dependencies
-const mockUpdateChatVisibility = mock(() => Promise.resolve());
+const mockUpdateChatVisibility = vi.fn(() => Promise.resolve());
 mock.module('@/app/(chat)/actions', () => ({
   updateChatVisibility: mockUpdateChatVisibility,
 }));
 
-const mockGetChatHistoryPaginationKey = mock(() => ['history', 'key']);
+const mockGetChatHistoryPaginationKey = vi.fn(() => ['history', 'key']);
 mock.module('@/components/sidebar-history', () => ({
   getChatHistoryPaginationKey: mockGetChatHistoryPaginationKey,
   type ChatHistory: {},
@@ -142,7 +142,7 @@ describe('useScrollToBottom', () => {
   let mockScrollTo: ReturnType<typeof mock>;
 
   beforeEach(() => {
-    mockScrollTo = mock(() => {});
+    mockScrollTo = vi.fn(() => {});
     mockElement = {
       scrollTo: mockScrollTo,
       scrollHeight: 1000,
@@ -162,7 +162,7 @@ describe('useScrollToBottom', () => {
     const { result } = renderHook(() => useScrollToBottom());
     
     // Mock document.querySelector to return our mock element
-    const mockQuerySelector = mock(() => mockElement);
+    const mockQuerySelector = vi.fn(() => mockElement);
     document.querySelector = mockQuerySelector;
 
     act(() => {
@@ -179,7 +179,7 @@ describe('useScrollToBottom', () => {
     const { result } = renderHook(() => useScrollToBottom());
     
     // Mock document.querySelector to return null
-    document.querySelector = mock(() => null);
+    document.querySelector = vi.fn(() => null);
 
     // Should not throw error
     expect(() => {
@@ -195,7 +195,7 @@ describe('useAutoResume', () => {
   let mockRouter: any;
 
   beforeEach(() => {
-    mockPush = mock(() => Promise.resolve());
+    mockPush = vi.fn(() => Promise.resolve());
     mockRouter = { push: mockPush };
     
     // Mock next/navigation
@@ -205,7 +205,9 @@ describe('useAutoResume', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     mock.restore();
+  
   });
 
   it('should provide auto-resume functionality', () => {
@@ -265,20 +267,22 @@ describe('useMobile', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     window.matchMedia = originalMatchMedia;
+  
   });
 
   it('should detect mobile screen sizes', () => {
     // Mock matchMedia for mobile
-    window.matchMedia = mock((query: string) => ({
+    window.matchMedia = vi.fn((query: string) => ({
       matches: query.includes('max-width: 768px'),
       media: query,
       onchange: null,
-      addListener: mock(() => {}),
-      removeListener: mock(() => {}),
-      addEventListener: mock(() => {}),
-      removeEventListener: mock(() => {}),
-      dispatchEvent: mock(() => true),
+      addListener: vi.fn(() => {}),
+      removeListener: vi.fn(() => {}),
+      addEventListener: vi.fn(() => {}),
+      removeEventListener: vi.fn(() => {}),
+      dispatchEvent: vi.fn(() => true),
     }));
 
     const { result } = renderHook(() => useMobile());
@@ -288,15 +292,15 @@ describe('useMobile', () => {
 
   it('should detect desktop screen sizes', () => {
     // Mock matchMedia for desktop
-    window.matchMedia = mock((query: string) => ({
+    window.matchMedia = vi.fn((query: string) => ({
       matches: false, // Desktop doesn't match mobile query
       media: query,
       onchange: null,
-      addListener: mock(() => {}),
-      removeListener: mock(() => {}),
-      addEventListener: mock(() => {}),
-      removeEventListener: mock(() => {}),
-      dispatchEvent: mock(() => true),
+      addListener: vi.fn(() => {}),
+      removeListener: vi.fn(() => {}),
+      addEventListener: vi.fn(() => {}),
+      removeEventListener: vi.fn(() => {}),
+      dispatchEvent: vi.fn(() => true),
     }));
 
     const { result } = renderHook(() => useMobile());
@@ -308,21 +312,21 @@ describe('useMobile', () => {
     let mediaQueryCallback: ((e: MediaQueryListEvent) => void) | null = null;
     
     // Mock matchMedia with listener support
-    window.matchMedia = mock((query: string) => ({
+    window.matchMedia = vi.fn((query: string) => ({
       matches: false,
       media: query,
       onchange: null,
-      addListener: mock((callback: any) => {
+      addListener: vi.fn((callback: any) => {
         mediaQueryCallback = callback;
       }),
-      removeListener: mock(() => {}),
-      addEventListener: mock((event: string, callback: any) => {
+      removeListener: vi.fn(() => {}),
+      addEventListener: vi.fn((event: string, callback: any) => {
         if (event === 'change') {
           mediaQueryCallback = callback;
         }
       }),
-      removeEventListener: mock(() => {}),
-      dispatchEvent: mock(() => true),
+      removeEventListener: vi.fn(() => {}),
+      dispatchEvent: vi.fn(() => true),
     }));
 
     const { result } = renderHook(() => useMobile());

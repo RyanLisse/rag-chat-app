@@ -60,13 +60,89 @@ export default defineConfig({
   /* Configure projects */
   projects: [
     {
-      name: 'e2e',
-      testMatch: /e2e\/.*.test.ts/,
+      name: 'e2e-workflows',
+      testMatch: /e2e\/complete-workflow\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
-        // Enable video recording for debugging
         video: 'retain-on-failure',
-        // Enable tracing for debugging
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-accessibility',
+      testMatch: /e2e\/accessibility\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-mobile',
+      testMatch: /e2e\/mobile-responsive\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-errors',
+      testMatch: /e2e\/error-scenarios\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-performance',
+      testMatch: /e2e\/performance-benchmarks\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+        launchOptions: {
+          args: ['--enable-precise-memory-info', '--enable-performance-metrics'],
+        },
+      },
+    },
+    {
+      name: 'e2e-visual',
+      testMatch: /e2e\/visual-regression\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+        launchOptions: {
+          args: ['--force-prefers-reduced-motion'],
+        },
+      },
+    },
+    {
+      name: 'e2e-monitoring',
+      testMatch: /e2e\/monitoring-logging\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-concurrent',
+      testMatch: /e2e\/concurrent-users\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-reporting',
+      testMatch: /e2e\/test-report-generator\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
         trace: 'retain-on-failure',
       },
     },

@@ -62,17 +62,19 @@ export class AIResponseMocker {
   // Create a mock StreamingTextResponse
   createStreamingResponse(prompt: string): StreamingTextResponse {
     const encoder = new TextEncoder();
+    const generateStream = this.generateStream.bind(this);
+    
     const stream = new ReadableStream({
       async start(controller) {
         try {
-          for await (const chunk of this.generateStream(prompt)) {
+          for await (const chunk of generateStream(prompt)) {
             controller.enqueue(encoder.encode(chunk));
           }
           controller.close();
         } catch (error) {
           controller.error(error);
         }
-      }.bind(this),
+      },
     });
 
     return new StreamingTextResponse(stream);

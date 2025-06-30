@@ -1,5 +1,5 @@
 // Unit Tests for lib/ai/prompts.ts
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'vitest';
 import {
   artifactsPrompt,
   regularPrompt,

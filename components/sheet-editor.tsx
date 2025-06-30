@@ -1,10 +1,10 @@
 'use client';
 
+import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
+import { parse, unparse } from 'papaparse';
 import React, { memo, useEffect, useMemo, useState } from 'react';
 import DataGrid, { textEditor } from 'react-data-grid';
-import { parse, unparse } from 'papaparse';
-import { useTheme } from 'next-themes';
-import { cn } from '@/lib/utils';
 
 import 'react-data-grid/lib/styles.css';
 
@@ -28,7 +28,9 @@ const PureSpreadsheetEditor = ({
   const { resolvedTheme } = useTheme();
 
   const parseData = useMemo(() => {
-    if (!content) return Array(MIN_ROWS).fill(Array(MIN_COLS).fill(''));
+    if (!content) {
+      return Array(MIN_ROWS).fill(Array(MIN_COLS).fill(''));
+    }
     const result = parse<string[]>(content, { skipEmptyLines: true });
 
     const paddedData = result.data.map((row) => {
@@ -62,10 +64,10 @@ const PureSpreadsheetEditor = ({
       name: String.fromCharCode(65 + i),
       renderEditCell: textEditor,
       width: 120,
-      cellClass: cn(`border-t dark:bg-zinc-950 dark:text-zinc-50`, {
+      cellClass: cn('border-t dark:bg-zinc-950 dark:text-zinc-50', {
         'border-l': i !== 0,
       }),
-      headerCellClass: cn(`border-t dark:bg-zinc-900 dark:text-zinc-50`, {
+      headerCellClass: cn('border-t dark:bg-zinc-900 dark:text-zinc-50', {
         'border-l': i !== 0,
       }),
     }));

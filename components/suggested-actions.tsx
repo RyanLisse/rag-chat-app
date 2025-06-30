@@ -1,9 +1,9 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Button } from './ui/button';
-import { memo } from 'react';
 import type { UseChatHelpers } from '@ai-sdk/react';
+import { motion } from 'framer-motion';
+import { memo } from 'react';
+import { Button } from './ui/button';
 import type { VisibilityType } from './visibility-selector';
 
 interface SuggestedActionsProps {
@@ -30,8 +30,8 @@ function PureSuggestedActions({
     },
     {
       title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
+      label: 'about silicon valley',
+      action: 'Help me write an essay about silicon valley',
     },
     {
       title: 'What is the weather',
@@ -43,7 +43,7 @@ function PureSuggestedActions({
   return (
     <div
       data-testid="suggested-actions"
-      className="grid sm:grid-cols-2 gap-2 w-full"
+      className="grid w-full gap-2 sm:grid-cols-2"
     >
       {suggestedActions.map((suggestedAction, index) => (
         <motion.div
@@ -64,7 +64,7 @@ function PureSuggestedActions({
                 content: suggestedAction.action,
               });
             }}
-            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
+            className="h-auto w-full flex-1 items-start justify-start gap-1 rounded-xl border px-4 py-3.5 text-left text-sm sm:flex-col"
           >
             <span className="font-medium">{suggestedAction.title}</span>
             <span className="text-muted-foreground">
@@ -80,10 +80,13 @@ function PureSuggestedActions({
 export const SuggestedActions = memo(
   PureSuggestedActions,
   (prevProps, nextProps) => {
-    if (prevProps.chatId !== nextProps.chatId) return false;
-    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType)
+    if (prevProps.chatId !== nextProps.chatId) {
       return false;
+    }
+    if (prevProps.selectedVisibilityType !== nextProps.selectedVisibilityType) {
+      return false;
+    }
 
     return true;
-  },
+  }
 );

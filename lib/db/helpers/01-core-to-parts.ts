@@ -1,16 +1,16 @@
+import { type UIMessage, appendResponseMessages } from 'ai';
 import { config } from 'dotenv';
+import { inArray } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import {
+  type MessageDeprecated,
   chat,
   message,
-  type MessageDeprecated,
   messageDeprecated,
   vote,
   voteDeprecated,
 } from '../schema';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { inArray } from 'drizzle-orm';
-import { appendResponseMessages, type UIMessage } from 'ai';
 
 config({
   path: '.env.local',
@@ -50,7 +50,7 @@ function getMessageRank(message: MessageDeprecated): number {
   if (
     message.role === 'assistant' &&
     (message.content as MessageDeprecatedContentPart[]).some(
-      (contentPart) => contentPart.type === 'tool-call',
+      (contentPart) => contentPart.type === 'tool-call'
     )
   ) {
     return 0;
@@ -59,7 +59,7 @@ function getMessageRank(message: MessageDeprecated): number {
   if (
     message.role === 'tool' &&
     (message.content as MessageDeprecatedContentPart[]).some(
-      (contentPart) => contentPart.type === 'tool-result',
+      (contentPart) => contentPart.type === 'tool-result'
     )
   ) {
     return 1;
@@ -73,22 +73,24 @@ function getMessageRank(message: MessageDeprecated): number {
 }
 
 function dedupeParts<T extends { type: string; [k: string]: any }>(
-  parts: T[],
+  parts: T[]
 ): T[] {
   const seen = new Set<string>();
   return parts.filter((p) => {
     const key = `${p.type}|${JSON.stringify(p.content ?? p)}`;
-    if (seen.has(key)) return false;
+    if (seen.has(key)) {
+      return false;
+    }
     seen.add(key);
     return true;
   });
 }
 
 function sanitizeParts<T extends { type: string; [k: string]: any }>(
-  parts: T[],
+  parts: T[]
 ): T[] {
   return parts.filter(
-    (part) => !(part.type === 'reasoning' && part.reasoning === 'undefined'),
+    (part) => !(part.type === 'reasoning' && part.reasoning === 'undefined')
   );
 }
 
@@ -123,15 +125,17 @@ async function migrateMessages() {
         .sort((a, b) => {
           const differenceInTime =
             new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-          if (differenceInTime !== 0) return differenceInTime;
+          if (differenceInTime !== 0) {
+            return differenceInTime;
+          }
 
           return getMessageRank(a) - getMessageRank(b);
         });
 
       const votes = allVotes.filter((v) => v.chatId === chat.id);
 
-      const messageSection: Array<UIMessage> = [];
-      const messageSections: Array<Array<UIMessage>> = [];
+      const messageSection: UIMessage[] = [];
+      const messageSections: UIMessage[][] = [];
 
       for (const message of messages) {
         const { role } = message;
@@ -175,9 +179,10 @@ async function migrateMessages() {
                   createdAt: message.createdAt,
                   attachments: [],
                 } as NewMessageInsert;
-              } else if (message.role === 'assistant') {
+              }
+              if (message.role === 'assistant') {
                 const cleanParts = sanitizeParts(
-                  dedupeParts(message.parts || []),
+                  dedupeParts(message.parts || [])
                 );
 
                 return {

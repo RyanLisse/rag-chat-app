@@ -6,8 +6,13 @@
 import { google } from '@ai-sdk/google';
 import type { LanguageModel } from 'ai';
 import { BaseProvider } from './base';
+import {
+  AuthenticationError,
+  NetworkError,
+  RateLimitError,
+  TimeoutError,
+} from './errors';
 import type { GenerationOptions, ProviderCapabilities } from './types';
-import { AuthenticationError, NetworkError, RateLimitError, TimeoutError } from './errors';
 import { withTimeout } from './utils';
 
 /**
@@ -90,11 +95,7 @@ export class GoogleProvider extends BaseProvider {
   private client?: typeof google;
 
   constructor() {
-    super(
-      'google',
-      Object.keys(GOOGLE_MODELS),
-      GOOGLE_CAPABILITIES
-    );
+    super('google', Object.keys(GOOGLE_MODELS), GOOGLE_CAPABILITIES);
   }
 
   /**
@@ -131,13 +132,17 @@ export class GoogleProvider extends BaseProvider {
 
     try {
       // Use the models endpoint as a health check
-      const baseUrl = this.config?.baseUrl || 'https://generativelanguage.googleapis.com';
-      const response = await fetch(`${baseUrl}/v1beta/models?key=${this.config?.apiKey}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      const baseUrl =
+        this.config?.baseUrl || 'https://generativelanguage.googleapis.com';
+      const response = await fetch(
+        `${baseUrl}/v1beta/models?key=${this.config?.apiKey}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!response.ok) {
         if (response.status === 401 || response.status === 403) {
@@ -147,14 +152,19 @@ export class GoogleProvider extends BaseProvider {
           const resetTime = response.headers.get('retry-after');
           throw new RateLimitError(
             this.name,
-            resetTime ? new Date(Date.now() + parseInt(resetTime) * 1000) : undefined
+            resetTime
+              ? new Date(Date.now() + Number.parseInt(resetTime) * 1000)
+              : undefined
           );
         }
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new TimeoutError(this.name, this.getConfigValue('timeout', 10000));
+        throw new TimeoutError(
+          this.name,
+          this.getConfigValue('timeout', 10000)
+        );
       }
       throw error;
     }
@@ -163,7 +173,10 @@ export class GoogleProvider extends BaseProvider {
   /**
    * Create a language model instance
    */
-  protected createModel(modelId: string, options?: GenerationOptions): LanguageModel {
+  protected createModel(
+    modelId: string,
+    options?: GenerationOptions
+  ): LanguageModel {
     if (!this.client) {
       throw new Error('Provider not initialized');
     }
@@ -175,19 +188,22 @@ export class GoogleProvider extends BaseProvider {
 
     // Map our options to Google format
     const googleOptions: any = {};
-    
+
     if (options?.temperature !== undefined) {
       googleOptions.temperature = Math.max(0, Math.min(2, options.temperature));
     }
-    
+
     if (options?.maxTokens !== undefined) {
-      googleOptions.maxOutputTokens = Math.min(options.maxTokens, modelConfig.maxOutputTokens);
+      googleOptions.maxOutputTokens = Math.min(
+        options.maxTokens,
+        modelConfig.maxOutputTokens
+      );
     }
-    
+
     if (options?.topP !== undefined) {
       googleOptions.topP = Math.max(0, Math.min(1, options.topP));
     }
-    
+
     if (options?.topK !== undefined) {
       googleOptions.topK = Math.max(1, Math.min(40, options.topK));
     }
@@ -195,7 +211,7 @@ export class GoogleProvider extends BaseProvider {
     // Handle function calling (tools in Google)
     if (options?.tools && modelConfig.supportsFunctionCalling) {
       googleOptions.tools = options.tools.map(this.mapTool);
-      
+
       if (options.toolChoice) {
         googleOptions.toolConfig = this.mapToolChoice(options.toolChoice);
       }
@@ -230,11 +246,13 @@ export class GoogleProvider extends BaseProvider {
   private mapTool(tool: any): any {
     if (tool.type === 'function') {
       return {
-        functionDeclarations: [{
-          name: tool.function.name,
-          description: tool.function.description,
-          parameters: tool.function.parameters,
-        }],
+        functionDeclarations: [
+          {
+            name: tool.function.name,
+            description: tool.function.description,
+            parameters: tool.function.parameters,
+          },
+        ],
       };
     }
     return tool;
@@ -251,8 +269,12 @@ export class GoogleProvider extends BaseProvider {
         },
       };
     }
-    
-    if (toolChoice && typeof toolChoice === 'object' && 'function' in toolChoice) {
+
+    if (
+      toolChoice &&
+      typeof toolChoice === 'object' &&
+      'function' in toolChoice
+    ) {
       return {
         functionCallingConfig: {
           mode: 'ANY',
@@ -260,7 +282,7 @@ export class GoogleProvider extends BaseProvider {
         },
       };
     }
-    
+
     return {
       functionCallingConfig: {
         mode: 'AUTO',
@@ -274,24 +296,35 @@ export class GoogleProvider extends BaseProvider {
   private handleConnectionError(error: unknown): never {
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
-      
-      if (message.includes('unauthorized') || message.includes('invalid api key') || message.includes('permission denied')) {
+
+      if (
+        message.includes('unauthorized') ||
+        message.includes('invalid api key') ||
+        message.includes('permission denied')
+      ) {
         throw new AuthenticationError(this.name);
       }
-      
-      if (message.includes('quota exceeded') || message.includes('rate limit') || message.includes('too many requests')) {
+
+      if (
+        message.includes('quota exceeded') ||
+        message.includes('rate limit') ||
+        message.includes('too many requests')
+      ) {
         throw new RateLimitError(this.name);
       }
-      
+
       if (message.includes('timeout') || message.includes('aborted')) {
-        throw new TimeoutError(this.name, this.getConfigValue('timeout', 10000));
+        throw new TimeoutError(
+          this.name,
+          this.getConfigValue('timeout', 10000)
+        );
       }
-      
+
       if (message.includes('network') || message.includes('connection')) {
         throw new NetworkError(this.name, error);
       }
     }
-    
+
     throw new NetworkError(this.name, error as Error);
   }
 

@@ -1,10 +1,10 @@
 // Unit Tests for Citation Parsing Logic
-import { describe, it, expect, beforeEach, mock } from 'bun:test';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { generateCitationArtifact } from '@/artifacts/citation/server';
 import type { Citation, CitationSource } from '@/lib/types/citation';
 
 // Mock AI dependencies
-const mockStreamObject = mock(() => ({
+const mockStreamObject = vi.fn(() => ({
   fullStream: async function* () {
     yield {
       type: 'object',
@@ -52,7 +52,7 @@ const mockStreamObject = mock(() => ({
   },
 }));
 
-const mockStreamText = mock(() => ({
+const mockStreamText = vi.fn(() => ({
   fullStream: async function* () {
     yield { type: 'text-delta', textDelta: 'Machine learning has revolutionized data analysis [1]. ' };
     yield { type: 'text-delta', textDelta: 'Neural networks are particularly effective for pattern recognition [2]. ' };
@@ -85,7 +85,7 @@ describe('Citation Parsing Logic', () => {
 
   beforeEach(() => {
     dataStream = new MockDataStreamWriter();
-    uiStream = { update: mock(() => {}) };
+    uiStream = { update: vi.fn(() => {}) };
     mock.restoreAll();
   });
 
@@ -265,7 +265,7 @@ describe('Citation Parsing Logic', () => {
 
     it('should handle invalid citation data gracefully', async () => {
       // Mock invalid data
-      const invalidStreamObject = mock(() => ({
+      const invalidStreamObject = vi.fn(() => ({
         fullStream: async function* () {
           yield {
             type: 'object',
@@ -314,7 +314,7 @@ describe('Citation Parsing Logic', () => {
 
   describe('Streaming Behavior', () => {
     it('should handle streaming errors gracefully', async () => {
-      const errorStreamObject = mock(() => ({
+      const errorStreamObject = vi.fn(() => ({
         fullStream: async function* () {
           throw new Error('Stream error');
         },
@@ -421,7 +421,7 @@ describe('Citation Parsing Logic', () => {
       const promises = Array.from({ length: 5 }, (_, i) =>
         generateCitationArtifact({
           dataStream: new MockDataStreamWriter() as any,
-          uiStream: { update: mock(() => {}) },
+          uiStream: { update: vi.fn(() => {}) },
           documentId: `concurrent-${i}`,
           content: `Concurrent test content ${i}`,
           title: `Concurrent Test ${i}`,

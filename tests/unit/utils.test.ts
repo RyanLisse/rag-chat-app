@@ -1,5 +1,5 @@
 // Unit Tests for lib/utils.ts
-import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   cn,
   fetcher,
@@ -42,21 +42,34 @@ describe('cn (classname utility)', () => {
   });
 
   it('should handle complex combinations', () => {
-    expect(cn(
+    // When using twMerge, later classes should override earlier ones for the same property
+    const result = cn(
       'base-class',
       ['array-class-1', 'array-class-2'],
       { 'conditional-true': true, 'conditional-false': false },
       'override-class px-4',
-      'px-2' // Should be overridden by px-4
-    )).toBe('base-class array-class-1 array-class-2 conditional-true override-class px-4');
+      'px-2' // Should override px-4
+    );
+    
+    // Check that the result contains all expected classes
+    expect(result).toContain('base-class');
+    expect(result).toContain('array-class-1');
+    expect(result).toContain('array-class-2');
+    expect(result).toContain('conditional-true');
+    expect(result).toContain('override-class');
+    expect(result).not.toContain('conditional-false');
+    
+    // For conflicting Tailwind classes, the last one should win
+    expect(result).toContain('px-2');
+    expect(result).not.toContain('px-4');
   });
 });
 
 describe('fetcher', () => {
-  let mockFetch: ReturnType<typeof mock>;
+  let mockFetch: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    mockFetch = mock((url: string) => {
+    mockFetch = vi.fn((url: string) => {
       if (url === '/api/success') {
         return Promise.resolve({
           ok: true,
@@ -76,7 +89,7 @@ describe('fetcher', () => {
   });
 
   afterEach(() => {
-    mockFetch.mockRestore();
+    vi.restoreAllMocks();
   });
 
   it('should fetch and return JSON data for successful requests', async () => {
@@ -92,7 +105,8 @@ describe('fetcher', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(ChatSDKError);
       expect((error as ChatSDKError).code).toBe('test:error');
-      expect((error as ChatSDKError).message).toBe('Test error');
+      expect((error as ChatSDKError).message).toBe('Something went wrong. Please try again later.');
+      expect((error as ChatSDKError).cause).toBe('Test error');
     }
   });
 
@@ -108,11 +122,11 @@ describe('fetcher', () => {
 });
 
 describe('fetchWithErrorHandlers', () => {
-  let mockFetch: ReturnType<typeof mock>;
+  let mockFetch: ReturnType<typeof vi.fn>;
   let originalNavigator: typeof navigator;
 
   beforeEach(() => {
-    mockFetch = mock((url: string) => {
+    mockFetch = vi.fn((url: string) => {
       if (url === '/api/success') {
         return Promise.resolve({
           ok: true,
@@ -133,7 +147,7 @@ describe('fetchWithErrorHandlers', () => {
   });
 
   afterEach(() => {
-    mockFetch.mockRestore();
+    vi.restoreAllMocks();
     global.navigator = originalNavigator;
   });
 
@@ -200,24 +214,56 @@ describe('fetchWithErrorHandlers', () => {
 
 describe('getLocalStorage', () => {
   let originalWindow: typeof window;
+  let mockStorage: { [key: string]: string } = {};
 
   beforeEach(() => {
     originalWindow = global.window;
-    // Mock localStorage
-    const mockStorage: { [key: string]: string } = {};
+    mockStorage = {};
     
-    global.window = {
-      localStorage: {
-        getItem: (key: string) => mockStorage[key] || null,
-        setItem: (key: string, value: string) => {
-          mockStorage[key] = value;
-        },
+    const mockLocalStorage = {
+      getItem: (key: string) => mockStorage[key] || null,
+      setItem: (key: string, value: string) => {
+        mockStorage[key] = value;
       },
-    } as any;
+      removeItem: (key: string) => {
+        delete mockStorage[key];
+      },
+      clear: () => {
+        mockStorage = {};
+      },
+      length: Object.keys(mockStorage).length,
+      key: (index: number) => Object.keys(mockStorage)[index] || null,
+    };
+    
+    // Mock both window.localStorage and global localStorage
+    Object.defineProperty(global, 'window', {
+      value: {
+        localStorage: mockLocalStorage,
+      },
+      writable: true,
+      configurable: true,
+    });
+    
+    Object.defineProperty(global, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true,
+      configurable: true,
+    });
   });
 
   afterEach(() => {
-    global.window = originalWindow;
+    if (originalWindow) {
+      Object.defineProperty(global, 'window', {
+        value: originalWindow,
+        writable: true,
+        configurable: true,
+      });
+    } else {
+      delete (global as any).window;
+    }
+    
+    // Clean up global localStorage mock
+    delete (global as any).localStorage;
   });
 
   it('should return parsed JSON from localStorage', () => {

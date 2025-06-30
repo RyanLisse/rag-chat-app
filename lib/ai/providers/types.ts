@@ -3,7 +3,6 @@
  */
 
 import type { LanguageModel } from 'ai';
-import type { ChatModel } from '../models';
 
 /**
  * Base provider configuration interface
@@ -27,7 +26,10 @@ export interface GenerationOptions {
   seed?: number;
   stream?: boolean;
   tools?: any[];
-  toolChoice?: 'auto' | 'none' | { type: 'function'; function: { name: string } };
+  toolChoice?:
+    | 'auto'
+    | 'none'
+    | { type: 'function'; function: { name: string } };
 }
 
 /**
@@ -114,37 +116,37 @@ export interface ModelProvider {
   readonly name: string;
   readonly supportedModels: string[];
   readonly capabilities: ProviderCapabilities;
-  
+
   /**
    * Initialize the provider with configuration
    */
   initialize(config: ProviderConfig): Promise<void>;
-  
+
   /**
    * Get a language model instance
    */
   getModel(modelId: string, options?: GenerationOptions): LanguageModel;
-  
+
   /**
    * Check if a model is supported
    */
   supportsModel(modelId: string): boolean;
-  
+
   /**
    * Get provider health status
    */
   getHealth(): Promise<ProviderHealth>;
-  
+
   /**
    * Get provider metrics
    */
   getMetrics(): ProviderMetrics;
-  
+
   /**
    * Reset provider metrics
    */
   resetMetrics(): void;
-  
+
   /**
    * Cleanup resources
    */
@@ -182,17 +184,20 @@ export interface ModelRouter {
   /**
    * Route a request to the appropriate provider
    */
-  route(modelId: string, options?: GenerationOptions): Promise<{
+  route(
+    modelId: string,
+    options?: GenerationOptions
+  ): Promise<{
     provider: ModelProvider;
     model: LanguageModel;
     metadata: Partial<ResponseMetadata>;
   }>;
-  
+
   /**
    * Get the best provider for a model
    */
   getBestProvider(modelId: string): Promise<ModelProvider | undefined>;
-  
+
   /**
    * Update router configuration
    */

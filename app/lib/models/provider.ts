@@ -64,7 +64,10 @@ export class ProviderRateLimitError extends Error implements ProviderError {
   }
 }
 
-export class ProviderAuthenticationError extends Error implements ProviderError {
+export class ProviderAuthenticationError
+  extends Error
+  implements ProviderError
+{
   provider: string;
   statusCode = 401;
   retryable = false;
@@ -92,7 +95,10 @@ export class ProviderQuotaExceededError extends Error implements ProviderError {
   }
 }
 
-export class ProviderInvalidRequestError extends Error implements ProviderError {
+export class ProviderInvalidRequestError
+  extends Error
+  implements ProviderError
+{
   provider: string;
   statusCode = 400;
   retryable = false;

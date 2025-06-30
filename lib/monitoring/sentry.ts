@@ -3,7 +3,7 @@ import { logger } from './logger';
 
 export function initializeSentry() {
   const dsn = process.env.SENTRY_DSN;
-  
+
   if (!dsn) {
     logger.warn('Sentry DSN not configured, error tracking disabled');
     return;
@@ -14,24 +14,24 @@ export function initializeSentry() {
     environment: process.env.NODE_ENV || 'development',
     tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
     profilesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
-    
+
     // Performance Monitoring
     integrations: [
       // Automatically instrument Node.js libraries and frameworks
       Sentry.autoDiscoverNodePerformanceMonitoringIntegrations(),
     ],
-    
+
     // Set sample rates
     replaysSessionSampleRate: 0.1,
     replaysOnErrorSampleRate: 1.0,
-    
+
     // Custom error filtering
-    beforeSend(event, hint) {
+    beforeSend(event, _hint) {
       // Filter out non-critical errors
       if (event.level === 'warning') {
         return null;
       }
-      
+
       // Add custom context
       if (event.contexts) {
         event.contexts.app = {
@@ -39,17 +39,17 @@ export function initializeSentry() {
           service: 'rag-chat-app',
         };
       }
-      
+
       return event;
     },
-    
+
     // Custom breadcrumb filtering
     beforeBreadcrumb(breadcrumb) {
       // Filter out noisy breadcrumbs
       if (breadcrumb.category === 'console' && breadcrumb.level === 'debug') {
         return null;
       }
-      
+
       return breadcrumb;
     },
   });
@@ -60,7 +60,7 @@ export function initializeSentry() {
 // Helper to capture exceptions with additional context
 export function captureException(error: Error, context?: Record<string, any>) {
   logger.error('Exception captured', context, error);
-  
+
   Sentry.withScope((scope) => {
     if (context) {
       scope.setContext('additional', context);
@@ -70,9 +70,13 @@ export function captureException(error: Error, context?: Record<string, any>) {
 }
 
 // Helper to capture messages
-export function captureMessage(message: string, level: Sentry.SeverityLevel = 'info', context?: Record<string, any>) {
+export function captureMessage(
+  message: string,
+  level: Sentry.SeverityLevel = 'info',
+  context?: Record<string, any>
+) {
   logger.info('Message captured', { message, level, ...context });
-  
+
   Sentry.withScope((scope) => {
     if (context) {
       scope.setContext('additional', context);
@@ -82,7 +86,11 @@ export function captureMessage(message: string, level: Sentry.SeverityLevel = 'i
 }
 
 // Helper to set user context
-export function setUser(user: { id: string; email?: string; username?: string }) {
+export function setUser(user: {
+  id: string;
+  email?: string;
+  username?: string;
+}) {
   Sentry.setUser(user);
 }
 
@@ -97,7 +105,11 @@ export function startTransaction(name: string, op: string) {
 }
 
 // RAG-specific error tracking
-export function captureRAGError(error: Error, operation: string, metadata?: Record<string, any>) {
+export function captureRAGError(
+  error: Error,
+  operation: string,
+  metadata?: Record<string, any>
+) {
   captureException(error, {
     operation,
     component: 'rag',
@@ -106,7 +118,11 @@ export function captureRAGError(error: Error, operation: string, metadata?: Reco
 }
 
 // Model-specific error tracking
-export function captureModelError(error: Error, model: string, prompt?: string) {
+export function captureModelError(
+  error: Error,
+  model: string,
+  prompt?: string
+) {
   captureException(error, {
     operation: 'model_inference',
     model,
@@ -115,7 +131,11 @@ export function captureModelError(error: Error, model: string, prompt?: string) 
 }
 
 // Document processing error tracking
-export function captureDocumentError(error: Error, documentId: string, stage: string) {
+export function captureDocumentError(
+  error: Error,
+  documentId: string,
+  stage: string
+) {
   captureException(error, {
     operation: 'document_processing',
     documentId,

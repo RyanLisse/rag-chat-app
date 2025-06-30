@@ -3,9 +3,9 @@ import { notFound, redirect } from 'next/navigation';
 
 import { auth } from '@/app/(auth)/auth';
 import { Chat } from '@/components/chat';
-import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import { DataStreamHandler } from '@/components/data-stream-handler';
 import { DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
+import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import type { DBMessage } from '@/lib/db/schema';
 import type { Attachment, UIMessage } from 'ai';
 
@@ -38,7 +38,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     id,
   });
 
-  function convertToUIMessages(messages: Array<DBMessage>): Array<UIMessage> {
+  function convertToUIMessages(messages: DBMessage[]): UIMessage[] {
     return messages.map((message) => ({
       id: message.id,
       parts: message.parts as UIMessage['parts'],
@@ -46,8 +46,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
       // Note: content will soon be deprecated in @ai-sdk/react
       content: '',
       createdAt: message.createdAt,
-      experimental_attachments:
-        (message.attachments as Array<Attachment>) ?? [],
+      experimental_attachments: (message.attachments as Attachment[]) ?? [],
     }));
   }
 

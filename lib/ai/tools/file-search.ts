@@ -1,6 +1,6 @@
 import { tool } from 'ai';
-import { z } from 'zod';
 import OpenAI from 'openai';
+import { z } from 'zod';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -10,13 +10,19 @@ const openai = new OpenAI({
 export const fileSearchTool = tool({
   description: 'Search through uploaded documents to find relevant information',
   parameters: z.object({
-    query: z.string().describe('The search query to find relevant information in documents'),
-    limit: z.number().optional().default(5).describe('Maximum number of results to return'),
+    query: z
+      .string()
+      .describe('The search query to find relevant information in documents'),
+    limit: z
+      .number()
+      .optional()
+      .default(5)
+      .describe('Maximum number of results to return'),
   }),
   execute: async ({ query, limit }) => {
     try {
       const vectorStoreId = process.env.OPENAI_VECTORSTORE_ID;
-      
+
       if (!vectorStoreId) {
         return {
           success: false,
@@ -57,7 +63,10 @@ export const fileSearchTool = tool({
 
       // Wait for the run to complete
       let runStatus = await openai.threads.runs.retrieve(thread.id, run.id);
-      while (runStatus.status !== 'completed' && runStatus.status !== 'failed') {
+      while (
+        runStatus.status !== 'completed' &&
+        runStatus.status !== 'failed'
+      ) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         runStatus = await openai.threads.runs.retrieve(thread.id, run.id);
       }
@@ -72,7 +81,9 @@ export const fileSearchTool = tool({
 
       // Get the messages from the thread
       const messages = await openai.threads.messages.list(thread.id);
-      const assistantMessage = messages.data.find(msg => msg.role === 'assistant');
+      const assistantMessage = messages.data.find(
+        (msg) => msg.role === 'assistant'
+      );
 
       if (!assistantMessage) {
         return {
@@ -94,10 +105,11 @@ export const fileSearchTool = tool({
 
       const annotations = content.text.annotations || [];
       const citations = annotations
-        .filter((ann): ann is OpenAI.Beta.Threads.Messages.FileCitationAnnotation => 
-          ann.type === 'file_citation'
+        .filter(
+          (ann): ann is OpenAI.Beta.Threads.Messages.FileCitationAnnotation =>
+            ann.type === 'file_citation'
         )
-        .map(citation => ({
+        .map((citation) => ({
           text: citation.text,
           fileId: citation.file_citation.file_id,
           quote: citation.file_citation.quote,
@@ -122,16 +134,24 @@ export const fileSearchTool = tool({
 
 // Alternative implementation using direct file search without assistant
 export const directFileSearchTool = tool({
-  description: 'Search through uploaded documents using direct vector store search',
+  description:
+    'Search through uploaded documents using direct vector store search',
   parameters: z.object({
     query: z.string().describe('The search query'),
-    vectorStoreId: z.string().optional().describe('Vector store ID to search in'),
-    maxResults: z.number().optional().default(5).describe('Maximum number of results'),
+    vectorStoreId: z
+      .string()
+      .optional()
+      .describe('Vector store ID to search in'),
+    maxResults: z
+      .number()
+      .optional()
+      .default(5)
+      .describe('Maximum number of results'),
   }),
   execute: async ({ query, vectorStoreId, maxResults }) => {
     try {
       const storeId = vectorStoreId || process.env.OPENAI_VECTORSTORE_ID;
-      
+
       if (!storeId) {
         return {
           success: false,
@@ -143,7 +163,7 @@ export const directFileSearchTool = tool({
       // Note: OpenAI doesn't provide direct vector search API yet
       // This is a placeholder for when they add this functionality
       // For now, you need to use the assistant API as shown above
-      
+
       return {
         success: false,
         error: 'Direct vector search not yet available in OpenAI API',

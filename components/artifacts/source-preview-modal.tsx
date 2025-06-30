@@ -77,10 +77,9 @@ export function SourcePreviewModal({
     }
   };
 
-  const avgRelevanceScore = citations.reduce(
-    (sum, c) => sum + (c.relevanceScore || 0.5),
-    0
-  ) / citations.length;
+  const avgRelevanceScore =
+    citations.reduce((sum, c) => sum + (c.relevanceScore || 0.5), 0) /
+    citations.length;
 
   return (
     <AnimatePresence>
@@ -112,7 +111,8 @@ export function SourcePreviewModal({
                     {source.type}
                   </Badge>
                   <Badge variant="outline">
-                    {citations.length} citation{citations.length !== 1 ? 's' : ''}
+                    {citations.length} citation
+                    {citations.length !== 1 ? 's' : ''}
                   </Badge>
                   <Badge variant="outline">
                     {(avgRelevanceScore * 100).toFixed(0)}% relevance
@@ -160,7 +160,10 @@ export function SourcePreviewModal({
                       <div className="flex items-center gap-2 text-sm">
                         <ClockIcon className="w-4 h-4 text-gray-400" />
                         <span className="text-gray-600 dark:text-gray-300">
-                          Updated {new Date(source.metadata.lastModified).toLocaleDateString()}
+                          Updated{' '}
+                          {new Date(
+                            source.metadata.lastModified
+                          ).toLocaleDateString()}
                         </span>
                       </div>
                     )}
@@ -234,7 +237,8 @@ export function SourcePreviewModal({
                         </Badge>
                         {citation.relevanceScore && (
                           <span className="text-xs text-gray-500">
-                            {(citation.relevanceScore * 100).toFixed(0)}% relevant
+                            {(citation.relevanceScore * 100).toFixed(0)}%
+                            relevant
                           </span>
                         )}
                       </div>
@@ -248,9 +252,10 @@ export function SourcePreviewModal({
 
               {/* Additional Metadata */}
               {source.metadata &&
-                Object.entries(source.metadata)
-                  .filter(([key]) => !['author', 'date', 'lastModified', 'excerpt'].includes(key))
-                  .length > 0 && (
+                Object.entries(source.metadata).filter(
+                  ([key]) =>
+                    !['author', 'date', 'lastModified', 'excerpt'].includes(key)
+                ).length > 0 && (
                   <>
                     <Separator />
                     <div className="space-y-3">
@@ -259,14 +264,27 @@ export function SourcePreviewModal({
                       </h3>
                       <div className="space-y-2">
                         {Object.entries(source.metadata)
-                          .filter(([key]) => !['author', 'date', 'lastModified', 'excerpt'].includes(key))
+                          .filter(
+                            ([key]) =>
+                              ![
+                                'author',
+                                'date',
+                                'lastModified',
+                                'excerpt',
+                              ].includes(key)
+                          )
                           .map(([key, value]) => (
-                            <div key={key} className="flex items-start gap-2 text-sm">
+                            <div
+                              key={key}
+                              className="flex items-start gap-2 text-sm"
+                            >
                               <span className="font-medium capitalize text-gray-600 dark:text-gray-400">
                                 {key.replace(/([A-Z])/g, ' $1').trim()}:
                               </span>
                               <span className="text-gray-600 dark:text-gray-300">
-                                {typeof value === 'string' ? value : JSON.stringify(value)}
+                                {typeof value === 'string'
+                                  ? value
+                                  : JSON.stringify(value)}
                               </span>
                             </div>
                           ))}

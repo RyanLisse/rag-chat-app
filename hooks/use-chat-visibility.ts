@@ -1,14 +1,14 @@
 'use client';
 
+import { updateChatVisibility } from '@/app/(chat)/actions';
+import {
+  type ChatHistory,
+  getChatHistoryPaginationKey,
+} from '@/components/sidebar-history';
+import type { VisibilityType } from '@/components/visibility-selector';
 import { useMemo } from 'react';
 import useSWR, { useSWRConfig } from 'swr';
 import { unstable_serialize } from 'swr/infinite';
-import { updateChatVisibility } from '@/app/(chat)/actions';
-import {
-  getChatHistoryPaginationKey,
-  type ChatHistory,
-} from '@/components/sidebar-history';
-import type { VisibilityType } from '@/components/visibility-selector';
 
 export function useChatVisibility({
   chatId,
@@ -25,13 +25,17 @@ export function useChatVisibility({
     null,
     {
       fallbackData: initialVisibilityType,
-    },
+    }
   );
 
   const visibilityType = useMemo(() => {
-    if (!history) return localVisibility;
+    if (!history) {
+      return localVisibility;
+    }
     const chat = history.chats.find((chat) => chat.id === chatId);
-    if (!chat) return 'private';
+    if (!chat) {
+      return 'private';
+    }
     return chat.visibility;
   }, [history, chatId, localVisibility]);
 

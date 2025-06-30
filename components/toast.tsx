@@ -1,9 +1,9 @@
 'use client';
 
+import { cn } from '@/lib/utils';
 import React, { useEffect, useRef, useState, type ReactNode } from 'react';
 import { toast as sonnerToast } from 'sonner';
 import { CheckCircleFillIcon, WarningIcon } from './icons';
-import { cn } from '@/lib/utils';
 
 const iconsByType: Record<'success' | 'error', ReactNode> = {
   success: <CheckCircleFillIcon />,
@@ -24,7 +24,9 @@ function Toast(props: ToastProps) {
 
   useEffect(() => {
     const el = descriptionRef.current;
-    if (!el) return;
+    if (!el) {
+      return;
+    }
 
     const update = () => {
       const lineHeight = Number.parseFloat(getComputedStyle(el).lineHeight);
@@ -40,25 +42,25 @@ function Toast(props: ToastProps) {
   }, [description]);
 
   return (
-    <div className="flex w-full toast-mobile:w-[356px] justify-center">
+    <div className="flex toast-mobile:w-[356px] w-full justify-center">
       <div
         data-testid="toast"
         key={id}
         className={cn(
-          'bg-zinc-100 p-3 rounded-lg w-full toast-mobile:w-fit flex flex-row gap-3',
-          multiLine ? 'items-start' : 'items-center',
+          'flex toast-mobile:w-fit w-full flex-row gap-3 rounded-lg bg-zinc-100 p-3',
+          multiLine ? 'items-start' : 'items-center'
         )}
       >
         <div
           data-type={type}
           className={cn(
             'data-[type=error]:text-red-600 data-[type=success]:text-green-600',
-            { 'pt-1': multiLine },
+            { 'pt-1': multiLine }
           )}
         >
           {iconsByType[type]}
         </div>
-        <div ref={descriptionRef} className="text-zinc-950 text-sm">
+        <div ref={descriptionRef} className="text-sm text-zinc-950">
           {description}
         </div>
       </div>

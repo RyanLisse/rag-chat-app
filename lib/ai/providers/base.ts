@@ -3,17 +3,26 @@
  */
 
 import type { LanguageModel } from 'ai';
+import {
+  ConfigurationError,
+  ModelInitializationError,
+  ProviderError,
+} from './errors';
 import type {
+  GenerationOptions,
   ModelProvider,
+  ProviderCapabilities,
   ProviderConfig,
   ProviderHealth,
   ProviderMetrics,
-  ProviderCapabilities,
-  GenerationOptions,
   RetryConfig,
 } from './types';
-import { ProviderError, ConfigurationError, ModelInitializationError } from './errors';
-import { retryWithBackoff, validateApiKey, DEFAULT_RETRY_CONFIG, measureExecutionTime } from './utils';
+import {
+  DEFAULT_RETRY_CONFIG,
+  measureExecutionTime,
+  retryWithBackoff,
+  validateApiKey,
+} from './utils';
 
 /**
  * Abstract base class for all model providers
@@ -64,9 +73,13 @@ export abstract class BaseProvider implements ModelProvider {
    */
   getModel(modelId: string, options?: GenerationOptions): LanguageModel {
     this.ensureInitialized();
-    
+
     if (!this.supportsModel(modelId)) {
-      throw new ModelInitializationError(this.name, modelId, new Error('Model not supported'));
+      throw new ModelInitializationError(
+        this.name,
+        modelId,
+        new Error('Model not supported')
+      );
     }
 
     try {
@@ -92,14 +105,19 @@ export abstract class BaseProvider implements ModelProvider {
       const start = performance.now();
       await this.performHealthCheck();
       const latency = performance.now() - start;
-      
-      const errorRate = this.metrics.requestCount > 0 
-        ? this.metrics.errorCount / this.metrics.requestCount 
-        : 0;
+
+      const errorRate =
+        this.metrics.requestCount > 0
+          ? this.metrics.errorCount / this.metrics.requestCount
+          : 0;
 
       let status: ProviderHealth['status'] = 'healthy';
-      if (errorRate > 0.1) status = 'degraded';
-      if (errorRate > 0.5 || latency > 10000) status = 'unhealthy';
+      if (errorRate > 0.1) {
+        status = 'degraded';
+      }
+      if (errorRate > 0.5 || latency > 10000) {
+        status = 'unhealthy';
+      }
 
       return {
         status,
@@ -124,9 +142,10 @@ export abstract class BaseProvider implements ModelProvider {
   getMetrics(): ProviderMetrics {
     return {
       ...this.metrics,
-      averageLatency: this.metrics.requestCount > 0 
-        ? this.metrics.totalLatency / this.metrics.requestCount 
-        : 0,
+      averageLatency:
+        this.metrics.requestCount > 0
+          ? this.metrics.totalLatency / this.metrics.requestCount
+          : 0,
     };
   }
 
@@ -150,10 +169,10 @@ export abstract class BaseProvider implements ModelProvider {
    */
   protected async executeWithRetry<T>(
     fn: () => Promise<T>,
-    operation: string = 'request'
+    _operation = 'request'
   ): Promise<T> {
     this.ensureInitialized();
-    
+
     const { result, duration } = await measureExecutionTime(async () => {
       return retryWithBackoff(fn, this.retryConfig);
     });
@@ -165,7 +184,10 @@ export abstract class BaseProvider implements ModelProvider {
   /**
    * Abstract methods to be implemented by concrete providers
    */
-  protected abstract createModel(modelId: string, options?: GenerationOptions): LanguageModel;
+  protected abstract createModel(
+    modelId: string,
+    options?: GenerationOptions
+  ): LanguageModel;
   protected abstract validateConnection(): Promise<void>;
   protected abstract performHealthCheck(): Promise<void>;
 
@@ -173,8 +195,12 @@ export abstract class BaseProvider implements ModelProvider {
    * Ensure provider is initialized
    */
   private ensureInitialized(): void {
-    if (!this.initialized || !this.config) {
-      throw new ProviderError('Provider not initialized', this.name, 'NOT_INITIALIZED');
+    if (!(this.initialized && this.config)) {
+      throw new ProviderError(
+        'Provider not initialized',
+        this.name,
+        'NOT_INITIALIZED'
+      );
     }
   }
 
@@ -215,7 +241,11 @@ export abstract class BaseProvider implements ModelProvider {
   /**
    * Update token usage metrics
    */
-  protected updateTokenUsage(input: number, output: number, cost: number): void {
+  protected updateTokenUsage(
+    input: number,
+    output: number,
+    cost: number
+  ): void {
     this.metrics.tokenUsage.input += input;
     this.metrics.tokenUsage.output += output;
     this.metrics.tokenUsage.total += input + output;

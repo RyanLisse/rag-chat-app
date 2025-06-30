@@ -1,5 +1,5 @@
 // Unit Tests for lib/ai/tools
-import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
+import { describe, it, expect, beforeEach, afterEach, vi, vi } from 'vitest';
 import { getWeather } from '@/lib/ai/tools/get-weather';
 import { createDocument } from '@/lib/ai/tools/create-document';
 import { updateDocument } from '@/lib/ai/tools/update-document';
@@ -12,7 +12,7 @@ describe('getWeather Tool', () => {
   let mockFetch: ReturnType<typeof mock>;
 
   beforeEach(() => {
-    mockFetch = mock((url: string) => {
+    mockFetch = vi.fn((url: string) => {
       if (url.includes('open-meteo.com')) {
         return Promise.resolve({
           json: () => Promise.resolve({
@@ -37,7 +37,9 @@ describe('getWeather Tool', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     mockFetch.mockRestore();
+  
   });
 
   it('should have correct tool configuration', () => {
@@ -112,7 +114,7 @@ describe('createDocument Tool', () => {
   beforeEach(() => {
     // Mock DataStreamWriter
     mockDataStream = {
-      writeData: mock(() => {}),
+      writeData: vi.fn(() => {}),
     } as any;
 
     // Mock session
@@ -124,7 +126,7 @@ describe('createDocument Tool', () => {
     } as Session;
 
     // Mock generateUUID
-    mockGenerateUUID = mock(() => 'test-uuid-123');
+    mockGenerateUUID = vi.fn(() => 'test-uuid-123');
     mock.module('@/lib/utils', () => ({
       generateUUID: mockGenerateUUID,
     }));
@@ -135,22 +137,24 @@ describe('createDocument Tool', () => {
       documentHandlersByArtifactKind: [
         {
           kind: 'text',
-          onCreateDocument: mock(async () => {}),
+          onCreateDocument: vi.fn(async () => {}),
         },
         {
           kind: 'code',
-          onCreateDocument: mock(async () => {}),
+          onCreateDocument: vi.fn(async () => {}),
         },
         {
           kind: 'sheet',
-          onCreateDocument: mock(async () => {}),
+          onCreateDocument: vi.fn(async () => {}),
         },
       ],
     }));
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     mock.restore();
+  
   });
 
   it('should create document tool with session and dataStream', () => {
@@ -261,7 +265,7 @@ describe('requestSuggestions Tool', () => {
   let mockFetch: ReturnType<typeof mock>;
 
   beforeEach(() => {
-    mockFetch = mock(() => 
+    mockFetch = vi.fn(() => 
       Promise.resolve({
         ok: true,
         json: () => Promise.resolve({
@@ -278,7 +282,9 @@ describe('requestSuggestions Tool', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     mockFetch.mockRestore();
+  
   });
 
   it('should have correct tool configuration', async () => {

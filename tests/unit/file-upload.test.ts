@@ -1,29 +1,29 @@
-import { describe, test, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
+import { describe, test, expect, beforeEach, afterEach, vi, vi } from 'vitest';
 import { VectorStoreClient } from '@/lib/ai/vector-store';
 import OpenAI from 'openai';
 
 // Mock OpenAI
 const mockOpenAI = {
   files: {
-    create: mock(() => Promise.resolve({ id: 'file-123', status: 'processed' })),
-    del: mock(() => Promise.resolve({ id: 'file-123', deleted: true })),
+    create: vi.fn(() => Promise.resolve({ id: 'file-123', status: 'processed' })),
+    del: vi.fn(() => Promise.resolve({ id: 'file-123', deleted: true })),
   },
   vectorStores: {
-    create: mock(() => Promise.resolve({ id: 'vs-123', name: 'Test Store' })),
-    retrieve: mock(() => Promise.resolve({ id: 'vs-123', name: 'Test Store' })),
+    create: vi.fn(() => Promise.resolve({ id: 'vs-123', name: 'Test Store' })),
+    retrieve: vi.fn(() => Promise.resolve({ id: 'vs-123', name: 'Test Store' })),
     files: {
-      create: mock(() => Promise.resolve({ id: 'vsf-123', status: 'in_progress' })),
-      list: mock(() => Promise.resolve({ data: [] })),
-      retrieve: mock(() => Promise.resolve({ id: 'vsf-123', status: 'completed' })),
-      del: mock(() => Promise.resolve({ id: 'vsf-123', deleted: true })),
+      create: vi.fn(() => Promise.resolve({ id: 'vsf-123', status: 'in_progress' })),
+      list: vi.fn(() => Promise.resolve({ data: [] })),
+      retrieve: vi.fn(() => Promise.resolve({ id: 'vsf-123', status: 'completed' })),
+      del: vi.fn(() => Promise.resolve({ id: 'vsf-123', deleted: true })),
     },
     fileBatches: {
-      create: mock(() => Promise.resolve({ 
+      create: vi.fn(() => Promise.resolve({ 
         id: 'batch-123', 
         status: 'in_progress',
         file_counts: { completed: 0, in_progress: 1, failed: 0 }
       })),
-      retrieve: mock(() => Promise.resolve({ 
+      retrieve: vi.fn(() => Promise.resolve({ 
         id: 'batch-123', 
         status: 'completed',
         file_counts: { completed: 1, in_progress: 0, failed: 0 }

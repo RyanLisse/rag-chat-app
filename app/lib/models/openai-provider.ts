@@ -1,15 +1,15 @@
 import { openai } from '@ai-sdk/openai';
-import { streamText, generateText } from 'ai';
+import { generateText, streamText } from 'ai';
 import type { LanguageModel, StreamingTextResponse } from 'ai';
-import { 
-  type ModelProvider, 
-  type ModelConfig, 
+import {
   type ChatParams,
-  ProviderRateLimitError,
+  type ModelConfig,
+  type ModelProvider,
   ProviderAuthenticationError,
-  ProviderQuotaExceededError,
+  ProviderInternalError,
   ProviderInvalidRequestError,
-  ProviderInternalError
+  ProviderQuotaExceededError,
+  ProviderRateLimitError,
 } from './provider';
 
 const OPENAI_MODELS: ModelConfig[] = [
@@ -77,7 +77,7 @@ export class OpenAIProvider implements ModelProvider {
   }
 
   getModel(modelId: string): LanguageModel {
-    const modelConfig = this.models.find(m => m.id === modelId);
+    const modelConfig = this.models.find((m) => m.id === modelId);
     if (!modelConfig) {
       throw new ProviderInvalidRequestError(
         this.id,
@@ -93,8 +93,8 @@ export class OpenAIProvider implements ModelProvider {
   async chat(params: ChatParams): Promise<StreamingTextResponse> {
     try {
       const model = this.getModel(params.model);
-      const modelConfig = this.models.find(m => m.id === params.model);
-      
+      const modelConfig = this.models.find((m) => m.id === params.model);
+
       if (!modelConfig) {
         throw new ProviderInvalidRequestError(
           this.id,
@@ -103,21 +103,22 @@ export class OpenAIProvider implements ModelProvider {
       }
 
       // Handle models that don't support system prompts (like o1-mini)
-      const messages = modelConfig.supportsSystemPrompt 
-        ? params.messages 
-        : params.messages.filter(m => m.role !== 'system');
+      const messages = modelConfig.supportsSystemPrompt
+        ? params.messages
+        : params.messages.filter((m) => m.role !== 'system');
 
       // Handle function calling
-      const tools = params.functions && modelConfig.supportsFunctions
-        ? params.functions.map(fn => ({
-            type: 'function' as const,
-            function: {
-              name: fn.name,
-              description: fn.description,
-              parameters: fn.parameters,
-            },
-          }))
-        : undefined;
+      const tools =
+        params.functions && modelConfig.supportsFunctions
+          ? params.functions.map((fn) => ({
+              type: 'function' as const,
+              function: {
+                name: fn.name,
+                description: fn.description,
+                parameters: fn.parameters,
+              },
+            }))
+          : undefined;
 
       if (params.stream !== false) {
         const result = await streamText({
@@ -134,31 +135,30 @@ export class OpenAIProvider implements ModelProvider {
         });
 
         return new StreamingTextResponse(result.toDataStream());
-      } else {
-        const result = await generateText({
-          model,
-          messages,
-          temperature: params.temperature,
-          maxTokens: params.maxTokens,
-          topP: params.topP,
-          frequencyPenalty: params.frequencyPenalty,
-          presencePenalty: params.presencePenalty,
-          tools,
-          toolChoice: params.functionCall,
-          abortSignal: params.signal,
-        });
-
-        // Create a fake stream for consistency
-        const encoder = new TextEncoder();
-        const stream = new ReadableStream({
-          start(controller) {
-            controller.enqueue(encoder.encode(result.text));
-            controller.close();
-          },
-        });
-
-        return new StreamingTextResponse(stream);
       }
+      const result = await generateText({
+        model,
+        messages,
+        temperature: params.temperature,
+        maxTokens: params.maxTokens,
+        topP: params.topP,
+        frequencyPenalty: params.frequencyPenalty,
+        presencePenalty: params.presencePenalty,
+        tools,
+        toolChoice: params.functionCall,
+        abortSignal: params.signal,
+      });
+
+      // Create a fake stream for consistency
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(result.text));
+          controller.close();
+        },
+      });
+
+      return new StreamingTextResponse(stream);
     } catch (error: unknown) {
       return this.handleError(error);
     }
@@ -167,7 +167,7 @@ export class OpenAIProvider implements ModelProvider {
   private handleError(error: unknown): never {
     if (error instanceof Error) {
       const message = error.message.toLowerCase();
-      
+
       // Rate limit error
       if (message.includes('rate limit') || message.includes('429')) {
         throw new ProviderRateLimitError(
@@ -176,16 +176,20 @@ export class OpenAIProvider implements ModelProvider {
           error
         );
       }
-      
+
       // Authentication error
-      if (message.includes('unauthorized') || message.includes('401') || message.includes('api key')) {
+      if (
+        message.includes('unauthorized') ||
+        message.includes('401') ||
+        message.includes('api key')
+      ) {
         throw new ProviderAuthenticationError(
           this.id,
           'Invalid OpenAI API key.',
           error
         );
       }
-      
+
       // Quota exceeded
       if (message.includes('quota') || message.includes('402')) {
         throw new ProviderQuotaExceededError(
@@ -194,7 +198,7 @@ export class OpenAIProvider implements ModelProvider {
           error
         );
       }
-      
+
       // Invalid request
       if (message.includes('invalid') || message.includes('400')) {
         throw new ProviderInvalidRequestError(
@@ -203,9 +207,13 @@ export class OpenAIProvider implements ModelProvider {
           error
         );
       }
-      
+
       // Server error
-      if (message.includes('500') || message.includes('502') || message.includes('503')) {
+      if (
+        message.includes('500') ||
+        message.includes('502') ||
+        message.includes('503')
+      ) {
         throw new ProviderInternalError(
           this.id,
           'OpenAI service temporarily unavailable.',
@@ -213,7 +221,7 @@ export class OpenAIProvider implements ModelProvider {
         );
       }
     }
-    
+
     // Default error
     throw new ProviderInternalError(
       this.id,

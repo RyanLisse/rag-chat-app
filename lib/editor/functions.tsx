@@ -8,7 +8,7 @@ import { renderToString } from 'react-dom/server';
 import { Markdown } from '@/components/markdown';
 
 import { documentSchema } from './config';
-import { createSuggestionWidget, type UISuggestion } from './suggestions';
+import { type UISuggestion, createSuggestionWidget } from './suggestions';
 
 export const buildDocumentFromContent = (content: string) => {
   const parser = DOMParser.fromSchema(documentSchema);
@@ -23,10 +23,10 @@ export const buildContentFromDocument = (document: Node) => {
 };
 
 export const createDecorations = (
-  suggestions: Array<UISuggestion>,
-  view: EditorView,
+  suggestions: UISuggestion[],
+  view: EditorView
 ) => {
-  const decorations: Array<Decoration> = [];
+  const decorations: Decoration[] = [];
 
   for (const suggestion of suggestions) {
     decorations.push(
@@ -39,8 +39,8 @@ export const createDecorations = (
         {
           suggestionId: suggestion.id,
           type: 'highlight',
-        },
-      ),
+        }
+      )
     );
 
     decorations.push(
@@ -53,8 +53,8 @@ export const createDecorations = (
         {
           suggestionId: suggestion.id,
           type: 'widget',
-        },
-      ),
+        }
+      )
     );
   }
 

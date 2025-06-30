@@ -1,8 +1,8 @@
-import { Suggestion } from '@/lib/db/schema';
-import { UseChatHelpers } from '@ai-sdk/react';
-import { ComponentType, Dispatch, ReactNode, SetStateAction } from 'react';
-import { DataStreamDelta } from './data-stream-handler';
-import { UIArtifact } from './artifact';
+import type { Suggestion } from '@/lib/db/schema';
+import type { UseChatHelpers } from '@ai-sdk/react';
+import type { ComponentType, Dispatch, ReactNode, SetStateAction } from 'react';
+import type { UIArtifact } from './artifact';
+import type { DataStreamDelta } from './data-stream-handler';
 
 export type ArtifactActionContext<M = any> = {
   content: string;
@@ -39,7 +39,7 @@ interface ArtifactContent<M = any> {
   isCurrentVersion: boolean;
   currentVersionIndex: number;
   status: 'streaming' | 'idle';
-  suggestions: Array<Suggestion>;
+  suggestions: Suggestion[];
   onSaveContent: (updatedContent: string, debounce: boolean) => void;
   isInline: boolean;
   getDocumentContentById: (index: number) => string;
@@ -57,7 +57,7 @@ type ArtifactConfig<T extends string, M = any> = {
   kind: T;
   description: string;
   content: ComponentType<ArtifactContent<M>>;
-  actions: Array<ArtifactAction<M>>;
+  actions: ArtifactAction<M>[];
   toolbar: ArtifactToolbarItem[];
   initialize?: (parameters: InitializeParameters<M>) => void;
   onStreamPart: (args: {
@@ -71,7 +71,7 @@ export class Artifact<T extends string, M = any> {
   readonly kind: T;
   readonly description: string;
   readonly content: ComponentType<ArtifactContent<M>>;
-  readonly actions: Array<ArtifactAction<M>>;
+  readonly actions: ArtifactAction<M>[];
   readonly toolbar: ArtifactToolbarItem[];
   readonly initialize?: (parameters: InitializeParameters) => void;
   readonly onStreamPart: (args: {

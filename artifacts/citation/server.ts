@@ -1,8 +1,8 @@
-import { streamText, convertToCoreMessages, streamObject } from 'ai';
-import { z } from 'zod';
 import { customModel } from '@/lib/ai';
-import { DataStreamWriter } from '@ai-sdk/provider';
-import { Citation, CitationSource } from '@/lib/types/citation';
+import type { Citation, CitationSource } from '@/lib/types/citation';
+import type { DataStreamWriter } from '@ai-sdk/provider';
+import { convertToCoreMessages, streamObject, streamText } from 'ai';
+import { z } from 'zod';
 
 const citationExtractionSchema = z.object({
   citations: z.array(

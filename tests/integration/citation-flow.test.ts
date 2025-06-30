@@ -1,5 +1,5 @@
 // Integration Tests for Citation Flow
-import { describe, it, expect } from 'bun:test';
+import { describe, it, expect } from 'vitest';
 import {
   extractCitations,
   validateCitation,

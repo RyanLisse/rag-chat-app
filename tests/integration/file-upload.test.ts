@@ -1,16 +1,16 @@
-import { describe, test, expect, beforeEach, afterEach } from 'bun:test';
+import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST as uploadPOST } from '@/app/(chat)/api/files/upload/route';
 import { POST as statusPOST } from '@/app/(chat)/api/files/status/route';
 
 // Mock auth
 import { auth } from '@/app/(auth)/auth';
-jest.mock('@/app/(auth)/auth', () => ({
+jest.vi.fn('@/app/(auth)/auth', () => ({
   auth: jest.fn(),
 }));
 
 // Mock OpenAI
-jest.mock('openai', () => ({
+jest.vi.fn('openai', () => ({
   default: jest.fn().mockImplementation(() => ({
     files: {
       create: jest.fn().mockResolvedValue({ id: 'file-123', status: 'processed' }),
@@ -47,7 +47,9 @@ describe('File Upload API', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     jest.clearAllMocks();
+  
   });
 
   describe('POST /api/files/upload', () => {

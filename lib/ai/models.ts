@@ -27,7 +27,7 @@ export interface ChatModel {
   tags?: string[];
 }
 
-export const chatModels: Array<ChatModel> = [
+export const chatModels: ChatModel[] = [
   {
     id: 'gpt-4.1',
     name: 'GPT-4.1',
@@ -97,7 +97,7 @@ export const chatModels: Array<ChatModel> = [
   {
     id: 'gemini-2.5-pro',
     name: 'Gemini 2.5 Pro',
-    description: 'Google\'s most capable model with multimodal support',
+    description: "Google's most capable model with multimodal support",
     provider: 'google',
     contextLength: 2097152,
     maxOutputTokens: 8192,

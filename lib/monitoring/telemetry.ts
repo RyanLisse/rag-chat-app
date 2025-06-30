@@ -1,11 +1,23 @@
-import { NodeSDK } from '@opentelemetry/sdk-node';
+import {
+  DiagConsoleLogger,
+  DiagLogLevel,
+  diag,
+  metrics,
+  trace,
+} from '@opentelemetry/api';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
-import { PeriodicExportingMetricReader, ConsoleMetricExporter } from '@opentelemetry/sdk-metrics';
-import { Resource } from '@opentelemetry/resources';
-import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { OTLPMetricExporter } from '@opentelemetry/exporter-metrics-otlp-http';
-import { trace, metrics, DiagConsoleLogger, DiagLogLevel, diag } from '@opentelemetry/api';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { Resource } from '@opentelemetry/resources';
+import {
+  ConsoleMetricExporter,
+  PeriodicExportingMetricReader,
+} from '@opentelemetry/sdk-metrics';
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import {
+  ATTR_SERVICE_NAME,
+  ATTR_SERVICE_VERSION,
+} from '@opentelemetry/semantic-conventions';
 
 // Enable diagnostics for debugging
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
@@ -26,18 +38,23 @@ const resource = Resource.default().merge(
 
 // Configure trace exporter
 const traceExporter = new OTLPTraceExporter({
-  url: process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || 'http://localhost:4318/v1/traces',
+  url:
+    process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT ||
+    'http://localhost:4318/v1/traces',
   headers: {
     'x-honeycomb-team': process.env.HONEYCOMB_API_KEY || '',
   },
 });
 
 // Configure metrics exporter
-const metricExporter = process.env.NODE_ENV === 'production'
-  ? new OTLPMetricExporter({
-      url: process.env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT || 'http://localhost:4318/v1/metrics',
-    })
-  : new ConsoleMetricExporter();
+const metricExporter =
+  process.env.NODE_ENV === 'production'
+    ? new OTLPMetricExporter({
+        url:
+          process.env.OTEL_EXPORTER_OTLP_METRICS_ENDPOINT ||
+          'http://localhost:4318/v1/metrics',
+      })
+    : new ConsoleMetricExporter();
 
 // Create SDK
 export const otelSDK = new NodeSDK({
@@ -70,22 +87,28 @@ export const ragMetrics = {
     description: 'Duration of vector similarity searches in milliseconds',
     unit: 'ms',
   }),
-  vectorSearchResults: meter.createHistogram('rag.vector_search.results_count', {
-    description: 'Number of results returned from vector search',
-  }),
-  
+  vectorSearchResults: meter.createHistogram(
+    'rag.vector_search.results_count',
+    {
+      description: 'Number of results returned from vector search',
+    }
+  ),
+
   // Model metrics
-  modelInferenceDuration: meter.createHistogram('rag.model.inference_duration', {
-    description: 'Duration of model inference calls in milliseconds',
-    unit: 'ms',
-  }),
+  modelInferenceDuration: meter.createHistogram(
+    'rag.model.inference_duration',
+    {
+      description: 'Duration of model inference calls in milliseconds',
+      unit: 'ms',
+    }
+  ),
   modelTokensUsed: meter.createHistogram('rag.model.tokens_used', {
     description: 'Number of tokens used in model calls',
   }),
   modelErrors: meter.createCounter('rag.model.errors', {
     description: 'Count of model errors',
   }),
-  
+
   // Chat metrics
   chatMessageCount: meter.createCounter('rag.chat.messages', {
     description: 'Total number of chat messages processed',
@@ -94,16 +117,19 @@ export const ragMetrics = {
     description: 'Duration of chat sessions in seconds',
     unit: 's',
   }),
-  
+
   // Document processing metrics
-  documentProcessingDuration: meter.createHistogram('rag.document.processing_duration', {
-    description: 'Time taken to process documents in milliseconds',
-    unit: 'ms',
-  }),
+  documentProcessingDuration: meter.createHistogram(
+    'rag.document.processing_duration',
+    {
+      description: 'Time taken to process documents in milliseconds',
+      unit: 'ms',
+    }
+  ),
   documentChunkCount: meter.createHistogram('rag.document.chunk_count', {
     description: 'Number of chunks created from documents',
   }),
-  
+
   // API metrics
   apiRequestDuration: meter.createHistogram('api.request.duration', {
     description: 'Duration of API requests in milliseconds',
@@ -125,7 +151,7 @@ export async function measureAsync<T>(
 ): Promise<T> {
   const span = tracer.startSpan(name, { attributes });
   const startTime = Date.now();
-  
+
   try {
     const result = await operation();
     span.setStatus({ code: 1 }); // OK
@@ -145,7 +171,6 @@ export async function measureAsync<T>(
 export async function initializeTelemetry() {
   try {
     await otelSDK.start();
-    console.log('OpenTelemetry initialized successfully');
   } catch (error) {
     console.error('Error initializing OpenTelemetry:', error);
   }
@@ -155,7 +180,6 @@ export async function initializeTelemetry() {
 export async function shutdownTelemetry() {
   try {
     await otelSDK.shutdown();
-    console.log('OpenTelemetry shut down successfully');
   } catch (error) {
     console.error('Error shutting down OpenTelemetry:', error);
   }

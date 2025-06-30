@@ -1,9 +1,29 @@
 'use client';
 
-import { startTransition, useMemo, useOptimistic, useState, useCallback } from 'react';
-import { Check, ChevronsUpDown, Sparkles, Zap, Brain, Eye, Mic, FileSearch, DollarSign, Loader2, AlertCircle, Gauge } from 'lucide-react';
+import {
+  AlertCircle,
+  Brain,
+  Check,
+  ChevronsUpDown,
+  DollarSign,
+  Eye,
+  FileSearch,
+  Gauge,
+  Loader2,
+  Mic,
+  Sparkles,
+  Zap,
+} from 'lucide-react';
+import {
+  startTransition,
+  useCallback,
+  useMemo,
+  useOptimistic,
+  useState,
+} from 'react';
 
 import { saveChatModelAsCookie } from '@/app/(chat)/actions';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -18,12 +38,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
+import { entitlementsByUserType } from '@/lib/ai/entitlements';
 import { chatModels } from '@/lib/ai/models';
 import { cn } from '@/lib/utils';
-import { entitlementsByUserType } from '@/lib/ai/entitlements';
 import type { Session } from 'next-auth';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 
 const providerConfig = {
   openai: {
@@ -56,7 +75,9 @@ const modelSpeedConfig = {
 } as const;
 
 function getModelSpeed(modelId: string): 'fast' | 'balanced' | 'thorough' {
-  return modelSpeedConfig[modelId as keyof typeof modelSpeedConfig] || 'balanced';
+  return (
+    modelSpeedConfig[modelId as keyof typeof modelSpeedConfig] || 'balanced'
+  );
 }
 
 function getSpeedIcon(speed: 'fast' | 'balanced' | 'thorough') {
@@ -81,10 +102,17 @@ function getSpeedLabel(speed: 'fast' | 'balanced' | 'thorough') {
   }
 }
 
-function getCostCategory(inputPrice: number, outputPrice: number): 'low' | 'medium' | 'high' {
+function getCostCategory(
+  inputPrice: number,
+  outputPrice: number
+): 'low' | 'medium' | 'high' {
   const avgPrice = (inputPrice + outputPrice) / 2;
-  if (avgPrice < 0.005) return 'low';
-  if (avgPrice < 0.02) return 'medium';
+  if (avgPrice < 0.005) {
+    return 'low';
+  }
+  if (avgPrice < 0.02) {
+    return 'medium';
+  }
   return 'high';
 }
 
@@ -141,15 +169,15 @@ export function ModelSelector({
   const { availableChatModelIds } = entitlementsByUserType[userType];
 
   const availableChatModels = chatModels.filter((chatModel) =>
-    availableChatModelIds.includes(chatModel.id),
+    availableChatModelIds.includes(chatModel.id)
   );
 
   const selectedChatModel = useMemo(
     () =>
       availableChatModels.find(
-        (chatModel) => chatModel.id === optimisticModelId,
+        (chatModel) => chatModel.id === optimisticModelId
       ) || availableChatModels[0],
-    [optimisticModelId, availableChatModels],
+    [optimisticModelId, availableChatModels]
   );
 
   const filteredModels = useMemo(() => {
@@ -159,7 +187,7 @@ export function ModelSelector({
         model.name.toLowerCase().includes(searchTerm) ||
         model.description.toLowerCase().includes(searchTerm) ||
         model.provider.toLowerCase().includes(searchTerm) ||
-        model.tags?.some((tag) => tag.toLowerCase().includes(searchTerm)),
+        model.tags?.some((tag) => tag.toLowerCase().includes(searchTerm))
     );
   }, [availableChatModels, searchValue]);
 
@@ -172,33 +200,39 @@ export function ModelSelector({
         acc[model.provider].push(model);
         return acc;
       },
-      {} as Record<string, typeof filteredModels>,
+      {} as Record<string, typeof filteredModels>
     );
     return grouped;
   }, [filteredModels]);
 
-  const handleModelSelect = useCallback(async (modelId: string) => {
-    if (disabled || isChangingModel) return;
-    
-    try {
-      setIsChangingModel(true);
-      setLastError(null);
-      setOpen(false);
-      
-      startTransition(() => {
-        setOptimisticModelId(modelId);
-      });
-      
-      await saveChatModelAsCookie(modelId);
-      onModelChange?.(modelId);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to change model';
-      setLastError(errorMessage);
-      console.error('Failed to change model:', err);
-    } finally {
-      setIsChangingModel(false);
-    }
-  }, [disabled, isChangingModel, onModelChange]);
+  const handleModelSelect = useCallback(
+    async (modelId: string) => {
+      if (disabled || isChangingModel) {
+        return;
+      }
+
+      try {
+        setIsChangingModel(true);
+        setLastError(null);
+        setOpen(false);
+
+        startTransition(() => {
+          setOptimisticModelId(modelId);
+        });
+
+        await saveChatModelAsCookie(modelId);
+        onModelChange?.(modelId);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to change model';
+        setLastError(errorMessage);
+        console.error('Failed to change model:', err);
+      } finally {
+        setIsChangingModel(false);
+      }
+    },
+    [disabled, isChangingModel, onModelChange]
+  );
 
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -222,9 +256,9 @@ export function ModelSelector({
             aria-describedby={hasError ? 'model-selector-error' : undefined}
             disabled={disabled || isLoading}
             className={cn(
-              'justify-between min-w-[180px] md:min-w-[220px]',
+              'min-w-[180px] justify-between md:min-w-[220px]',
               hasError && 'border-red-300 dark:border-red-700',
-              className,
+              className
             )}
             onKeyDown={handleKeyDown}
             {...props}
@@ -233,8 +267,8 @@ export function ModelSelector({
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <span 
-                  className="text-base" 
+                <span
+                  className="text-base"
                   aria-label={`${providerConfig[selectedChatModel.provider].name} provider`}
                 >
                   {providerConfig[selectedChatModel.provider].icon}
@@ -242,13 +276,13 @@ export function ModelSelector({
               )}
               <span className="truncate">{selectedChatModel.name}</span>
               {hasError && (
-                <AlertCircle className="h-4 w-4 text-red-500 shrink-0" />
+                <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
               )}
             </div>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[300px] sm:w-[420px] p-0" align="start">
+        <PopoverContent className="w-[300px] p-0 sm:w-[420px]" align="start">
           <Command>
             <CommandInput
               placeholder="Search models..."
@@ -260,18 +294,24 @@ export function ModelSelector({
               <CommandEmpty>
                 <div className="flex flex-col items-center gap-2 py-6">
                   <div className="text-muted-foreground">No model found.</div>
-                  <div className="text-sm text-muted-foreground">Try searching for a different term.</div>
+                  <div className="text-muted-foreground text-sm">
+                    Try searching for a different term.
+                  </div>
                 </div>
               </CommandEmpty>
               {Object.entries(groupedModels).map(([provider, models]) => (
                 <CommandGroup
                   key={provider}
                   heading={
-                    <div className="flex items-center gap-2 text-xs uppercase text-muted-foreground">
-                      <span 
+                    <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase">
+                      <span
                         aria-label={`${providerConfig[provider as keyof typeof providerConfig].name} models`}
                       >
-                        {providerConfig[provider as keyof typeof providerConfig].icon}
+                        {
+                          providerConfig[
+                            provider as keyof typeof providerConfig
+                          ].icon
+                        }
                       </span>
                       <span>{provider}</span>
                     </div>
@@ -284,7 +324,7 @@ export function ModelSelector({
                       model.pricing.outputPer1kTokens
                     );
                     const isSelected = optimisticModelId === model.id;
-                    
+
                     return (
                       <CommandItem
                         key={model.id}
@@ -292,22 +332,22 @@ export function ModelSelector({
                         onSelect={() => handleModelSelect(model.id)}
                         disabled={isChangingModel}
                         className={cn(
-                          'flex flex-col items-start gap-2 p-3 cursor-pointer',
+                          'flex cursor-pointer flex-col items-start gap-2 p-3',
                           isSelected && 'bg-accent',
-                          isChangingModel && 'opacity-50 cursor-not-allowed'
+                          isChangingModel && 'cursor-not-allowed opacity-50'
                         )}
                         aria-label={`Select ${model.name} model`}
                       >
-                        <div className="flex items-start justify-between w-full">
+                        <div className="flex w-full items-start justify-between">
                           <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2 flex-wrap">
+                            <div className="flex flex-wrap items-center gap-2">
                               <span className="font-medium">{model.name}</span>
                               {model.tags?.includes('recommended') && (
                                 <Badge
                                   variant="secondary"
-                                  className="text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                                  className="bg-green-100 text-green-700 text-xs dark:bg-green-900 dark:text-green-300"
                                 >
-                                  <Sparkles className="h-3 w-3 mr-1" />
+                                  <Sparkles className="mr-1 h-3 w-3" />
                                   Recommended
                                 </Badge>
                               )}
@@ -317,23 +357,30 @@ export function ModelSelector({
                                 title={`${getSpeedLabel(speed)} response time`}
                               >
                                 {getSpeedIcon(speed)}
-                                <span className="ml-1 hidden sm:inline">{getSpeedLabel(speed)}</span>
+                                <span className="ml-1 hidden sm:inline">
+                                  {getSpeedLabel(speed)}
+                                </span>
                               </Badge>
                               <Badge
                                 variant="outline"
                                 className={cn(
                                   'text-xs',
-                                  costCategory === 'low' && 'text-green-600 dark:text-green-400',
-                                  costCategory === 'medium' && 'text-yellow-600 dark:text-yellow-400',
-                                  costCategory === 'high' && 'text-red-600 dark:text-red-400'
+                                  costCategory === 'low' &&
+                                    'text-green-600 dark:text-green-400',
+                                  costCategory === 'medium' &&
+                                    'text-yellow-600 dark:text-yellow-400',
+                                  costCategory === 'high' &&
+                                    'text-red-600 dark:text-red-400'
                                 )}
                                 title={getCostLabel(costCategory)}
                               >
                                 <DollarSign className="h-3 w-3" />
-                                <span className="ml-1 hidden sm:inline">{getCostLabel(costCategory).split(' ')[0]}</span>
+                                <span className="ml-1 hidden sm:inline">
+                                  {getCostLabel(costCategory).split(' ')[0]}
+                                </span>
                               </Badge>
                             </div>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-muted-foreground text-sm">
                               {model.description}
                             </p>
                           </div>
@@ -344,7 +391,7 @@ export function ModelSelector({
                             <Check
                               className={cn(
                                 'h-4 w-4 shrink-0',
-                                isSelected ? 'opacity-100' : 'opacity-0',
+                                isSelected ? 'opacity-100' : 'opacity-0'
                               )}
                             />
                           </div>
@@ -352,11 +399,14 @@ export function ModelSelector({
 
                         <Separator className="my-1" />
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-xs">
+                        <div className="grid w-full grid-cols-1 gap-3 text-xs sm:grid-cols-2">
                           <div className="space-y-1">
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <Brain className="h-3 w-3" />
-                              <span>Context: {formatContextLength(model.contextLength)}</span>
+                              <span>
+                                Context:{' '}
+                                {formatContextLength(model.contextLength)}
+                              </span>
                             </div>
                             <div className="flex items-center gap-1 text-muted-foreground">
                               <DollarSign className="h-3 w-3" />
@@ -372,38 +422,44 @@ export function ModelSelector({
                               {model.capabilities.vision && (
                                 <Badge
                                   variant="outline"
-                                  className="text-xs px-1.5 py-0.5 h-auto"
+                                  className="h-auto px-1.5 py-0.5 text-xs"
                                   title="Vision support"
                                 >
                                   <Eye className="h-3 w-3" />
-                                  <span className="ml-1 hidden sm:inline">Vision</span>
+                                  <span className="ml-1 hidden sm:inline">
+                                    Vision
+                                  </span>
                                 </Badge>
                               )}
                               {model.capabilities.audioInput && (
                                 <Badge
                                   variant="outline"
-                                  className="text-xs px-1.5 py-0.5 h-auto"
+                                  className="h-auto px-1.5 py-0.5 text-xs"
                                   title="Audio input support"
                                 >
                                   <Mic className="h-3 w-3" />
-                                  <span className="ml-1 hidden sm:inline">Audio</span>
+                                  <span className="ml-1 hidden sm:inline">
+                                    Audio
+                                  </span>
                                 </Badge>
                               )}
                               {model.capabilities.documentSearch && (
                                 <Badge
                                   variant="outline"
-                                  className="text-xs px-1.5 py-0.5 h-auto"
+                                  className="h-auto px-1.5 py-0.5 text-xs"
                                   title="Document search support"
                                 >
                                   <FileSearch className="h-3 w-3" />
-                                  <span className="ml-1 hidden sm:inline">Search</span>
+                                  <span className="ml-1 hidden sm:inline">
+                                    Search
+                                  </span>
                                 </Badge>
                               )}
                             </div>
                             {model.tags?.includes('long-context') && (
                               <Badge
                                 variant="outline"
-                                className="text-xs text-muted-foreground"
+                                className="text-muted-foreground text-xs"
                                 title="Supports extended context length"
                               >
                                 Long context
@@ -420,11 +476,11 @@ export function ModelSelector({
           </Command>
         </PopoverContent>
       </Popover>
-      
+
       {hasError && (
-        <div 
+        <div
           id="model-selector-error"
-          className="absolute top-full left-0 right-0 mt-1 p-2 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md dark:text-red-400 dark:bg-red-950 dark:border-red-800"
+          className="absolute top-full right-0 left-0 mt-1 rounded-md border border-red-200 bg-red-50 p-2 text-red-600 text-sm dark:border-red-800 dark:bg-red-950 dark:text-red-400"
           role="alert"
           aria-live="polite"
         >

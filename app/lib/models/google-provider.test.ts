@@ -66,7 +66,7 @@ describe('GoogleProvider', () => {
     };
 
     it('should handle streaming chat successfully', async () => {
-      const mockStream = { toDataStream: vi.fn().mockRetu rnValue('data-stream') };
+      const mockStream = { toDataStream: vi.fn().mockReturnValue('data-stream') };
       (ai.streamText as Mock).mockResolvedValue(mockStream);
 
       const result = await provider.chat(mockChatParams);

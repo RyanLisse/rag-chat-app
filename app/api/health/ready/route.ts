@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { logger } from '@/lib/monitoring';
+import { NextResponse } from 'next/server';
 
 interface ReadinessStatus {
   ready: boolean;
@@ -20,10 +20,12 @@ export async function GET() {
       'AUTH_SECRET',
       'BLOB_READ_WRITE_TOKEN',
     ];
-    
-    const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+    const missingEnvVars = requiredEnvVars.filter(
+      (varName) => !process.env[varName]
+    );
     const environmentReady = missingEnvVars.length === 0;
-    
+
     // Check if at least one AI provider is configured
     const aiProvidersConfigured = !!(
       process.env.OPENAI_API_KEY ||
@@ -31,7 +33,7 @@ export async function GET() {
       process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
       process.env.XAI_API_KEY
     );
-    
+
     // Quick database connectivity check
     let databaseReady = false;
     try {
@@ -43,9 +45,9 @@ export async function GET() {
     } catch (error) {
       logger.warn('Database not ready', { error: (error as Error).message });
     }
-    
+
     const isReady = environmentReady && aiProvidersConfigured && databaseReady;
-    
+
     const readiness: ReadinessStatus = {
       ready: isReady,
       timestamp: new Date().toISOString(),
@@ -55,21 +57,23 @@ export async function GET() {
         dependencies: aiProvidersConfigured,
       },
     };
-    
+
     // Add details if not ready
     if (!isReady) {
       readiness.details = {
         missingEnvVars: missingEnvVars.length > 0 ? missingEnvVars : undefined,
-        aiProviders: !aiProvidersConfigured ? 'No AI provider API keys configured' : undefined,
+        aiProviders: !aiProvidersConfigured
+          ? 'No AI provider API keys configured'
+          : undefined,
         database: !databaseReady ? 'Unable to connect to database' : undefined,
       };
     }
-    
+
     logger.info('Readiness check performed', {
       ready: readiness.ready,
       checks: readiness.checks,
     });
-    
+
     return NextResponse.json(readiness, {
       status: isReady ? 200 : 503,
       headers: {
@@ -78,13 +82,16 @@ export async function GET() {
     });
   } catch (error) {
     logger.error('Readiness check failed', {}, error as Error);
-    
-    return NextResponse.json({
-      ready: false,
-      timestamp: new Date().toISOString(),
-      error: (error as Error).message,
-    }, {
-      status: 503,
-    });
+
+    return NextResponse.json(
+      {
+        ready: false,
+        timestamp: new Date().toISOString(),
+        error: (error as Error).message,
+      },
+      {
+        status: 503,
+      }
+    );
   }
 }

@@ -1,12 +1,12 @@
 'use client';
 
-import { EditorView } from '@codemirror/view';
-import { EditorState, Transaction } from '@codemirror/state';
+import type { Suggestion } from '@/lib/db/schema';
 import { python } from '@codemirror/lang-python';
+import { EditorState, Transaction } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
+import { EditorView } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
 import React, { memo, useEffect, useRef } from 'react';
-import { Suggestion } from '@/lib/db/schema';
 
 type EditorProps = {
   content: string;
@@ -14,7 +14,7 @@ type EditorProps = {
   status: 'streaming' | 'idle';
   isCurrentVersion: boolean;
   currentVersionIndex: number;
-  suggestions: Array<Suggestion>;
+  suggestions: Suggestion[];
 };
 
 function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
@@ -49,7 +49,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
       const updateListener = EditorView.updateListener.of((update) => {
         if (update.docChanged) {
           const transaction = update.transactions.find(
-            (tr) => !tr.annotation(Transaction.remote),
+            (tr) => !tr.annotation(Transaction.remote)
           );
 
           if (transaction) {
@@ -92,20 +92,28 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
 
   return (
     <div
-      className="relative not-prose w-full pb-[calc(80dvh)] text-sm"
+      className="not-prose relative w-full pb-[calc(80dvh)] text-sm"
       ref={containerRef}
     />
   );
 }
 
 function areEqual(prevProps: EditorProps, nextProps: EditorProps) {
-  if (prevProps.suggestions !== nextProps.suggestions) return false;
-  if (prevProps.currentVersionIndex !== nextProps.currentVersionIndex)
+  if (prevProps.suggestions !== nextProps.suggestions) {
     return false;
-  if (prevProps.isCurrentVersion !== nextProps.isCurrentVersion) return false;
-  if (prevProps.status === 'streaming' && nextProps.status === 'streaming')
+  }
+  if (prevProps.currentVersionIndex !== nextProps.currentVersionIndex) {
     return false;
-  if (prevProps.content !== nextProps.content) return false;
+  }
+  if (prevProps.isCurrentVersion !== nextProps.isCurrentVersion) {
+    return false;
+  }
+  if (prevProps.status === 'streaming' && nextProps.status === 'streaming') {
+    return false;
+  }
+  if (prevProps.content !== nextProps.content) {
+    return false;
+  }
 
   return true;
 }

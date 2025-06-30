@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { type NextRequest, NextResponse } from 'next/server';
 import { guestRegex, isDevelopmentEnvironment } from './lib/constants';
 
 export async function middleware(request: NextRequest) {
@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
     const redirectUrl = encodeURIComponent(request.url);
 
     return NextResponse.redirect(
-      new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url),
+      new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url)
     );
   }
 

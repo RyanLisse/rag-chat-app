@@ -1,5 +1,5 @@
 // Integration Tests for Vector Store Operations
-import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { 
   MockVectorStore,
   testVectorStoreUpload,

@@ -2,11 +2,11 @@
  * Provider factory for creating and managing model providers
  */
 
-import type { ModelProvider, ProviderFactory, ProviderConfig } from './types';
-import { OpenAIProvider } from './openai';
 import { AnthropicProvider } from './anthropic';
-import { GoogleProvider } from './google';
 import { ConfigurationError } from './errors';
+import { GoogleProvider } from './google';
+import { OpenAIProvider } from './openai';
+import type { ModelProvider, ProviderConfig, ProviderFactory } from './types';
 
 /**
  * Registry of available provider constructors
@@ -37,31 +37,38 @@ export class ModelProviderFactory implements ProviderFactory {
   /**
    * Create a new provider instance
    */
-  async createProvider(name: string, config: ProviderConfig): Promise<ModelProvider> {
-    const ProviderClass = PROVIDER_CONSTRUCTORS[name as keyof typeof PROVIDER_CONSTRUCTORS];
-    
+  async createProvider(
+    name: string,
+    config: ProviderConfig
+  ): Promise<ModelProvider> {
+    const ProviderClass =
+      PROVIDER_CONSTRUCTORS[name as keyof typeof PROVIDER_CONSTRUCTORS];
+
     if (!ProviderClass) {
       throw new ConfigurationError('factory', `Unknown provider: ${name}`);
     }
 
     const provider = new ProviderClass();
     await provider.initialize(config);
-    
+
     return provider;
   }
 
   /**
    * Get or create a provider with caching
    */
-  async getProvider(name: string, config: ProviderConfig): Promise<ModelProvider> {
+  async getProvider(
+    name: string,
+    config: ProviderConfig
+  ): Promise<ModelProvider> {
     const cacheKey = `${name}_${this.hashConfig(config)}`;
-    
+
     let provider = this.providers.get(cacheKey);
     if (!provider) {
       provider = await this.createProvider(name, config);
       this.providers.set(cacheKey, provider);
     }
-    
+
     return provider;
   }
 
@@ -75,7 +82,10 @@ export class ModelProviderFactory implements ProviderFactory {
   /**
    * Remove a provider from cache
    */
-  async removeProvider(name: string, config?: ProviderConfig): Promise<boolean> {
+  async removeProvider(
+    name: string,
+    config?: ProviderConfig
+  ): Promise<boolean> {
     if (config) {
       const cacheKey = `${name}_${this.hashConfig(config)}`;
       const provider = this.providers.get(cacheKey);
@@ -95,7 +105,7 @@ export class ModelProviderFactory implements ProviderFactory {
         removed = true;
       }
     }
-    
+
     return removed;
   }
 
@@ -119,29 +129,32 @@ export class ModelProviderFactory implements ProviderFactory {
     totalErrors: number;
     averageLatency: number;
   }> {
-    const stats = new Map<string, {
-      instanceCount: number;
-      totalRequests: number;
-      totalErrors: number;
-      totalLatency: number;
-    }>();
+    const stats = new Map<
+      string,
+      {
+        instanceCount: number;
+        totalRequests: number;
+        totalErrors: number;
+        totalLatency: number;
+      }
+    >();
 
     for (const [key, provider] of this.providers.entries()) {
       const providerName = key.split('_')[0];
       const metrics = provider.getMetrics();
-      
+
       const current = stats.get(providerName) || {
         instanceCount: 0,
         totalRequests: 0,
         totalErrors: 0,
         totalLatency: 0,
       };
-      
+
       current.instanceCount++;
       current.totalRequests += metrics.requestCount;
       current.totalErrors += metrics.errorCount;
       current.totalLatency += metrics.totalLatency;
-      
+
       stats.set(providerName, current);
     }
 
@@ -150,7 +163,8 @@ export class ModelProviderFactory implements ProviderFactory {
       instanceCount: data.instanceCount,
       totalRequests: data.totalRequests,
       totalErrors: data.totalErrors,
-      averageLatency: data.totalRequests > 0 ? data.totalLatency / data.totalRequests : 0,
+      averageLatency:
+        data.totalRequests > 0 ? data.totalLatency / data.totalRequests : 0,
     }));
   }
 
@@ -159,20 +173,20 @@ export class ModelProviderFactory implements ProviderFactory {
    */
   private hashConfig(config: ProviderConfig): string {
     const configStr = JSON.stringify({
-      apiKey: config.apiKey.slice(0, 8) + '***', // Only use first 8 chars for security
+      apiKey: `${config.apiKey.slice(0, 8)}***`, // Only use first 8 chars for security
       baseUrl: config.baseUrl,
       timeout: config.timeout,
       maxRetries: config.maxRetries,
     });
-    
+
     // Simple hash function
     let hash = 0;
     for (let i = 0; i < configStr.length; i++) {
       const char = configStr.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
-      hash = hash & hash; // Convert to 32-bit integer
+      hash = (hash << 5) - hash + char;
+      hash &= hash; // Convert to 32-bit integer
     }
-    
+
     return hash.toString(36);
   }
 }

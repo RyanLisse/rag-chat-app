@@ -1,6 +1,10 @@
 'use client';
-
-import type { Message } from 'ai';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import cx from 'classnames';
 import {
   AnimatePresence,
@@ -8,28 +12,22 @@ import {
   useMotionValue,
   useTransform,
 } from 'framer-motion';
+import { nanoid } from 'nanoid';
 import {
   type Dispatch,
-  memo,
-  ReactNode,
+  type ReactNode,
   type SetStateAction,
+  memo,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
-import { nanoid } from 'nanoid';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
+import type { UseChatHelpers } from '@ai-sdk/react';
+import { type ArtifactKind, artifactDefinitions } from './artifact';
+import type { ArtifactToolbarItem } from './create-artifact';
 import { ArrowUpIcon, StopIcon, SummarizeIcon } from './icons';
-import { artifactDefinitions, ArtifactKind } from './artifact';
-import { ArtifactToolbarItem } from './create-artifact';
-import { UseChatHelpers } from '@ai-sdk/react';
 
 type ToolProps = {
   description: string;
@@ -90,14 +88,16 @@ const Tool = ({
     <Tooltip open={isHovered && !isAnimating}>
       <TooltipTrigger asChild>
         <motion.div
-          className={cx('p-3 rounded-full', {
-            'bg-primary !text-primary-foreground': selectedTool === description,
+          className={cx('rounded-full p-3', {
+            '!text-primary-foreground bg-primary': selectedTool === description,
           })}
           onHoverStart={() => {
             setIsHovered(true);
           }}
           onHoverEnd={() => {
-            if (selectedTool !== description) setIsHovered(false);
+            if (selectedTool !== description) {
+              setIsHovered(false);
+            }
           }}
           onKeyDown={(event) => {
             if (event.key === 'Enter') {
@@ -123,7 +123,7 @@ const Tool = ({
       <TooltipContent
         side="left"
         sideOffset={16}
-        className="bg-foreground text-background rounded-2xl p-3 px-4"
+        className="rounded-2xl bg-foreground p-3 px-4 text-background"
       >
         {description}
       </TooltipContent>
@@ -131,7 +131,7 @@ const Tool = ({
   );
 };
 
-const randomArr = [...Array(6)].map((x) => nanoid(5));
+const randomArr = [...Array(6)].map((_x) => nanoid(5));
 
 const ReadingLevelSelector = ({
   setSelectedTool,
@@ -169,11 +169,11 @@ const ReadingLevelSelector = ({
   }, [yToLevel]);
 
   return (
-    <div className="relative flex flex-col justify-end items-center">
+    <div className="relative flex flex-col items-center justify-end">
       {randomArr.map((id) => (
         <motion.div
           key={id}
-          className="size-[40px] flex flex-row items-center justify-center"
+          className="flex size-[40px] flex-row items-center justify-center"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -188,11 +188,11 @@ const ReadingLevelSelector = ({
           <TooltipTrigger asChild>
             <motion.div
               className={cx(
-                'absolute bg-background p-3 border rounded-full flex flex-row items-center',
+                'absolute flex flex-row items-center rounded-full border bg-background p-3',
                 {
                   'bg-primary text-primary-foreground': currentLevel !== 2,
                   'bg-background text-foreground': currentLevel === 2,
-                },
+                }
               )}
               style={{ y }}
               drag="y"
@@ -229,7 +229,7 @@ const ReadingLevelSelector = ({
           <TooltipContent
             side="left"
             sideOffset={16}
-            className="bg-foreground text-background text-sm rounded-2xl p-3 px-4"
+            className="rounded-2xl bg-foreground p-3 px-4 text-background text-sm"
           >
             {LEVELS[currentLevel]}
           </TooltipContent>
@@ -254,7 +254,7 @@ export const Tools = ({
   append: UseChatHelpers['append'];
   isAnimating: boolean;
   setIsToolbarVisible: Dispatch<SetStateAction<boolean>>;
-  tools: Array<ArtifactToolbarItem>;
+  tools: ArtifactToolbarItem[];
 }) => {
   const [primaryTool, ...secondaryTools] = tools;
 
@@ -356,7 +356,7 @@ const PureToolbar = ({
   }, [status, setIsToolbarVisible]);
 
   const artifactDefinition = artifactDefinitions.find(
-    (definition) => definition.kind === artifactKind,
+    (definition) => definition.kind === artifactKind
   );
 
   if (!artifactDefinition) {
@@ -372,7 +372,7 @@ const PureToolbar = ({
   return (
     <TooltipProvider delayDuration={0}>
       <motion.div
-        className="cursor-pointer absolute right-6 bottom-6 p-1.5 border rounded-full shadow-lg bg-background flex flex-col justify-end"
+        className="absolute right-6 bottom-6 flex cursor-pointer flex-col justify-end rounded-full border bg-background p-1.5 shadow-lg"
         initial={{ opacity: 0, y: -20, scale: 1 }}
         animate={
           isToolbarVisible
@@ -396,13 +396,17 @@ const PureToolbar = ({
         exit={{ opacity: 0, y: -20, transition: { duration: 0.1 } }}
         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
         onHoverStart={() => {
-          if (status === 'streaming') return;
+          if (status === 'streaming') {
+            return;
+          }
 
           cancelCloseTimer();
           setIsToolbarVisible(true);
         }}
         onHoverEnd={() => {
-          if (status === 'streaming') return;
+          if (status === 'streaming') {
+            return;
+          }
 
           startCloseTimer();
         }}
@@ -453,9 +457,15 @@ const PureToolbar = ({
 };
 
 export const Toolbar = memo(PureToolbar, (prevProps, nextProps) => {
-  if (prevProps.status !== nextProps.status) return false;
-  if (prevProps.isToolbarVisible !== nextProps.isToolbarVisible) return false;
-  if (prevProps.artifactKind !== nextProps.artifactKind) return false;
+  if (prevProps.status !== nextProps.status) {
+    return false;
+  }
+  if (prevProps.isToolbarVisible !== nextProps.isToolbarVisible) {
+    return false;
+  }
+  if (prevProps.artifactKind !== nextProps.artifactKind) {
+    return false;
+  }
 
   return true;
 });

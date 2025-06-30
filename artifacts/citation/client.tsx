@@ -1,23 +1,27 @@
+import { CitationContent } from '@/components/artifacts/citation-artifact';
 import { Artifact } from '@/components/create-artifact';
 import { DiffView } from '@/components/diffview';
 import { DocumentSkeleton } from '@/components/document-skeleton';
-import { CitationContent } from '@/components/artifacts/citation-artifact';
 import {
+  BarChartIcon,
   ClockRewind,
   CopyIcon,
-  BarChartIcon,
-  RefreshCwIcon,
-  UndoIcon,
-  RedoIcon,
   FileTextIcon,
   LinkIcon,
+  RedoIcon,
+  RefreshCwIcon,
+  UndoIcon,
 } from '@/components/icons';
+import type { CitationArtifactMetadata } from '@/lib/types/citation';
 import { toast } from 'sonner';
-import { CitationArtifactMetadata } from '@/lib/types/citation';
 
-export const citationArtifact = new Artifact<'citation', CitationArtifactMetadata>({
+export const citationArtifact = new Artifact<
+  'citation',
+  CitationArtifactMetadata
+>({
   kind: 'citation',
-  description: 'AI responses with tracked citations and sources for verification.',
+  description:
+    'AI responses with tracked citations and sources for verification.',
   initialize: async ({ documentId, setMetadata }) => {
     setMetadata({
       citations: [],
@@ -51,9 +55,10 @@ export const citationArtifact = new Artifact<'citation', CitationArtifactMetadat
       setMetadata((metadata) => {
         const sources = streamPart.content as any[];
         const sourceDistribution: Record<string, number> = {};
-        
+
         sources.forEach((source) => {
-          sourceDistribution[source.type] = (sourceDistribution[source.type] || 0) + 1;
+          sourceDistribution[source.type] =
+            (sourceDistribution[source.type] || 0) + 1;
         });
 
         return {
@@ -82,7 +87,8 @@ export const citationArtifact = new Artifact<'citation', CitationArtifactMetadat
           statistics: {
             ...metadata.statistics,
             totalCitations: citations.length,
-            avgRelevanceScore: citations.length > 0 ? totalRelevance / citations.length : 0,
+            avgRelevanceScore:
+              citations.length > 0 ? totalRelevance / citations.length : 0,
           },
         };
       });
@@ -174,7 +180,8 @@ export const citationArtifact = new Artifact<'citation', CitationArtifactMetadat
       onClick: ({ appendMessage }) => {
         appendMessage({
           role: 'user',
-          content: 'Please add more citations and sources to support the claims in your response.',
+          content:
+            'Please add more citations and sources to support the claims in your response.',
         });
       },
     },
@@ -184,7 +191,8 @@ export const citationArtifact = new Artifact<'citation', CitationArtifactMetadat
       onClick: ({ appendMessage }) => {
         appendMessage({
           role: 'user',
-          content: 'Please verify all the sources and ensure the citations are accurate.',
+          content:
+            'Please verify all the sources and ensure the citations are accurate.',
         });
       },
     },
@@ -194,7 +202,8 @@ export const citationArtifact = new Artifact<'citation', CitationArtifactMetadat
       onClick: ({ appendMessage }) => {
         appendMessage({
           role: 'user',
-          content: 'Please update the citations with the most recent sources available.',
+          content:
+            'Please update the citations with the most recent sources available.',
         });
       },
     },
