@@ -1,0 +1,284 @@
+name: Dependency Update
+
+on:
+  schedule:
+    # Run weekly on Monday at 3 AM UTC
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Type of updates to perform'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+          - all
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  BUN_VERSION: latest
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Check for outdated packages
+        id: check-outdated
+        run: |
+          echo "## Outdated Packages" > outdated-report.md
+          echo "" >> outdated-report.md
+          bunx npm-check-updates --format table >> outdated-report.md || true
+          echo "outdated_found=$?" >> $GITHUB_OUTPUT
+
+      - name: Update dependencies
+        id: update-deps
+        run: |
+          UPDATE_TYPE="${{ github.event.inputs.update_type || 'minor' }}"
+          
+          case $UPDATE_TYPE in
+            patch)
+              echo "Updating patch versions only..."
+              bunx npm-check-updates -u --target patch
+              ;;
+            minor)
+              echo "Updating minor and patch versions..."
+              bunx npm-check-updates -u --target minor
+              ;;
+            major)
+              echo "Updating major versions..."
+              bunx npm-check-updates -u
+              ;;
+            all)
+              echo "Updating all dependencies..."
+              bunx npm-check-updates -u
+              ;;
+          esac
+          
+          # Check if package.json was modified
+          if git diff --quiet package.json; then
+            echo "No updates available"
+            echo "updates_available=false" >> $GITHUB_OUTPUT
+          else
+            echo "Updates found"
+            echo "updates_available=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install updated dependencies
+        if: steps.update-deps.outputs.updates_available == 'true'
+        run: |
+          rm -rf node_modules bun.lockb
+          bun install
+
+      - name: Run tests
+        if: steps.update-deps.outputs.updates_available == 'true'
+        run: |
+          bun run lint || true
+          bun run typecheck || true
+          bun run test:unit || true
+        continue-on-error: true
+
+      - name: Create update branch
+        if: steps.update-deps.outputs.updates_available == 'true'
+        id: create-branch
+        run: |
+          BRANCH_NAME="deps/update-$(date +%Y%m%d-%H%M%S)"
+          git checkout -b $BRANCH_NAME
+          git add package.json bun.lockb
+          git commit -m "chore(deps): update dependencies
+
+          Update type: ${{ github.event.inputs.update_type || 'minor' }}
+          Date: $(date -u)
+          
+          [skip ci]"
+          
+          git push origin $BRANCH_NAME
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_OUTPUT
+
+      - name: Create Pull Request
+        if: steps.update-deps.outputs.updates_available == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ steps.create-branch.outputs.branch_name }}
+          title: 'chore(deps): update dependencies'
+          body: |
+            ## Dependency Updates
+            
+            This PR updates project dependencies based on the configured update strategy.
+            
+            **Update Type**: ${{ github.event.inputs.update_type || 'minor' }}
+            
+            ### Changes
+            Please review the updated dependencies in `package.json` and `bun.lockb`.
+            
+            ### Automated Checks
+            - [ ] Dependencies installed successfully
+            - [ ] Linting passed
+            - [ ] Type checking passed
+            - [ ] Unit tests passed
+            
+            ### Manual Review Required
+            - [ ] Review breaking changes in updated packages
+            - [ ] Test application functionality
+            - [ ] Update code if needed for compatibility
+            
+            ---
+            *This PR was automatically created by the dependency update workflow.*
+          labels: |
+            dependencies
+            automated
+          assignees: ${{ github.actor }}
+
+  update-docker-base-image:
+    name: Update Docker Base Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for base image updates
+        id: check-base-image
+        run: |
+          # Check if Dockerfile exists
+          if [ ! -f Dockerfile ]; then
+            echo "No Dockerfile found"
+            echo "dockerfile_exists=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "dockerfile_exists=true" >> $GITHUB_OUTPUT
+          
+          # Extract current base image
+          CURRENT_IMAGE=$(grep "^FROM" Dockerfile | head -1 | awk '{print $2}')
+          echo "Current base image: $CURRENT_IMAGE"
+          
+          # Check for updates (simplified example)
+          # In practice, you'd use a tool like renovate or dependabot
+          echo "current_image=$CURRENT_IMAGE" >> $GITHUB_OUTPUT
+
+      - name: Update Dockerfile
+        if: steps.check-base-image.outputs.dockerfile_exists == 'true'
+        run: |
+          # This is a placeholder for actual update logic
+          echo "Checking for Docker base image updates..."
+
+  security-updates:
+    name: Security Updates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Check for security vulnerabilities
+        id: security-check
+        run: |
+          # Run security audit
+          npm audit --json > audit-report.json || true
+          
+          # Check if there are any high or critical vulnerabilities
+          HIGH_VULNS=$(jq '.metadata.vulnerabilities.high // 0' audit-report.json)
+          CRITICAL_VULNS=$(jq '.metadata.vulnerabilities.critical // 0' audit-report.json)
+          
+          if [ "$HIGH_VULNS" -gt 0 ] || [ "$CRITICAL_VULNS" -gt 0 ]; then
+            echo "security_issues=true" >> $GITHUB_OUTPUT
+            echo "Found $CRITICAL_VULNS critical and $HIGH_VULNS high vulnerabilities"
+          else
+            echo "security_issues=false" >> $GITHUB_OUTPUT
+            echo "No high or critical vulnerabilities found"
+          fi
+
+      - name: Create security update PR
+        if: steps.security-check.outputs.security_issues == 'true'
+        run: |
+          # Try to fix vulnerabilities
+          npm audit fix || true
+          
+          # Create PR if changes were made
+          if ! git diff --quiet; then
+            BRANCH_NAME="security/fix-vulnerabilities-$(date +%Y%m%d)"
+            git checkout -b $BRANCH_NAME
+            git add package.json bun.lockb
+            git commit -m "fix(security): update vulnerable dependencies"
+            git push origin $BRANCH_NAME
+            
+            # Create PR using GitHub CLI
+            gh pr create \
+              --title "fix(security): update vulnerable dependencies" \
+              --body "This PR addresses security vulnerabilities found in project dependencies." \
+              --label "security,dependencies" \
+              --base main
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify-updates:
+    name: Notify Update Status
+    needs: [update-dependencies, update-docker-base-image, security-updates]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification
+        if: env.SLACK_WEBHOOK_URL != ''
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "Dependency Update Workflow Completed",
+              attachments: [{
+                color: "${{ contains(needs.*.result, 'failure') && 'danger' || 'good' }}",
+                fields: [
+                  {
+                    title: "Dependencies Update",
+                    value: "${{ needs.update-dependencies.result }}",
+                    short: true
+                  },
+                  {
+                    title: "Docker Update",
+                    value: "${{ needs.update-docker-base-image.result }}",
+                    short: true
+                  },
+                  {
+                    title: "Security Updates",
+                    value: "${{ needs.security-updates.result }}",
+                    short: true
+                  }
+                ]
+              }]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

@@ -1,4 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
+import { Stagehand } from '@browserbasehq/stagehand';
 
 /**
  * Read environment variables from file.
@@ -9,6 +10,13 @@ import { config } from 'dotenv';
 config({
   path: '.env.local',
 });
+
+// Initialize Stagehand for AI-powered testing
+export const stagehandConfig = {
+  apiKey: process.env.OPENAI_API_KEY || '',
+  model: 'gpt-4',
+  debug: process.env.DEBUG === 'true',
+};
 
 /* Use process.env.PORT by default and fallback to port 3000 */
 const PORT = process.env.PORT || 3000;
@@ -56,6 +64,10 @@ export default defineConfig({
       testMatch: /e2e\/.*.test.ts/,
       use: {
         ...devices['Desktop Chrome'],
+        // Enable video recording for debugging
+        video: 'retain-on-failure',
+        // Enable tracing for debugging
+        trace: 'retain-on-failure',
       },
     },
     {
@@ -63,6 +75,28 @@ export default defineConfig({
       testMatch: /routes\/.*.test.ts/,
       use: {
         ...devices['Desktop Chrome'],
+      },
+    },
+    {
+      name: 'visual',
+      testMatch: /visual\/.*.test.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        // Disable animations for consistent screenshots
+        launchOptions: {
+          args: ['--force-prefers-reduced-motion'],
+        },
+      },
+    },
+    {
+      name: 'performance',
+      testMatch: /performance\/.*.test.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        // Enable performance metrics
+        launchOptions: {
+          args: ['--enable-precise-memory-info'],
+        },
       },
     },
 
@@ -99,9 +133,24 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'pnpm dev',
-    url: `${baseURL}/ping`,
+    command: 'bun dev',
+    url: `${baseURL}/api/health`, // Updated to use health check endpoint
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
+  },
+
+  /* Configure test artifacts */
+  outputDir: './test-results',
+
+  /* Configure coverage */
+  use: {
+    ...{
+      // Coverage collection
+      coverage: {
+        enabled: true,
+        outputDir: './coverage/e2e',
+        exclude: ['**/node_modules/**', '**/.next/**'],
+      },
+    },
   },
 });

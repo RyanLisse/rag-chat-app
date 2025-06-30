@@ -1,0 +1,34 @@
+# Bun configuration file
+[test]
+# Test-specific configuration
+preload = ["./tests/setup/test-setup.ts"]
+coverage = true
+coverageDir = "./coverage"
+coverageExclude = [
+  "node_modules/**",
+  ".next/**",
+  "tests/**",
+  "**/*.test.ts",
+  "**/*.test.tsx",
+  "**/*.spec.ts",
+  "**/*.spec.tsx",
+  "coverage/**",
+  "playwright.config.ts",
+  "next.config.js",
+  "tailwind.config.js",
+]
+coverageThreshold = {
+  line = 85,
+  function = 85,
+  branch = 80,
+  statement = 85
+}
+
+# Enable testing frameworks compatibility
+jsx = "react-jsx"
+jsxImportSource = "react"
+
+[install]
+# Package manager configuration
+exact = true
+production = false

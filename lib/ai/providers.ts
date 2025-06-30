@@ -11,7 +11,13 @@ import {
   reasoningModel,
   titleModel,
 } from './models.test';
+import { createModelRouter } from './providers/router';
+import { getProviderFactory } from './providers/factory';
 
+/**
+ * Legacy provider for backward compatibility
+ * @deprecated Use the new provider system via createModelRouter()
+ */
 export const myProvider = isTestEnvironment
   ? customProvider({
       languageModels: {
@@ -35,3 +41,57 @@ export const myProvider = isTestEnvironment
         'small-model': xai.image('grok-2-image'),
       },
     });
+
+/**
+ * Global model router instance
+ */
+let modelRouter: ReturnType<typeof createModelRouter> | null = null;
+
+/**
+ * Get or create the global model router
+ */
+export function getModelRouter() {
+  if (!modelRouter) {
+    modelRouter = createModelRouter({
+      fallbackStrategy: 'fastest',
+      healthCheckInterval: 60000,
+      loadBalancing: true,
+      circuitBreaker: {
+        enabled: true,
+        errorThreshold: 5,
+        resetTimeout: 300000,
+      },
+    });
+  }
+  return modelRouter;
+}
+
+/**
+ * Initialize the model router
+ */
+export async function initializeModelRouter() {
+  const router = getModelRouter();
+  await router.initialize();
+  return router;
+}
+
+/**
+ * Get a model using the new provider system
+ */
+export async function getModel(modelId: string, options?: any) {
+  const router = getModelRouter();
+  const result = await router.route(modelId, options);
+  return result.model;
+}
+
+/**
+ * Get provider factory instance
+ */
+export function getFactory() {
+  return getProviderFactory();
+}
+
+/**
+ * Re-export provider system components
+ */
+export * from './providers';

@@ -1,0 +1,85 @@
+# Configuration for actions/labeler
+
+# Frontend related changes
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'app/**'
+      - 'components/**'
+      - 'hooks/**'
+      - '**/*.tsx'
+      - '**/*.css'
+      - 'tailwind.config.ts'
+
+# Backend related changes
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'lib/api/**'
+      - 'lib/db/**'
+      - 'lib/auth/**'
+      - 'middleware.ts'
+      - '**/*.sql'
+
+# Database changes
+database:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'lib/db/**'
+      - 'drizzle.config.ts'
+      - '**/*.sql'
+
+# Test changes
+test:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tests/**'
+      - '**/*.test.ts'
+      - '**/*.test.tsx'
+      - 'playwright.config.ts'
+
+# Documentation changes
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**'
+
+# CI/CD changes
+ci:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/workflows/**'
+      - '.github/actions/**'
+      - 'scripts/**'
+
+# Configuration changes
+configuration:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'bun.lockb'
+      - 'tsconfig.json'
+      - 'next.config.ts'
+      - 'biome.jsonc'
+      - '.env*'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+
+# Security sensitive files
+security:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'lib/auth/**'
+      - 'middleware.ts'
+      - '.env*'
+      - '**/*secret*'
+      - '**/*token*'
+      - '**/*auth*'
+
+# Dependency updates
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'package.json'
+      - 'bun.lockb'

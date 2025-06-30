@@ -12,13 +12,16 @@ export type DataStreamDelta = {
     | 'code-delta'
     | 'sheet-delta'
     | 'image-delta'
+    | 'citation-delta'
+    | 'sources-update'
+    | 'citation-update'
     | 'title'
     | 'id'
     | 'suggestion'
     | 'clear'
     | 'finish'
     | 'kind';
-  content: string | Suggestion;
+  content: string | Suggestion | any;
 };
 
 export function DataStreamHandler({ id }: { id: string }) {

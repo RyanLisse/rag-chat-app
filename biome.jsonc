@@ -3,13 +3,26 @@
   "files": {
     "ignoreUnknown": false,
     "ignore": [
-      "**/pnpm-lock.yaml",
+      "**/bun.lockb",
       "lib/db/migrations",
       "lib/editor/react-renderer.tsx",
       "node_modules",
       ".next",
       "public",
-      ".vercel"
+      ".vercel",
+      "tests/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "playwright.config.ts",
+      "**/components/ui/**",
+      "**/.git/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/coverage/**",
+      "**/*.min.js",
+      "**/*.min.css"
     ]
   },
   "vcs": {
@@ -27,13 +40,17 @@
     "lineWidth": 80,
     "attributePosition": "auto"
   },
+  "organizeImports": {
+    "enabled": true
+  },
   "linter": {
     "enabled": true,
     "rules": {
       "recommended": true,
+      // Accessibility rules
       "a11y": {
-        "useHtmlLang": "warn", // Not in recommended ruleset, turning on manually
-        "noHeaderScope": "warn", // Not in recommended ruleset, turning on manually
+        "useHtmlLang": "warn",
+        "noHeaderScope": "warn",
         "useValidAriaRole": {
           "level": "warn",
           "options": {
@@ -41,51 +58,268 @@
             "allowInvalidRoles": ["none", "text"]
           }
         },
-        "useSemanticElements": "off", // Rule is buggy, revisit later
-        "noSvgWithoutTitle": "off", // We do not intend to adhere to this rule
-        "useMediaCaption": "off", // We would need a cultural change to turn this on
-        "noAutofocus": "off", // We're highly intentional about when we use autofocus
-        "noBlankTarget": "off", // Covered by Conformance
-        "useFocusableInteractive": "off", // Disable focusable interactive element requirement
-        "useAriaPropsForRole": "off", // Disable required ARIA attributes check
-        "useKeyWithClickEvents": "off" // Disable keyboard event requirement with click events
+        "useSemanticElements": "warn",
+        "noSvgWithoutTitle": "off",
+        "useMediaCaption": "off",
+        "noAutofocus": "off",
+        "noBlankTarget": "warn",
+        "useFocusableInteractive": "warn",
+        "useAriaPropsForRole": "warn",
+        "useKeyWithClickEvents": "warn",
+        "useKeyWithMouseEvents": "warn",
+        "useValidAriaProps": "error",
+        "useValidAriaValues": "error",
+        "noAriaUnsupportedElements": "error",
+        "noRedundantAlt": "warn",
+        "useAltText": "warn",
+        "useAnchorContent": "warn",
+        "useHeadingContent": "warn",
+        "useIframeTitle": "warn"
       },
+      // Complexity rules
       "complexity": {
-        "noUselessStringConcat": "warn", // Not in recommended ruleset, turning on manually
-        "noForEach": "off", // forEach is too familiar to ban
-        "noUselessSwitchCase": "off", // Turned off due to developer preferences
-        "noUselessThisAlias": "off", // Turned off due to developer preferences
-        "noBannedTypes": "off"
+        "noUselessStringConcat": "warn",
+        "noForEach": "off",
+        "noUselessSwitchCase": "warn",
+        "noUselessThisAlias": "warn",
+        "noBannedTypes": "warn",
+        "noExcessiveCognitiveComplexity": {
+          "level": "warn",
+          "options": {
+            "maxAllowedComplexity": 15
+          }
+        },
+        "noExtraBooleanCast": "error",
+        "noMultipleSpacesInRegularExpressionLiterals": "warn",
+        "noUselessCatch": "error",
+        "noUselessConstructor": "warn",
+        "noUselessLabel": "warn",
+        "noUselessLoneBlockStatements": "warn",
+        "noUselessRename": "warn",
+        "noUselessTernary": "warn",
+        "noVoid": "warn",
+        "noWith": "error",
+        "useArrowFunction": "off",
+        "useLiteralKeys": "warn",
+        "useOptionalChain": "warn",
+        "useRegexLiterals": "warn",
+        "useSimpleNumberKeys": "warn",
+        "useSimplifiedLogicExpression": "warn"
       },
+      // Correctness rules
       "correctness": {
-        "noUnusedImports": "warn", // Not in recommended ruleset, turning on manually
-        "useArrayLiterals": "warn", // Not in recommended ruleset, turning on manually
-        "noNewSymbol": "warn", // Not in recommended ruleset, turning on manually
-        "useJsxKeyInIterable": "off", // Rule is buggy, revisit later
-        "useExhaustiveDependencies": "off", // Community feedback on this rule has been poor, we will continue with ESLint
-        "noUnnecessaryContinue": "off" // Turned off due to developer preferences
+        "noUnusedImports": "warn",
+        "useArrayLiterals": "warn",
+        "noNewSymbol": "error",
+        "useJsxKeyInIterable": "error",
+        "useExhaustiveDependencies": "warn",
+        "noUnnecessaryContinue": "warn",
+        "noConstAssign": "error",
+        "noConstantCondition": "warn",
+        "noConstructorReturn": "error",
+        "noEmptyCharacterClassInRegex": "error",
+        "noEmptyPattern": "error",
+        "noGlobalObjectCalls": "error",
+        "noInnerDeclarations": "error",
+        "noInvalidConstructorSuper": "error",
+        "noInvalidUseBeforeDeclaration": "error",
+        "noNonoctalDecimalEscape": "error",
+        "noPrecisionLoss": "error",
+        "noSelfAssign": "error",
+        "noSetterReturn": "error",
+        "noSwitchDeclarations": "error",
+        "noUndeclaredVariables": "error",
+        "noUnreachable": "error",
+        "noUnreachableSuper": "error",
+        "noUnsafeFinally": "error",
+        "noUnsafeOptionalChaining": "error",
+        "noUnusedLabels": "warn",
+        "noUnusedVariables": "warn",
+        "useHookAtTopLevel": "error",
+        "useIsNan": "error",
+        "useValidForDirection": "error",
+        "useYield": "error"
       },
+      // Security rules
       "security": {
-        "noDangerouslySetInnerHtml": "off" // Covered by Conformance
+        "noDangerouslySetInnerHtml": "warn",
+        "noDangerouslySetInnerHtmlWithChildren": "error",
+        "noGlobalEval": "error"
       },
+      // Style rules
       "style": {
-        "useFragmentSyntax": "warn", // Not in recommended ruleset, turning on manually
-        "noYodaExpression": "warn", // Not in recommended ruleset, turning on manually
-        "useDefaultParameterLast": "warn", // Not in recommended ruleset, turning on manually
-        "useExponentiationOperator": "off", // Obscure and arguably not easily readable
-        "noUnusedTemplateLiteral": "off", // Stylistic opinion
-        "noUselessElse": "off" // Stylistic opinion
+        "useFragmentSyntax": "warn",
+        "noYodaExpression": "warn",
+        "useDefaultParameterLast": "warn",
+        "useExponentiationOperator": "warn",
+        "noUnusedTemplateLiteral": "warn",
+        "noUselessElse": "warn",
+        "noArguments": "error",
+        "noCommaOperator": "warn",
+        "noDefaultExport": "off",
+        "noImplicitBoolean": "off",
+        "noInferrableTypes": "warn",
+        "noNamespace": "warn",
+        "noNegationElse": "off",
+        "noNonNullAssertion": "warn",
+        "noParameterAssign": "error",
+        "noParameterProperties": "off",
+        "noRestrictedGlobals": "off",
+        "noShoutyConstants": "warn",
+        "noVar": "error",
+        "useAsConstAssertion": "warn",
+        "useBlockStatements": "warn",
+        "useCollapsedElseIf": "warn",
+        "useConsistentArrayType": {
+          "level": "warn",
+          "options": {
+            "syntax": "shorthand"
+          }
+        },
+        "useConst": "warn",
+        "useEnumInitializers": "warn",
+        "useExportType": "warn",
+        "useFilenamingConvention": {
+          "level": "warn",
+          "options": {
+            "strictCase": false,
+            "requireAscii": true,
+            "filenameCases": ["camelCase", "PascalCase", "kebab-case"]
+          }
+        },
+        "useForOf": "warn",
+        "useImportType": "warn",
+        "useLiteralEnumMembers": "warn",
+        "useNamingConvention": {
+          "level": "warn",
+          "options": {
+            "strictCase": false,
+            "conventions": [
+              {
+                "selector": {
+                  "kind": "function"
+                },
+                "formats": ["camelCase", "PascalCase"]
+              },
+              {
+                "selector": {
+                  "kind": "variable"
+                },
+                "formats": ["camelCase", "PascalCase", "CONSTANT_CASE"]
+              },
+              {
+                "selector": {
+                  "kind": "typeLike"
+                },
+                "formats": ["PascalCase"]
+              }
+            ]
+          }
+        },
+        "useNodejsImportProtocol": "off",
+        "useNumberNamespace": "warn",
+        "useNumericLiterals": "warn",
+        "useSelfClosingElements": "warn",
+        "useShorthandArrayType": "warn",
+        "useShorthandAssign": "warn",
+        "useShorthandFunctionType": "warn",
+        "useSingleCaseStatement": "warn",
+        "useSingleVarDeclarator": "warn",
+        "useTemplate": "warn",
+        "useWhile": "warn"
       },
+      // Suspicious rules
       "suspicious": {
-        "noExplicitAny": "off" // We trust Vercelians to use any only when necessary
+        "noExplicitAny": "warn",
+        "noArrayIndexKey": "warn",
+        "noAssignInExpressions": "error",
+        "noAsyncPromiseExecutor": "error",
+        "noCatchAssign": "error",
+        "noClassAssign": "error",
+        "noCommentText": "warn",
+        "noCompareNegZero": "error",
+        "noConfusingLabels": "error",
+        "noConfusingVoidType": "warn",
+        "noConsoleLog": "warn",
+        "noConstEnum": "off",
+        "noControlCharactersInRegex": "error",
+        "noDebugger": "error",
+        "noDoubleEquals": "warn",
+        "noDuplicateCase": "error",
+        "noDuplicateClassMembers": "error",
+        "noDuplicateJsxProps": "error",
+        "noDuplicateObjectKeys": "error",
+        "noDuplicateParameters": "error",
+        "noEmptyBlockStatements": "warn",
+        "noEmptyInterface": "warn",
+        "noExtraNonNullAssertion": "error",
+        "noFallthroughSwitchClause": "error",
+        "noFunctionAssign": "error",
+        "noGlobalAssign": "error",
+        "noImportAssign": "error",
+        "noLabelVar": "error",
+        "noMisleadingCharacterClass": "error",
+        "noMisleadingInstantiator": "error",
+        "noPrototypeBuiltins": "warn",
+        "noRedeclare": "error",
+        "noRedundantUseStrict": "error",
+        "noSelfCompare": "error",
+        "noShadowRestrictedNames": "error",
+        "noSparseArray": "error",
+        "noThenProperty": "warn",
+        "noUnsafeDeclarationMerging": "error",
+        "noUnsafeNegation": "error",
+        "useAwait": "warn",
+        "useDefaultSwitchClauseLast": "warn",
+        "useGetterReturn": "error",
+        "useIsArray": "error",
+        "useNamespaceKeyword": "error",
+        "useValidTypeof": "error"
       },
+      // Nursery rules (experimental but useful)
       "nursery": {
         "noStaticElementInteractions": "warn",
-        "noHeadImportInDocument": "warn",
-        "noDocumentImportInPage": "warn",
-        "noDuplicateElseIf": "warn",
-        "noIrregularWhitespace": "warn",
-        "useValidAutocomplete": "warn"
+        "noHeadImportInDocument": "error",
+        "noDocumentImportInPage": "error",
+        "noDuplicateElseIf": "error",
+        "noIrregularWhitespace": "error",
+        "useValidAutocomplete": "warn",
+        "noRestrictedImports": {
+          "level": "warn",
+          "options": {
+            "paths": {
+              "lodash": "Use native JavaScript methods instead",
+              "moment": "Use date-fns instead"
+            }
+          }
+        },
+        "noSecrets": "warn",
+        "noSubstr": "warn",
+        "noUselessEscapeInRegex": "warn",
+        "noUselessStringRaw": "warn",
+        "useAdjacentOverloadSignatures": "warn",
+        "useConsistentCurlyBraces": "warn",
+        "useConsistentMemberAccessibility": "off",
+        "useExplicitType": "off",
+        "useGoogleFontDisplay": "warn",
+        "useGuardForIn": "warn",
+        "useImportRestrictions": "off",
+        "useSortedClasses": {
+          "level": "warn",
+          "options": {
+            "attributes": ["className", "class"],
+            "functions": ["cn", "clsx", "classnames", "tw"]
+          }
+        },
+        "useStrictMode": "off",
+        "useTrimStartEnd": "warn"
+      },
+      // Performance rules
+      "performance": {
+        "noAccumulatingSpread": "warn",
+        "noBarrelFile": "off",
+        "noReExportAll": "off",
+        "noDelete": "warn"
       }
     }
   },
@@ -94,19 +328,28 @@
     "formatter": {
       "jsxQuoteStyle": "double",
       "quoteProperties": "asNeeded",
-      "trailingCommas": "all",
+      "trailingCommas": "es5",
       "semicolons": "always",
       "arrowParentheses": "always",
       "bracketSpacing": true,
       "bracketSameLine": false,
       "quoteStyle": "single",
       "attributePosition": "auto"
-    }
+    },
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    },
+    "globals": [
+      "React",
+      "JSX",
+      "NodeJS"
+    ]
   },
   "json": {
     "formatter": {
       "enabled": true,
-      "trailingCommas": "none"
+      "trailingCommas": "none",
+      "indentWidth": 2
     },
     "parser": {
       "allowComments": true,
@@ -114,19 +357,89 @@
     }
   },
   "css": {
-    "formatter": { "enabled": false },
-    "linter": { "enabled": false }
+    "formatter": {
+      "enabled": true,
+      "indentWidth": 2,
+      "indentStyle": "space",
+      "lineWidth": 80,
+      "quoteStyle": "double"
+    },
+    "linter": {
+      "enabled": true
+    },
+    "parser": {
+      "cssModules": true
+    }
   },
-  "organizeImports": { "enabled": false },
   "overrides": [
     // Playwright requires an object destructure, even if empty
-    // https://github.com/microsoft/playwright/issues/30007
     {
       "include": ["playwright/**"],
       "linter": {
         "rules": {
           "correctness": {
             "noEmptyPattern": "off"
+          }
+        }
+      }
+    },
+    // Next.js specific overrides
+    {
+      "include": ["app/**/_*.tsx", "app/**/_*.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["app/**/page.tsx", "app/**/layout.tsx", "app/**/error.tsx", "app/**/loading.tsx", "app/**/not-found.tsx"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    },
+    {
+      "include": ["next.config.js", "tailwind.config.ts", "postcss.config.js"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
+          }
+        }
+      }
+    },
+    // Test files
+    {
+      "include": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      "linter": {
+        "rules": {
+          "suspicious": {
+            "noExplicitAny": "off",
+            "noConsoleLog": "off"
+          }
+        }
+      }
+    },
+    // Migration files
+    {
+      "include": ["lib/db/migrations/**"],
+      "linter": {
+        "enabled": false
+      }
+    },
+    // Configuration files
+    {
+      "include": ["*.config.js", "*.config.ts"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noDefaultExport": "off"
           }
         }
       }

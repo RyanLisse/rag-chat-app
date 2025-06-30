@@ -1,0 +1,23 @@
+{
+  "description": "Add these dependencies to your package.json for full monitoring support",
+  "dependencies": {
+    "winston": "^3.11.0",
+    "@sentry/nextjs": "^7.99.0",
+    "@opentelemetry/sdk-node": "^0.49.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.44.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.49.1",
+    "@opentelemetry/instrumentation-http": "^0.49.1",
+    "@opentelemetry/instrumentation-fetch": "^0.49.1",
+    "@opentelemetry/resources": "^1.22.0",
+    "@opentelemetry/semantic-conventions": "^1.22.0",
+    "@opentelemetry/sdk-metrics": "^1.22.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.49.1"
+  },
+  "notes": [
+    "The monitoring system is designed to work with partial dependencies",
+    "Core functionality uses built-in console logging if winston is not available",
+    "Sentry integration is optional - monitoring will work without it",
+    "OpenTelemetry dependencies are modular - add what you need",
+    "The @vercel/otel package you already have provides basic OTEL support"
+  ]
+}

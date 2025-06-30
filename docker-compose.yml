@@ -1,0 +1,215 @@
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: rag-chat-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rag_chat
+      POSTGRES_INITDB_ARGS: "-E UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rag-chat-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: rag-chat-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass redis_password
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rag-chat-network
+
+  # Development Environment
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: rag-chat-dev
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "5555:5555" # Prisma Studio
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/rag_chat
+      POSTGRES_URL: postgres://postgres:postgres@postgres:5432/rag_chat
+      REDIS_URL: redis://:redis_password@redis:6379
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      AUTH_URL: http://localhost:3000
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: rag-chat-dev
+    env_file:
+      - .env.local
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - rag-chat-network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        echo 'Running migrations...' &&
+        bun run db:migrate &&
+        echo 'Starting development server...' &&
+        bun run dev
+      "
+
+  # Test Environment with Playwright
+  app-test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: rag-chat-test
+    environment:
+      NODE_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@postgres-test:5432/rag_chat_test
+      POSTGRES_URL: postgres://postgres:postgres@postgres-test:5432/rag_chat_test
+      REDIS_URL: redis://:redis_password@redis-test:6379
+      PLAYWRIGHT: "true"
+      CI: "true"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    networks:
+      - rag-chat-test-network
+    command: >
+      sh -c "
+        echo 'Running migrations for test database...' &&
+        bun run db:migrate &&
+        echo 'Running tests...' &&
+        bun run test
+      "
+
+  # Test Database
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: rag-chat-postgres-test
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rag_chat_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rag-chat-test-network
+
+  # Test Redis
+  redis-test:
+    image: redis:7-alpine
+    container_name: rag-chat-redis-test
+    command: redis-server --appendonly yes --requirepass redis_password
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - rag-chat-test-network
+
+  # Production Build
+  app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: rag-chat-prod
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/rag_chat
+      POSTGRES_URL: postgres://postgres:postgres@postgres:5432/rag_chat
+      REDIS_URL: redis://:redis_password@redis:6379
+      NEXT_PUBLIC_APP_URL: https://your-domain.com
+      AUTH_URL: https://your-domain.com
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+      OTEL_SERVICE_NAME: rag-chat-prod
+    env_file:
+      - .env.production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - rag-chat-network
+
+  # OpenTelemetry Collector (for monitoring)
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: rag-chat-otel
+    restart: unless-stopped
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    ports:
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
+      - "8888:8888" # Prometheus metrics
+    networks:
+      - rag-chat-network
+
+networks:
+  rag-chat-network:
+    driver: bridge
+  rag-chat-test-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

@@ -1,0 +1,40 @@
+# CODEOWNERS file for automatic PR review assignment
+# Each line is a file pattern followed by one or more owners.
+
+# Global owners - will be requested for review on all changes
+* @cortex
+
+# Frontend components and pages
+/app/ @cortex
+/components/ @cortex
+/hooks/ @cortex
+*.tsx @cortex
+*.css @cortex
+
+# Backend and API
+/lib/api/ @cortex
+/lib/db/ @cortex
+/lib/auth/ @cortex
+*.ts @cortex
+
+# Configuration and build
+/package.json @cortex
+/bun.lockb @cortex
+/tsconfig.json @cortex
+/next.config.ts @cortex
+/.env* @cortex
+/Dockerfile @cortex
+
+# GitHub Actions and CI/CD
+/.github/ @cortex
+/scripts/ @cortex
+
+# Documentation
+*.md @cortex
+/docs/ @cortex
+
+# Security-sensitive files require additional review
+/middleware.ts @cortex
+/lib/auth/ @cortex
+/.env* @cortex
+/scripts/deploy.sh @cortex

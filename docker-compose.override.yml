@@ -1,0 +1,24 @@
+# Development overrides for docker-compose
+# This file is automatically loaded by docker-compose
+version: '3.9'
+
+services:
+  app-dev:
+    # Enable hot reloading in development
+    environment:
+      WATCHPACK_POLLING: "true"
+      CHOKIDAR_USEPOLLING: "true"
+    
+    # Additional volume mounts for development
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+      - ./lib:/app/lib
+      - ./app:/app/app
+      - ./components:/app/components
+      - ./public:/app/public
+    
+    # Enable stdin and tty for interactive debugging
+    stdin_open: true
+    tty: true

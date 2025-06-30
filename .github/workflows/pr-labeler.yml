@@ -1,0 +1,66 @@
+name: PR Labeler
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  label:
+    name: Label PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Label based on changed files
+        uses: actions/labeler@v5
+        with:
+          repo-token: "${{ secrets.GITHUB_TOKEN }}"
+          
+      - name: Label based on PR size
+        uses: codelytv/pr-size-labeler@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: 'size/xs'
+          xs_max_size: 10
+          s_label: 'size/s'
+          s_max_size: 100
+          m_label: 'size/m'
+          m_max_size: 500
+          l_label: 'size/l'
+          l_max_size: 1000
+          xl_label: 'size/xl'
+          
+      - name: Add labels based on PR title
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = context.payload.pull_request.title.toLowerCase();
+            const labels = [];
+            
+            // Type labels
+            if (title.includes('feat:') || title.includes('feature:')) labels.push('feature');
+            if (title.includes('fix:')) labels.push('bug');
+            if (title.includes('docs:')) labels.push('documentation');
+            if (title.includes('style:')) labels.push('style');
+            if (title.includes('refactor:')) labels.push('refactor');
+            if (title.includes('perf:')) labels.push('performance');
+            if (title.includes('test:')) labels.push('test');
+            if (title.includes('build:')) labels.push('build');
+            if (title.includes('ci:')) labels.push('ci');
+            if (title.includes('chore:')) labels.push('chore');
+            if (title.includes('security:')) labels.push('security');
+            
+            // Priority labels
+            if (title.includes('critical') || title.includes('urgent')) labels.push('priority/critical');
+            if (title.includes('high priority')) labels.push('priority/high');
+            
+            // Add labels if any were identified
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+            }
