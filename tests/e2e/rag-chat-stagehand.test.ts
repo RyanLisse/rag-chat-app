@@ -3,6 +3,7 @@ import { test, expect, ragHelpers } from '../helpers/stagehand-integration';
 import { createTestDocuments } from '../utils/vector-store-helpers';
 import { validateCitationReferences } from '../utils/citation-validators';
 import { createTestFile } from '../factories';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('RAG Chat with Stagehand', () => {
   test.beforeEach(async ({ stagehandPage }) => {

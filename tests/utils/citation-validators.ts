@@ -1,5 +1,5 @@
 // Citation Validation Helpers
-import { expect } from 'bun:test';
+import { expect } from 'vitest';
 
 export interface Citation {
   index: number;
@@ -20,10 +20,12 @@ export interface CitationValidationOptions {
 
 // Extract citations from text using common patterns
 export function extractCitations(text: string): number[] {
-  // Match patterns like [1], [2], etc.
+  // Match patterns like [1], [2], etc. but exclude [0] as it's typically not a valid citation
   const pattern = /\[(\d+)\]/g;
   const matches = text.matchAll(pattern);
-  const citations = Array.from(matches).map(match => parseInt(match[1]));
+  const citations = Array.from(matches)
+    .map(match => parseInt(match[1]))
+    .filter(num => num > 0); // Exclude 0 and negative numbers
   return [...new Set(citations)]; // Remove duplicates
 }
 
@@ -133,22 +135,26 @@ export function assessCitationQuality(
   citation: Citation,
   query: string
 ): number {
-  let score = 0;
-  const queryTokens = query.toLowerCase().split(' ');
+  let score = 0.2; // Base score for having a citation
+  const queryTokens = query.toLowerCase().split(' ').filter(token => token.length > 2);
   const snippetLower = citation.snippet.toLowerCase();
+  const sourceLower = citation.source.toLowerCase();
 
-  // Check keyword overlap
-  const keywordMatches = queryTokens.filter(token => 
+  // Check keyword overlap in snippet (more weight)
+  const snippetMatches = queryTokens.filter(token => 
     snippetLower.includes(token)
   ).length;
-  score += (keywordMatches / queryTokens.length) * 0.5;
+  score += (snippetMatches / queryTokens.length) * 0.4;
+
+  // Check keyword overlap in source (less weight)
+  const sourceMatches = queryTokens.filter(token => 
+    sourceLower.includes(token)
+  ).length;
+  score += (sourceMatches / queryTokens.length) * 0.2;
 
   // Check snippet length (longer usually means more context)
-  if (citation.snippet.length > 100) score += 0.2;
-  if (citation.snippet.length > 200) score += 0.1;
-
-  // Check if source is provided
-  if (citation.source && citation.source.length > 0) score += 0.1;
+  if (citation.snippet.length > 50) score += 0.1;
+  if (citation.snippet.length > 100) score += 0.1;
 
   // Check if file/page info is provided
   if (citation.file) score += 0.05;

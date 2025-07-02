@@ -1,4 +1,5 @@
-import type { Attachment } from 'ai';
+// TODO: Define Attachment type for AI SDK 5.0
+type Attachment = any;
 
 import { LoaderIcon } from './icons';
 

@@ -1,6 +1,7 @@
 // Mobile Responsiveness E2E Tests
 import { test, expect, ragHelpers } from '../helpers/stagehand-integration';
 import { devices } from '@playwright/test';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Mobile Responsiveness', () => {
   const mobileDevices = [

@@ -165,11 +165,37 @@ const logger = {
 
 const runCommand = async (cmd: string, options: { verbose?: boolean; timeout?: number } = {}): Promise<{ success: boolean; output: string; error?: string }> => {
   try {
-    const result = await $`${cmd}`.timeout(options.timeout || 300000);
-    if (options.verbose) {
-      console.log(result.stdout.toString());
+    // Use shell execution for complex commands
+    const proc = Bun.spawn(['sh', '-c', cmd], {
+      stdout: 'pipe',
+      stderr: 'pipe',
+    });
+    
+    // Set up timeout if needed
+    let timeoutId: NodeJS.Timeout | undefined;
+    if (options.timeout) {
+      timeoutId = setTimeout(() => {
+        proc.kill();
+      }, options.timeout);
     }
-    return { success: true, output: result.stdout.toString() };
+    
+    const output = await new Response(proc.stdout).text();
+    const error = await new Response(proc.stderr).text();
+    
+    await proc.exited;
+    
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    
+    if (proc.exitCode !== 0) {
+      throw new Error(error || `Command failed with exit code ${proc.exitCode}`);
+    }
+    
+    if (options.verbose) {
+      console.log(output);
+    }
+    return { success: true, output };
   } catch (error: any) {
     return { 
       success: false, 

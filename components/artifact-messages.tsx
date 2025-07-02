@@ -10,11 +10,11 @@ import { PreviewMessage, ThinkingMessage } from './message';
 
 interface ArtifactMessagesProps {
   chatId: string;
-  status: UseChatHelpers['status'];
+  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix type for AI SDK 5.0
   votes: Vote[] | undefined;
   messages: UIMessage[];
-  setMessages: UseChatHelpers['setMessages'];
-  reload: UseChatHelpers['reload'];
+  setMessages: (messages: UIMessage[]) => void; // TODO: Fix type for AI SDK 5.0
+  reload: () => void;
   isReadonly: boolean;
   artifactStatus: UIArtifact['status'];
 }

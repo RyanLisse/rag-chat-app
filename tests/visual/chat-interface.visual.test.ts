@@ -2,6 +2,7 @@
 import { test, expect } from '@playwright/test';
 import { visualRegressionHelpers, criticalComponents } from './visual-regression.config';
 import { createConversation } from '../factories';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Chat Interface Visual Tests', () => {
   test.beforeEach(async ({ page }) => {

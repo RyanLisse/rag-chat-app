@@ -35,6 +35,7 @@ export interface CitationArtifactMetadata {
   sources: CitationSource[];
   statistics: CitationStatistics;
   selectedCitationId?: string;
+  showStatistics?: boolean;
 }
 
 export interface CitationHighlight {

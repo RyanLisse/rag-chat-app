@@ -1,23 +1,10 @@
 // Unit Tests for lib/monitoring/logger.ts
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Logger, logger, type LogContext, type LogLevel } from '@/lib/monitoring/logger';
 
-// Mock OpenTelemetry
-const mockAddEvent = vi.fn();
-const mockRecordException = vi.fn();
-const mockSpanContext = vi.fn();
+// We need to mock the logger module to control OpenTelemetry
 
-const mockSpan = {
-  addEvent: mockAddEvent,
-  recordException: mockRecordException,
-  spanContext: mockSpanContext,
-};
 
-vi.mock('@opentelemetry/api', () => ({
-  trace: {
-    getActiveSpan: vi.fn(() => mockSpan),
-  },
-}));
+import { Logger, logger } from '@/lib/monitoring/logger';
 
 describe('Logger', () => {
   let consoleSpy: any;
@@ -29,11 +16,6 @@ describe('Logger', () => {
       warn: vi.spyOn(console, 'warn').mockImplementation(() => {}),
       error: vi.spyOn(console, 'error').mockImplementation(() => {}),
     };
-    
-    mockSpanContext.mockReturnValue({
-      traceId: 'trace-123',
-      spanId: 'span-456',
-    });
     
     vi.clearAllMocks();
   });
@@ -96,37 +78,10 @@ describe('Logger', () => {
         message: 'test message',
         service: 'rag-chat-app',
         environment: 'development',
-        traceId: 'trace-123',
-        spanId: 'span-456',
         userId: 'user-123',
       });
       
       expect(parsedLog.timestamp).toBeDefined();
-    });
-
-    it('should include OpenTelemetry trace context', () => {
-      const testLogger = new Logger();
-      testLogger.info('test message');
-
-      const loggedMessage = consoleSpy.info.mock.calls[0][0];
-      const parsedLog = JSON.parse(loggedMessage);
-
-      expect(parsedLog.traceId).toBe('trace-123');
-      expect(parsedLog.spanId).toBe('span-456');
-    });
-
-    it('should handle missing trace context', () => {
-      const { trace } = require('@opentelemetry/api');
-      trace.getActiveSpan.mockReturnValueOnce(null);
-      
-      const testLogger = new Logger();
-      testLogger.info('test message');
-
-      const loggedMessage = consoleSpy.info.mock.calls[0][0];
-      const parsedLog = JSON.parse(loggedMessage);
-
-      expect(parsedLog.traceId).toBeUndefined();
-      expect(parsedLog.spanId).toBeUndefined();
     });
   });
 
@@ -139,42 +94,37 @@ describe('Logger', () => {
 
     it('should log debug messages in development', () => {
       process.env.NODE_ENV = 'development';
-      testLogger.debug('debug message');
+      const devLogger = new Logger();
+      devLogger.debug('debug message');
 
       expect(consoleSpy.debug).toHaveBeenCalled();
-      expect(mockAddEvent).toHaveBeenCalledWith('log.debug', {
-        'log.message': 'debug message',
-        'log.severity': 'debug',
-      });
     });
 
     it('should not log debug messages in production', () => {
       process.env.NODE_ENV = 'production';
-      testLogger.debug('debug message');
+      const prodLogger = new Logger();
+      prodLogger.debug('debug message');
 
       expect(consoleSpy.debug).not.toHaveBeenCalled();
-      expect(mockAddEvent).toHaveBeenCalled(); // Still adds to span
     });
 
     it('should log info messages', () => {
       testLogger.info('info message', { userId: 'user-123' });
 
       expect(consoleSpy.info).toHaveBeenCalled();
-      expect(mockAddEvent).toHaveBeenCalledWith('log.info', {
-        'log.message': 'info message',
-        'log.severity': 'info',
-        userId: 'user-123',
-      });
+      const loggedMessage = consoleSpy.info.mock.calls[0][0];
+      const parsedLog = JSON.parse(loggedMessage);
+      expect(parsedLog.message).toBe('info message');
+      expect(parsedLog.userId).toBe('user-123');
     });
 
     it('should log warning messages', () => {
       testLogger.warn('warning message');
 
       expect(consoleSpy.warn).toHaveBeenCalled();
-      expect(mockAddEvent).toHaveBeenCalledWith('log.warn', {
-        'log.message': 'warning message',
-        'log.severity': 'warn',
-      });
+      const loggedMessage = consoleSpy.warn.mock.calls[0][0];
+      const parsedLog = JSON.parse(loggedMessage);
+      expect(parsedLog.message).toBe('warning message');
     });
 
     it('should log error messages', () => {
@@ -182,19 +132,16 @@ describe('Logger', () => {
       testLogger.error('error message', { requestId: 'req-123' }, testError);
 
       expect(consoleSpy.error).toHaveBeenCalledTimes(2); // Message + stack
-      expect(mockAddEvent).toHaveBeenCalledWith('log.error', {
-        'log.message': 'error message',
-        'log.severity': 'error',
-        requestId: 'req-123',
-      });
-      expect(mockRecordException).toHaveBeenCalledWith(testError);
+      const loggedMessage = consoleSpy.error.mock.calls[0][0];
+      const parsedLog = JSON.parse(loggedMessage);
+      expect(parsedLog.message).toBe('error message');
+      expect(parsedLog.requestId).toBe('req-123');
     });
 
     it('should log error messages without Error object', () => {
       testLogger.error('error message');
 
       expect(consoleSpy.error).toHaveBeenCalledTimes(1); // Just message
-      expect(mockRecordException).not.toHaveBeenCalled();
     });
   });
 

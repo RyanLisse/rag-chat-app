@@ -3,6 +3,7 @@ import { AuthPage } from '../pages/auth';
 import { generateRandomTestUser } from '../helpers';
 import { ChatPage } from '../pages/chat';
 import { getMessageByErrorCode } from '@/lib/errors';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe
   .serial('Guest Session', () => {
@@ -70,15 +71,15 @@ test.describe
     });
 
     test('Allow navigating to /login as guest user', async ({ page }) => {
-      await page.goto('/login');
+      await page.goto(getTestURL('/login'));
       await page.waitForURL('/login');
-      await expect(page).toHaveURL('/login');
+      await expect(page).toHaveURL(getTestURL('/login'));
     });
 
     test('Allow navigating to /register as guest user', async ({ page }) => {
-      await page.goto('/register');
+      await page.goto(getTestURL('/register'));
       await page.waitForURL('/register');
-      await expect(page).toHaveURL('/register');
+      await expect(page).toHaveURL(getTestURL('/register'));
     });
 
     test('Do not show email in user menu for guest user', async ({ page }) => {
@@ -142,7 +143,7 @@ test.describe
       const userEmail = await page.getByTestId('user-email');
       await expect(userEmail).toHaveText(testUser.email);
 
-      await page.goto('/api/auth/guest');
+      await page.goto(getTestURL('/api/auth/guest'));
       await page.waitForURL('/');
 
       const updatedUserEmail = await page.getByTestId('user-email');
@@ -172,7 +173,7 @@ test.describe
       await authPage.login(testUser.email, testUser.password);
       await page.waitForURL('/');
 
-      await page.goto('/register');
+      await page.goto(getTestURL('/register'));
       await expect(page).toHaveURL('/');
     });
 
@@ -180,7 +181,7 @@ test.describe
       await authPage.login(testUser.email, testUser.password);
       await page.waitForURL('/');
 
-      await page.goto('/login');
+      await page.goto(getTestURL('/login'));
       await expect(page).toHaveURL('/');
     });
   });

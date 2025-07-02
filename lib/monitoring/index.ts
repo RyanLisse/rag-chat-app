@@ -14,6 +14,35 @@ import {
   trackCitationGeneration,
 } from './telemetry';
 
+// Simple metrics object for the application
+export const ragMetrics = {
+  chatMessageCount: {
+    add: (value: number, attributes?: Record<string, any>) => {
+      logger.info('Chat message count', { value, ...attributes });
+    },
+  },
+  chatSessionDuration: {
+    record: (value: number, attributes?: Record<string, any>) => {
+      logger.info('Chat session duration', { value, ...attributes });
+    },
+  },
+  modelInferenceDuration: {
+    record: (value: number, attributes?: Record<string, any>) => {
+      logger.info('Model inference duration', { value, ...attributes });
+    },
+  },
+  modelTokensUsed: {
+    record: (value: number, attributes?: Record<string, any>) => {
+      logger.info('Model tokens used', { value, ...attributes });
+    },
+  },
+  modelErrorCount: {
+    add: (value: number, attributes?: Record<string, any>) => {
+      logger.info('Model error count', { value, ...attributes });
+    },
+  },
+};
+
 // Re-export commonly used functions
 export {
   logger,

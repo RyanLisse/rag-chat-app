@@ -3,7 +3,7 @@
  * Supports Gemini 2.5 Pro, Flash, and other Google models
  */
 
-import { google } from '@ai-sdk/google';
+import { google, createGoogleGenerativeAI } from '@ai-sdk/google';
 import type { LanguageModel } from 'ai';
 import { BaseProvider } from './base';
 import {
@@ -92,7 +92,7 @@ const GOOGLE_CAPABILITIES: ProviderCapabilities = {
  * Google provider implementation
  */
 export class GoogleProvider extends BaseProvider {
-  private client?: typeof google;
+  private client?: ReturnType<typeof createGoogleGenerativeAI>;
 
   constructor() {
     super('google', Object.keys(GOOGLE_MODELS), GOOGLE_CAPABILITIES);
@@ -107,7 +107,7 @@ export class GoogleProvider extends BaseProvider {
     }
 
     try {
-      this.client = google({
+      this.client = createGoogleGenerativeAI({
         apiKey: this.config.apiKey,
         baseURL: this.config.baseUrl,
       });
@@ -237,7 +237,7 @@ export class GoogleProvider extends BaseProvider {
       },
     ];
 
-    return this.client(modelConfig.id, googleOptions);
+    return this.client(modelConfig.id);
   }
 
   /**

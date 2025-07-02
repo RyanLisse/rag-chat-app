@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Model Selector Visual Tests', () => {
   // Configure for visual regression testing

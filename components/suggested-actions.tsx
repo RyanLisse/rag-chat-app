@@ -1,6 +1,6 @@
 'use client';
 
-import type { UseChatHelpers } from '@ai-sdk/react';
+import type { UIMessage } from 'ai';
 import { motion } from 'framer-motion';
 import { memo } from 'react';
 import { Button } from './ui/button';
@@ -8,7 +8,7 @@ import type { VisibilityType } from './visibility-selector';
 
 interface SuggestedActionsProps {
   chatId: string;
-  append: UseChatHelpers['append'];
+  append: (message: UIMessage) => void; // TODO: Fix for AI SDK 5.0
   selectedVisibilityType: VisibilityType;
 }
 
@@ -43,7 +43,7 @@ function PureSuggestedActions({
   return (
     <div
       data-testid="suggested-actions"
-      className="grid w-full gap-2 sm:grid-cols-2"
+      className="grid w-full gap-2 sm:grid-cols-2 max-w-2xl mx-auto"
     >
       {suggestedActions.map((suggestedAction, index) => (
         <motion.div
@@ -52,7 +52,6 @@ function PureSuggestedActions({
           exit={{ opacity: 0, y: 20 }}
           transition={{ delay: 0.05 * index }}
           key={`suggested-action-${suggestedAction.title}-${index}`}
-          className={index > 1 ? 'hidden sm:block' : 'block'}
         >
           <Button
             variant="ghost"
@@ -60,15 +59,15 @@ function PureSuggestedActions({
               window.history.replaceState({}, '', `/chat/${chatId}`);
 
               append({
+                id: `suggested-${Date.now()}`,
                 role: 'user',
-                content: suggestedAction.action,
+                parts: [{ type: 'text', text: suggestedAction.action }], // Updated for AI SDK 5.0
               });
             }}
-            className="h-auto w-full flex-1 items-start justify-start gap-1 rounded-xl border px-4 py-3.5 text-left text-sm sm:flex-col"
+            className="h-auto w-full flex-1 items-start justify-start gap-1 rounded-lg border px-3 py-2.5 text-left text-sm hover:bg-muted/50 transition-colors"
           >
-            <span className="font-medium">{suggestedAction.title}</span>
-            <span className="text-muted-foreground">
-              {suggestedAction.label}
+            <span className="line-clamp-2 text-xs sm:text-sm">
+              {suggestedAction.action}
             </span>
           </Button>
         </motion.div>

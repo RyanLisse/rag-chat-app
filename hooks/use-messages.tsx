@@ -1,4 +1,3 @@
-import type { UseChatHelpers } from '@ai-sdk/react';
 import { useEffect, useState } from 'react';
 import { useScrollToBottom } from './use-scroll-to-bottom';
 
@@ -7,7 +6,7 @@ export function useMessages({
   status,
 }: {
   chatId: string;
-  status: UseChatHelpers['status'];
+  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
 }) {
   const {
     containerRef,

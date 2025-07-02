@@ -1,5 +1,6 @@
 import { ChatPage } from '../pages/chat';
 import { test, expect } from '../fixtures';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Chat activity', () => {
   let chatPage: ChatPage;
@@ -140,7 +141,7 @@ test.describe('Chat activity', () => {
   });
 
   test('Create message from url query', async ({ page }) => {
-    await page.goto('/?query=Why is the sky blue?');
+    await page.goto(getTestURL('/?query=Why is the sky blue?'));
 
     await chatPage.isGenerationComplete();
 

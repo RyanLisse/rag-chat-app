@@ -67,10 +67,15 @@ const providerConfig = {
 
 // Speed categories based on model characteristics
 const modelSpeedConfig = {
-  'o4-mini': 'fast',
+  'gpt-4o-mini': 'fast',
+  'gpt-4o-mini-2025-07-01': 'fast',
+  'o1-mini': 'fast',
   'gemini-2.5-flash': 'fast',
-  'gpt-4.1': 'balanced',
+  'gpt-4o': 'balanced',
+  'gpt-4o-2025-07-01': 'balanced',
   'claude-4': 'balanced',
+  'o1': 'thorough',
+  'o1-preview': 'thorough',
   'gemini-2.5-pro': 'thorough',
 } as const;
 
@@ -107,10 +112,10 @@ function getCostCategory(
   outputPrice: number
 ): 'low' | 'medium' | 'high' {
   const avgPrice = (inputPrice + outputPrice) / 2;
-  if (avgPrice < 0.005) {
+  if (avgPrice < 0.002) {
     return 'low';
   }
-  if (avgPrice < 0.02) {
+  if (avgPrice < 0.01) {
     return 'medium';
   }
   return 'high';
@@ -243,6 +248,11 @@ export function ModelSelector({
   const isLoading = loading || isChangingModel;
   const hasError = lastError !== null;
 
+  // Safety check - if no model is selected, return null
+  if (!selectedChatModel) {
+    return null;
+  }
+
   return (
     <div className="relative">
       <Popover open={open} onOpenChange={setOpen}>
@@ -256,7 +266,7 @@ export function ModelSelector({
             aria-describedby={hasError ? 'model-selector-error' : undefined}
             disabled={disabled || isLoading}
             className={cn(
-              'min-w-[180px] justify-between md:min-w-[220px]',
+              'h-8 md:h-9 text-xs md:text-sm min-w-[140px] md:min-w-[220px] justify-between',
               hasError && 'border-red-300 dark:border-red-700',
               className
             )}
@@ -265,10 +275,10 @@ export function ModelSelector({
           >
             <div className="flex items-center gap-2 truncate">
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
               ) : (
                 <span
-                  className="text-base"
+                  className="text-sm md:text-base hidden sm:inline"
                   aria-label={`${providerConfig[selectedChatModel.provider].name} provider`}
                 >
                   {providerConfig[selectedChatModel.provider].icon}
@@ -276,10 +286,10 @@ export function ModelSelector({
               )}
               <span className="truncate">{selectedChatModel.name}</span>
               {hasError && (
-                <AlertCircle className="h-4 w-4 shrink-0 text-red-500" />
+                <AlertCircle className="h-3 w-3 md:h-4 md:w-4 shrink-0 text-red-500" />
               )}
             </div>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="ml-1 md:ml-2 h-3 w-3 md:h-4 md:w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0 sm:w-[420px]" align="start">

@@ -1,5 +1,5 @@
 // Performance Testing Utilities
-import { expect } from 'bun:test';
+import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
 export interface PerformanceMetrics {
@@ -83,10 +83,10 @@ export class PerformanceTester {
         domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
         loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
         // @ts-ignore
-        memoryUsage: performance.memory ? {
-          usedJSHeapSize: performance.memory.usedJSHeapSize,
-          totalJSHeapSize: performance.memory.totalJSHeapSize,
-          jsHeapSizeLimit: performance.memory.jsHeapSizeLimit,
+        memoryUsage: (performance as any).memory ? {
+          usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
+          totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
+          jsHeapSizeLimit: (performance as any).memory.jsHeapSizeLimit,
         } : undefined,
       };
     });

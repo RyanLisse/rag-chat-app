@@ -209,7 +209,7 @@ describe('updateDocumentPrompt', () => {
   it('should handle empty content', () => {
     const prompt = updateDocumentPrompt('', 'text');
     expect(prompt).toContain('Improve the following contents');
-    expect(prompt).toEndWith('\n\n\n');
+    expect(prompt).toMatch(/\n\n\n$/);
   });
 
   it('should preserve content formatting', () => {

@@ -2,17 +2,27 @@ import { resolve } from 'path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  esbuild: {
+    jsx: 'automatic',
+    jsxFactory: 'React.createElement',
+    jsxFragment: 'React.Fragment',
+  },
   test: {
     globals: true,
     environment: 'happy-dom',
-    setupFiles: ['./tests/setup/test-setup.ts'],
-    testTimeout: 10000, // 10 seconds
-    hookTimeout: 10000,
+    environmentMatchGlobs: [
+      ['**/{app,tests/unit/upload-route,tests/unit/status-route,tests/integration/file-upload}.{test,spec}.{js,ts,tsx}', 'node'],
+    ],
+    setupFiles: ['./tests/setup/test-setup.ts', './tests/setup/vitest-mocks.ts'],
+    testTimeout: 5000, // 5 seconds - faster test execution
+    hookTimeout: 5000,
     include: ['tests/**/*.{test,spec}.{js,ts,tsx}'],
     exclude: [
       'node_modules/**',
       '.next/**',
       'tests/e2e/**',
+      'tests/routes/**',
+      'tests/stagehand/**',
       'tests/visual/**',
       'tests/performance/**',
       'coverage/**',
@@ -20,7 +30,7 @@ export default defineConfig({
     // Ignore test warnings
     silent: false,
     hideSkippedTests: true,
-    reporter: ['verbose'],
+    reporters: ['verbose'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

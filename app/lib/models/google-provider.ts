@@ -1,6 +1,6 @@
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { generateText, streamText } from 'ai';
-import type { LanguageModel, StreamingTextResponse } from 'ai';
+import type { LanguageModel } from 'ai';
 import {
   type ChatParams,
   type ModelConfig,
@@ -64,16 +64,19 @@ export class GoogleProvider implements ModelProvider {
   name = 'Google';
   models = GOOGLE_MODELS;
 
-  private apiKey: string;
+  private google: ReturnType<typeof createGoogleGenerativeAI>;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.GOOGLE_API_KEY || '';
-    if (!this.apiKey) {
+    const key = apiKey || process.env.GOOGLE_API_KEY || '';
+    if (!key) {
       throw new ProviderAuthenticationError(
         this.id,
         'Google API key is required. Set GOOGLE_API_KEY environment variable.'
       );
     }
+    this.google = createGoogleGenerativeAI({
+      apiKey: key,
+    });
   }
 
   getModel(modelId: string): LanguageModel {
@@ -85,12 +88,10 @@ export class GoogleProvider implements ModelProvider {
       );
     }
 
-    return google(modelId, {
-      apiKey: this.apiKey,
-    });
+    return this.google(modelId);
   }
 
-  async chat(params: ChatParams): Promise<StreamingTextResponse> {
+  async chat(params: ChatParams): Promise<Response> {
     try {
       const model = this.getModel(params.model);
       const modelConfig = this.models.find((m) => m.id === params.model);
@@ -105,45 +106,36 @@ export class GoogleProvider implements ModelProvider {
       // Google Gemini has specific requirements for message formatting
       const messages = this.formatMessages(params.messages);
 
-      // Handle function calling
-      const tools =
-        params.functions && modelConfig.supportsFunctions
-          ? params.functions.map((fn) => ({
-              type: 'function' as const,
-              function: {
-                name: fn.name,
-                description: fn.description,
-                parameters: fn.parameters,
-              },
-            }))
-          : undefined;
+      // TODO: Implement function calling with AI SDK 5.0 tools format
+      // For now, disabled to focus on core streaming functionality
+      const tools = undefined;
 
       if (params.stream !== false) {
         const result = await streamText({
           model,
           messages,
           temperature: params.temperature,
-          maxTokens: params.maxTokens,
+          maxOutputTokens: params.maxTokens,
           topP: params.topP,
           frequencyPenalty: params.frequencyPenalty,
           presencePenalty: params.presencePenalty,
           tools,
-          toolChoice: params.functionCall,
+          toolChoice: undefined, // TODO: Update for AI SDK 5.0 tool choice format
           abortSignal: params.signal,
         });
 
-        return new StreamingTextResponse(result.toDataStream());
+        return result.toTextStreamResponse();
       }
       const result = await generateText({
         model,
         messages,
         temperature: params.temperature,
-        maxTokens: params.maxTokens,
+        maxOutputTokens: params.maxTokens,
         topP: params.topP,
         frequencyPenalty: params.frequencyPenalty,
         presencePenalty: params.presencePenalty,
         tools,
-        toolChoice: params.functionCall,
+        toolChoice: undefined, // TODO: Update for AI SDK 5.0 tool choice format
         abortSignal: params.signal,
       });
 
@@ -156,7 +148,11 @@ export class GoogleProvider implements ModelProvider {
         },
       });
 
-      return new StreamingTextResponse(stream);
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+        },
+      });
     } catch (error: unknown) {
       return this.handleError(error);
     }

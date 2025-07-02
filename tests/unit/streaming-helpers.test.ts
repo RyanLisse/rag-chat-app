@@ -1,5 +1,5 @@
 // Unit Tests for Streaming Test Helpers
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import {
   collectStreamChunks,
   assertStreamingBehavior,
@@ -7,6 +7,15 @@ import {
   createSlowStream,
   parseSSEStream,
 } from '../utils/streaming-test-helpers';
+
+// Setup fake timers for streaming tests
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('collectStreamChunks', () => {
   it('should collect all chunks from a stream', async () => {
@@ -29,18 +38,32 @@ describe('collectStreamChunks', () => {
 
   it('should calculate chunk delays correctly', async () => {
     const encoder = new TextEncoder();
+    
+    // Create a controlled stream with fake timers
     const stream = new ReadableStream({
-      async start(controller) {
+      start(controller) {
         controller.enqueue(encoder.encode('chunk1'));
-        await new Promise(resolve => setTimeout(resolve, 50));
-        controller.enqueue(encoder.encode('chunk2'));
-        controller.close();
+        
+        // Use fake timer compatible delay
+        setTimeout(() => {
+          controller.enqueue(encoder.encode('chunk2'));
+          controller.close();
+        }, 50);
       },
     });
 
-    const chunks = await collectStreamChunks(stream);
+    const collectPromise = collectStreamChunks(stream);
     
-    expect(chunks[1].delta).toBeGreaterThanOrEqual(45); // Allow some variance
+    // Advance timers to trigger the delay
+    await vi.advanceTimersByTimeAsync(60);
+    
+    const chunks = await collectPromise;
+    
+    expect(chunks).toHaveLength(2);
+    expect(chunks[0].content).toBe('chunk1');
+    expect(chunks[1].content).toBe('chunk2');
+    // With fake timers, the delta should be close to the setTimeout delay
+    expect(chunks[1].delta).toBeGreaterThanOrEqual(45);
   });
 });
 
@@ -118,14 +141,21 @@ describe('createSlowStream', () => {
     const delay = 20;
     
     const stream = createSlowStream(content, chunkSize, delay);
-    const chunks = await collectStreamChunks(stream);
+    const collectPromise = collectStreamChunks(stream);
+    
+    // Advance timers gradually to simulate the delays
+    await vi.advanceTimersByTimeAsync(delay); // First chunk delay
+    await vi.advanceTimersByTimeAsync(delay); // Second chunk delay
+    await vi.advanceTimersByTimeAsync(delay); // Third chunk delay
+    
+    const chunks = await collectPromise;
     
     expect(chunks).toHaveLength(3); // "Hello", " Worl", "d"
     expect(chunks[0].content).toBe('Hello');
     expect(chunks[1].content).toBe(' Worl');
     expect(chunks[2].content).toBe('d');
     
-    // Check delays (with some tolerance)
+    // Check delays (with some tolerance for fake timers)
     expect(chunks[1].delta).toBeGreaterThanOrEqual(delay - 5);
     expect(chunks[2].delta).toBeGreaterThanOrEqual(delay - 5);
   });

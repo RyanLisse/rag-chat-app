@@ -35,8 +35,8 @@ const PurePreviewMessage = ({
   message: UIMessage;
   vote: Vote | undefined;
   isLoading: boolean;
-  setMessages: UseChatHelpers['setMessages'];
-  reload: UseChatHelpers['reload'];
+  setMessages: (messages: UIMessage[]) => void; // TODO: Fix for AI SDK 5.0
+  reload: () => void; // TODO: Fix for AI SDK 5.0
   isReadonly: boolean;
   requiresScrollPadding: boolean;
 }) => {
@@ -73,7 +73,8 @@ const PurePreviewMessage = ({
               'min-h-96': message.role === 'assistant' && requiresScrollPadding,
             })}
           >
-            {message.experimental_attachments &&
+            {/* TODO: Fix attachments for AI SDK 5.0 - experimental_attachments no longer exists */}
+            {/* {message.experimental_attachments &&
               message.experimental_attachments.length > 0 && (
                 <div
                   data-testid="message-attachments"
@@ -86,7 +87,7 @@ const PurePreviewMessage = ({
                     />
                   ))}
                 </div>
-              )}
+              )} */}
 
             {message.parts?.map((part, index) => {
               const { type } = part;
@@ -97,7 +98,7 @@ const PurePreviewMessage = ({
                   <MessageReasoning
                     key={key}
                     isLoading={isLoading}
-                    reasoning={part.reasoning}
+                    reasoning={(part as any).content || (part as any).text || ''} // TODO: Fix reasoning type for AI SDK 5.0
                   />
                 );
               }
@@ -155,7 +156,8 @@ const PurePreviewMessage = ({
               }
 
               if (type === 'tool-invocation') {
-                const { toolInvocation } = part;
+                // TODO: Fix tool invocation structure for AI SDK 5.0
+                const toolInvocation = part as any; // Direct access for now
                 const { toolName, toolCallId, state } = toolInvocation;
 
                 if (state === 'call') {

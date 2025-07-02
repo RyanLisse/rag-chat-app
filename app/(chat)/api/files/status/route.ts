@@ -59,17 +59,17 @@ export async function POST(request: Request) {
     // If batchId is provided, check batch status
     if (batchId) {
       try {
-        const batch = await openai.vectorStores.fileBatches.retrieve(
+        const batch = await (openai.vectorStores.fileBatches as any).retrieve(
           vectorStoreId,
           batchId
         );
 
         const response: StatusResponse = {
           success: true,
-          status: batch.status as any,
-          completedCount: batch.file_counts.completed,
-          inProgressCount: batch.file_counts.in_progress,
-          failedCount: batch.file_counts.failed,
+          status: batch?.status || 'unknown',
+          completedCount: batch?.file_counts?.completed || 0,
+          inProgressCount: batch?.file_counts?.in_progress || 0,
+          failedCount: batch?.file_counts?.failed || 0,
         };
 
         return NextResponse.json(response);
@@ -88,7 +88,7 @@ export async function POST(request: Request) {
         const fileStatuses = await Promise.all(
           fileIds.map(async (fileId) => {
             try {
-              const file = await openai.vectorStores.files.retrieve(
+              const file = await (openai.vectorStores.files as any).retrieve(
                 vectorStoreId,
                 fileId
               );

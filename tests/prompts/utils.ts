@@ -1,4 +1,6 @@
-import { CoreMessage, LanguageModelV1StreamPart } from 'ai';
+import { CoreMessage } from 'ai';
+// TODO: Fix LanguageModelV1StreamPart import for AI SDK 5.0
+type LanguageModelV1StreamPart = any;
 import { TEST_PROMPTS } from './basic';
 
 export function compareMessages(

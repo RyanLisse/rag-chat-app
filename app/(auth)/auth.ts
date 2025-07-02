@@ -83,9 +83,9 @@ export const {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.type = token.type;
+      if (session.user && token) {
+        session.user.id = token.id as string;
+        session.user.type = token.type as UserType;
       }
 
       return session;

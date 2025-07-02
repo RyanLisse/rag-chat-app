@@ -1,4 +1,5 @@
-import { type UIMessage, appendResponseMessages } from 'ai';
+import { type UIMessage } from 'ai';
+// TODO: appendResponseMessages removed in AI SDK 5.0 - need alternative
 import { config } from 'dotenv';
 import { inArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
@@ -159,6 +160,9 @@ async function migrateMessages() {
         const [firstAssistantMessage] = assistantMessages;
 
         try {
+          // TODO: Reimplement with AI SDK 5.0 - appendResponseMessages removed
+          console.log(`Skipping chat ${chat.id} migration due to AI SDK 5.0 compatibility`);
+          /*
           const uiSection = appendResponseMessages({
             messages: [userMessage],
             // @ts-expect-error: message.content has different type
@@ -212,6 +216,7 @@ async function migrateMessages() {
               }
             }
           }
+          */
         } catch (error) {
           console.error(`Error processing chat ${chat.id}: ${error}`);
         }

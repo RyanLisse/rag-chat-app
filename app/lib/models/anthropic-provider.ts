@@ -1,6 +1,7 @@
-import { anthropic } from '@ai-sdk/anthropic';
-import { generateText, streamText } from 'ai';
-import type { LanguageModel, StreamingTextResponse } from 'ai';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { generateText, streamText, tool } from 'ai';
+import type { LanguageModel } from 'ai';
+import { z } from 'zod';
 import {
   type ChatParams,
   type ModelConfig,
@@ -53,16 +54,19 @@ export class AnthropicProvider implements ModelProvider {
   name = 'Anthropic';
   models = ANTHROPIC_MODELS;
 
-  private apiKey: string;
+  private anthropic: ReturnType<typeof createAnthropic>;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.ANTHROPIC_API_KEY || '';
-    if (!this.apiKey) {
+    const key = apiKey || process.env.ANTHROPIC_API_KEY || '';
+    if (!key) {
       throw new ProviderAuthenticationError(
         this.id,
         'Anthropic API key is required. Set ANTHROPIC_API_KEY environment variable.'
       );
     }
+    this.anthropic = createAnthropic({
+      apiKey: key,
+    });
   }
 
   getModel(modelId: string): LanguageModel {
@@ -74,12 +78,10 @@ export class AnthropicProvider implements ModelProvider {
       );
     }
 
-    return anthropic(modelId, {
-      apiKey: this.apiKey,
-    });
+    return this.anthropic(modelId);
   }
 
-  async chat(params: ChatParams): Promise<StreamingTextResponse> {
+  async chat(params: ChatParams): Promise<Response> {
     try {
       const model = this.getModel(params.model);
       const modelConfig = this.models.find((m) => m.id === params.model);
@@ -94,45 +96,36 @@ export class AnthropicProvider implements ModelProvider {
       // Anthropic has specific requirements for message formatting
       const messages = this.formatMessages(params.messages);
 
-      // Handle function calling
-      const tools =
-        params.functions && modelConfig.supportsFunctions
-          ? params.functions.map((fn) => ({
-              type: 'function' as const,
-              function: {
-                name: fn.name,
-                description: fn.description,
-                parameters: fn.parameters,
-              },
-            }))
-          : undefined;
+      // TODO: Implement function calling with AI SDK 5.0 tools format
+      // For now, disabled to focus on core streaming functionality
+      const tools = undefined;
 
       if (params.stream !== false) {
         const result = await streamText({
           model,
           messages,
           temperature: params.temperature,
-          maxTokens: params.maxTokens,
+          maxOutputTokens: params.maxTokens,
           topP: params.topP,
           frequencyPenalty: params.frequencyPenalty,
           presencePenalty: params.presencePenalty,
           tools,
-          toolChoice: params.functionCall,
+          toolChoice: undefined, // TODO: Update for AI SDK 5.0 tool choice format
           abortSignal: params.signal,
         });
 
-        return new StreamingTextResponse(result.toDataStream());
+        return result.toTextStreamResponse();
       }
       const result = await generateText({
         model,
         messages,
         temperature: params.temperature,
-        maxTokens: params.maxTokens,
+        maxOutputTokens: params.maxTokens,
         topP: params.topP,
         frequencyPenalty: params.frequencyPenalty,
         presencePenalty: params.presencePenalty,
         tools,
-        toolChoice: params.functionCall,
+        toolChoice: undefined, // TODO: Update for AI SDK 5.0 tool choice format
         abortSignal: params.signal,
       });
 
@@ -145,7 +138,11 @@ export class AnthropicProvider implements ModelProvider {
         },
       });
 
-      return new StreamingTextResponse(stream);
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+        },
+      });
     } catch (error: unknown) {
       return this.handleError(error);
     }
@@ -154,7 +151,13 @@ export class AnthropicProvider implements ModelProvider {
   private formatMessages(messages: ChatParams['messages']) {
     // Anthropic requires alternating user/assistant messages
     // and system messages must be at the beginning
-    const formattedMessages = [...messages];
+    
+    // Filter out any function messages as they're not supported in AI SDK 5.0
+    const filteredMessages = messages.filter(msg => 
+      msg.role === 'system' || msg.role === 'user' || msg.role === 'assistant'
+    );
+    
+    const formattedMessages = [...filteredMessages];
 
     // Ensure we don't have consecutive messages of the same role
     for (let i = 1; i < formattedMessages.length; i++) {

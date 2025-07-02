@@ -1,6 +1,6 @@
-import { customModel } from '@/lib/ai';
+import { myProvider } from '@/lib/ai/providers';
 import type { Citation, CitationSource } from '@/lib/types/citation';
-import type { DataStreamWriter } from '@ai-sdk/provider';
+// TODO: Find correct type for DataStreamWriter in AI SDK 5.0
 import { convertToCoreMessages, streamObject, streamText } from 'ai';
 import { z } from 'zod';
 
@@ -33,7 +33,7 @@ export async function generateCitationArtifact({
   messages,
   userContent,
 }: {
-  dataStream: DataStreamWriter;
+  dataStream: any; // TODO: Fix type for AI SDK 5.0
   uiStream: any;
   documentId: string;
   content: string;
@@ -42,7 +42,7 @@ export async function generateCitationArtifact({
   userContent: string;
 }) {
   const extractedCitations = await streamObject({
-    model: customModel('o1-mini'),
+    model: myProvider.languageModel('o4-mini'),
     schema: citationExtractionSchema,
     prompt: `Extract citations and sources from the following AI response. Identify specific claims or facts that should be cited, and match them with their sources.
 
@@ -75,7 +75,10 @@ Instructions:
       }
 
       if (delta.object.sources) {
-        sources.push(...delta.object.sources);
+        const validSources = delta.object.sources.filter((source): source is CitationSource => 
+          source !== undefined && source !== null
+        );
+        sources.push(...validSources);
         dataStream.writeData({
           type: 'sources-update',
           content: sources,
@@ -100,7 +103,7 @@ Instructions:
   });
 
   const result = await streamText({
-    model: customModel('o1-mini'),
+    model: myProvider.languageModel('o4-mini'),
     messages: convertToCoreMessages(messages),
   });
 
@@ -110,10 +113,10 @@ Instructions:
   });
 
   for await (const delta of result.fullStream) {
-    if (delta.type === 'text-delta') {
+    if (delta.type === 'text') {
       dataStream.writeData({
         type: 'citation-delta',
-        content: delta.textDelta,
+        content: delta.text,
       });
     }
   }

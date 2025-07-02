@@ -34,7 +34,8 @@ export const redis = {
   async get(key: string): Promise<string | null> {
     const client = await redisPromise;
     if (!client) return null;
-    return client.get(key);
+    const result = await client.get(key);
+    return typeof result === 'string' ? result : null;
   },
   
   async set(key: string, value: string, mode?: 'EX', duration?: number): Promise<void> {

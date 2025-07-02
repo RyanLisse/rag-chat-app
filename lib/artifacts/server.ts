@@ -3,7 +3,8 @@ import { imageDocumentHandler } from '@/artifacts/image/server';
 import { sheetDocumentHandler } from '@/artifacts/sheet/server';
 import { textDocumentHandler } from '@/artifacts/text/server';
 import type { ArtifactKind } from '@/components/artifact';
-import type { DataStreamWriter } from 'ai';
+// TODO: Update import for AI SDK 5.0 - DataStreamWriter removed
+// import type { DataStreamWriter } from 'ai';
 import type { Session } from 'next-auth';
 import { saveDocument } from '../db/queries';
 import type { Document } from '../db/schema';
@@ -19,14 +20,14 @@ export interface SaveDocumentProps {
 export interface CreateDocumentCallbackProps {
   id: string;
   title: string;
-  dataStream: DataStreamWriter;
+  dataStream: any; // TODO: Update type for AI SDK 5.0
   session: Session;
 }
 
 export interface UpdateDocumentCallbackProps {
   document: Document;
   description: string;
-  dataStream: DataStreamWriter;
+  dataStream: any; // TODO: Update type for AI SDK 5.0
   session: Session;
 }
 

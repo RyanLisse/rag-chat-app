@@ -1,5 +1,6 @@
 // Monitoring and Logging E2E Tests
 import { test, expect, ragHelpers } from '../helpers/stagehand-integration';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Monitoring and Logging', () => {
   let capturedLogs: Array<{
@@ -417,7 +418,7 @@ test.describe('Monitoring and Logging', () => {
   test('health check and system monitoring', async ({ stagehandPage }) => {
     // Navigate to health check endpoint if available
     try {
-      await stagehandPage.goto('/api/health');
+      await stagehandPage.goto(getTestURL('/api/health'));
       const healthResponse = await stagehandPage.textContent('body');
       
       // Health check should return valid JSON

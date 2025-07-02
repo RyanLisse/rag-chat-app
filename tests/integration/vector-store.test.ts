@@ -1,7 +1,7 @@
 // Integration Tests for Vector Store Operations
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { 
-  MockVectorStore,
+  MockVectorStoreClient as MockVectorStore,
   testVectorStoreUpload,
   assertSearchQuality,
   createTestDocuments
@@ -12,29 +12,41 @@ describe('Vector Store Integration', () => {
   let vectorStore: MockVectorStore;
 
   beforeAll(() => {
+    // Use fake timers for faster test execution
+    vi.useFakeTimers();
     vectorStore = new MockVectorStore('vs_test_integration', 50);
   });
 
   afterAll(() => {
+    vi.useRealTimers();
     vectorStore.clear();
   });
 
   it('should upload and process multiple documents', async () => {
     const documents = createTestDocuments();
     
-    const uploadedFiles = await testVectorStoreUpload(vectorStore, documents);
+    const uploadPromise = testVectorStoreUpload(vectorStore, documents);
+    
+    // Fast-forward timers to complete mock processing
+    vi.advanceTimersByTime(200);
+    
+    const uploadedFiles = await uploadPromise;
     
     expect(uploadedFiles).toHaveLength(documents.length);
     uploadedFiles.forEach(file => {
       expect(file.status).toBe('completed');
       expect(file.id).toBeTruthy();
     });
-  });
+  }, 3000);
 
   it('should search documents with relevance scoring', async () => {
     // Upload test documents first
     const documents = createTestDocuments();
-    await testVectorStoreUpload(vectorStore, documents);
+    const uploadPromise = testVectorStoreUpload(vectorStore, documents);
+    
+    // Fast-forward timers to complete mock processing
+    vi.advanceTimersByTime(200);
+    await uploadPromise;
     
     // Search for specific topics
     const searchResults = await vectorStore.search('neural networks architecture', {
@@ -48,7 +60,7 @@ describe('Vector Store Integration', () => {
       requiredFiles: ['neural-networks.txt'],
       minScore: 0.3,
     });
-  });
+  }, 3000);
 
   it('should handle concurrent file uploads', async () => {
     const files = Array.from({ length: 10 }, (_, i) => ({
@@ -70,21 +82,27 @@ describe('Vector Store Integration', () => {
       expect(result.id).toBeTruthy();
     });
     
-    // Wait for all processing
-    await Promise.all(
-      results.map(file => vectorStore.waitForProcessing(file.id))
-    );
+    // Fast-forward timers to complete processing
+    vi.advanceTimersByTime(150);
+    
+    // Wait for all processing with faster mock resolution
+    const waitPromises = results.map(file => vectorStore.waitForProcessing(file.id, 1000));
+    await Promise.all(waitPromises);
     
     // Verify all files are processed
     const allFiles = vectorStore.getAllFiles();
     const processedCount = allFiles.filter(f => f.status === 'completed').length;
     expect(processedCount).toBeGreaterThanOrEqual(files.length);
-  });
+  }, 3000);
 
   it('should integrate with AI response generation', async () => {
     // Upload documents
     const documents = createTestDocuments();
-    await testVectorStoreUpload(vectorStore, documents);
+    const uploadPromise = testVectorStoreUpload(vectorStore, documents);
+    
+    // Fast-forward timers to complete mock processing
+    vi.advanceTimersByTime(200);
+    await uploadPromise;
     
     // Simulate a search query
     const query = 'explain transformer models and their advantages';
@@ -104,7 +122,7 @@ describe('Vector Store Integration', () => {
       expect(citation.file).toBe(searchResults[index].filename);
       expect(citation.snippet).toContain(query);
     });
-  });
+  }, 3000);
 
   it('should handle search with no results gracefully', async () => {
     const results = await vectorStore.search('nonexistent quantum blockchain NFT', {
@@ -116,13 +134,17 @@ describe('Vector Store Integration', () => {
 
   it('should support fuzzy search capabilities', async () => {
     // Upload a document
-    await vectorStore.uploadFile(
+    const uploadResult = vectorStore.uploadFile(
       'fuzzy-test.txt',
       'Machine learning algorithms can be categorized into supervised, unsupervised, and reinforcement learning.'
     );
     
+    // Fast-forward timers to complete processing
+    vi.advanceTimersByTime(150);
+    
     await vectorStore.waitForProcessing(
-      vectorStore.getAllFiles().find(f => f.filename === 'fuzzy-test.txt')!.id
+      vectorStore.getAllFiles().find(f => f.filename === 'fuzzy-test.txt')!.id,
+      1000
     );
     
     // Search with typos/variations
@@ -137,16 +159,21 @@ describe('Vector Store Integration', () => {
       // Should still find results despite variations
       expect(results.length).toBeGreaterThan(0);
     }
-  });
+  }, 3000);
 
   it('should maintain search performance with large corpus', async () => {
     // Upload many documents
     const largeBatch = Array.from({ length: 100 }, (_, i) => ({
-      name: `doc-${i}.txt`,
+      id: `doc-${i}`,
+      filename: `doc-${i}.txt`,
       content: `Document ${i}: ${['AI', 'ML', 'Deep Learning', 'Neural Networks', 'NLP'][i % 5]} content with various topics and keywords.`,
     }));
     
-    await testVectorStoreUpload(vectorStore, largeBatch);
+    const uploadPromise = testVectorStoreUpload(vectorStore, largeBatch);
+    
+    // Fast-forward timers to complete processing
+    vi.advanceTimersByTime(200);
+    await uploadPromise;
     
     // Measure search performance
     const startTime = Date.now();
@@ -157,5 +184,5 @@ describe('Vector Store Integration', () => {
     
     expect(searchTime).toBeLessThan(100); // Should be fast even with many docs
     expect(results.length).toBeGreaterThan(0);
-  });
+  }, 5000);
 });

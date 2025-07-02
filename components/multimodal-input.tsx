@@ -1,6 +1,8 @@
 'use client';
 
-import type { Attachment, UIMessage } from 'ai';
+import type { UIMessage } from 'ai';
+// TODO: Define Attachment type for AI SDK 5.0
+type Attachment = any;
 import cx from 'classnames';
 import type React from 'react';
 import {
@@ -17,13 +19,12 @@ import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
 
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
-import type { UseChatHelpers } from '@ai-sdk/react';
+// TODO: Remove UseChatHelpers import for AI SDK 5.0
 import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowDown } from 'lucide-react';
 import { ArrowUpIcon, PaperclipIcon, StopIcon } from './icons';
 import { PreviewAttachment } from './preview-attachment';
-import { SuggestedActions } from './suggested-actions';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 import type { VisibilityType } from './visibility-selector';
@@ -44,16 +45,16 @@ function PureMultimodalInput({
   selectedVisibilityType,
 }: {
   chatId: string;
-  input: UseChatHelpers['input'];
-  setInput: UseChatHelpers['setInput'];
-  status: UseChatHelpers['status'];
+  input: string; // TODO: Fix for AI SDK 5.0
+  setInput: (input: string) => void; // TODO: Fix for AI SDK 5.0
+  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
   stop: () => void;
   attachments: Attachment[];
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
   messages: UIMessage[];
-  setMessages: UseChatHelpers['setMessages'];
-  append: UseChatHelpers['append'];
-  handleSubmit: UseChatHelpers['handleSubmit'];
+  setMessages: (messages: UIMessage[]) => void; // TODO: Fix for AI SDK 5.0
+  append: (message: UIMessage) => void; // TODO: Fix for AI SDK 5.0
+  handleSubmit: (e: React.FormEvent) => void; // TODO: Fix for AI SDK 5.0
   className?: string;
   selectedVisibilityType: VisibilityType;
 }) {
@@ -112,9 +113,9 @@ function PureMultimodalInput({
   const submitForm = useCallback(() => {
     window.history.replaceState({}, '', `/chat/${chatId}`);
 
-    handleSubmit(undefined, {
-      experimental_attachments: attachments,
-    });
+    // TODO: Fix handleSubmit for AI SDK 5.0 - attachments handling changed
+    const mockEvent = new Event('submit') as any;
+    handleSubmit(mockEvent);
 
     setAttachments([]);
     setLocalStorageInput('');
@@ -220,15 +221,6 @@ function PureMultimodalInput({
         )}
       </AnimatePresence>
 
-      {messages.length === 0 &&
-        attachments.length === 0 &&
-        uploadQueue.length === 0 && (
-          <SuggestedActions
-            append={append}
-            chatId={chatId}
-            selectedVisibilityType={selectedVisibilityType}
-          />
-        )}
 
       <input
         type="file"
@@ -269,7 +261,7 @@ function PureMultimodalInput({
         value={input}
         onChange={handleInput}
         className={cx(
-          '!text-base max-h-[calc(75dvh)] min-h-[24px] resize-none overflow-hidden rounded-2xl bg-muted pb-10 dark:border-zinc-700',
+          'text-sm md:text-base max-h-[calc(75dvh)] min-h-[24px] resize-none overflow-hidden rounded-xl md:rounded-2xl bg-muted pb-10 pr-10 dark:border-zinc-700',
           className
         )}
         rows={2}
@@ -282,7 +274,7 @@ function PureMultimodalInput({
           ) {
             event.preventDefault();
 
-            if (status !== 'ready') {
+            if (status === 'streaming' || status === 'in_progress') {
               toast.error('Please wait for the model to finish its response!');
             } else {
               submitForm();
@@ -335,7 +327,7 @@ function PureAttachmentsButton({
   status,
 }: {
   fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
-  status: UseChatHelpers['status'];
+  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
 }) {
   return (
     <Button
@@ -345,7 +337,7 @@ function PureAttachmentsButton({
         event.preventDefault();
         fileInputRef.current?.click();
       }}
-      disabled={status !== 'ready'}
+      disabled={status === 'streaming' || status === 'in_progress'}
       variant="ghost"
     >
       <PaperclipIcon size={14} />
@@ -360,7 +352,7 @@ function PureStopButton({
   setMessages,
 }: {
   stop: () => void;
-  setMessages: UseChatHelpers['setMessages'];
+  setMessages: (messages: UIMessage[]) => void; // TODO: Fix for AI SDK 5.0
 }) {
   return (
     <Button
@@ -369,7 +361,7 @@ function PureStopButton({
       onClick={(event) => {
         event.preventDefault();
         stop();
-        setMessages((messages) => messages);
+        // TODO: Check if setMessages call was needed for AI SDK 5.0
       }}
     >
       <StopIcon size={14} />

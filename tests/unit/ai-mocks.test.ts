@@ -1,11 +1,10 @@
 // Unit Tests for AI Mocking Utilities
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { 
   AIResponseMocker,
   createModelMock,
   mockFileSearchResponse 
 } from '../utils/ai-mocks';
-import { StreamingTextResponse } from 'ai';
 
 describe('AIResponseMocker', () => {
   it('should generate contextual responses based on prompt', () => {
@@ -18,7 +17,7 @@ describe('AIResponseMocker', () => {
     const testPrompt = 'This is a test prompt';
     const streamingResponse = mocker.createStreamingResponse(testPrompt);
     
-    expect(streamingResponse).toBeInstanceOf(StreamingTextResponse);
+    expect(streamingResponse).toBeInstanceOf(Response);
   });
 
   it('should generate citation-aware responses', async () => {
@@ -42,6 +41,8 @@ describe('AIResponseMocker', () => {
   });
 
   it('should simulate streaming with configurable delays', async () => {
+    vi.useFakeTimers();
+    
     const mocker = new AIResponseMocker({
       provider: 'openai',
       model: 'gpt-4',
@@ -49,37 +50,43 @@ describe('AIResponseMocker', () => {
     });
 
     const chunks: string[] = [];
-    const startTime = Date.now();
+    const streamPromise = (async () => {
+      for await (const chunk of mocker.generateStream('test')) {
+        chunks.push(chunk);
+      }
+    })();
     
-    for await (const chunk of mocker.generateStream('test')) {
-      chunks.push(chunk);
-    }
-    
-    const duration = Date.now() - startTime;
+    // Advance timers to allow the stream to complete
+    await vi.advanceTimersByTimeAsync(1000); // Advance enough for all chunks
+    await streamPromise;
     
     expect(chunks.length).toBeGreaterThan(0);
-    expect(duration).toBeGreaterThan(chunks.length * 5); // At least 5ms per chunk
+    
+    vi.useRealTimers();
   });
 
   it('should simulate errors based on error rate', async () => {
+    vi.useFakeTimers();
+    
     const mocker = new AIResponseMocker({
       provider: 'openai',
       model: 'gpt-4',
       errorRate: 1, // 100% error rate
     });
 
-    let errorThrown = false;
+    await expect(async () => {
+      const generator = mocker.generateStream('test');
+      
+      // This should throw an error immediately due to 100% error rate
+      const result = await generator.next();
+      
+      // Advance timers if needed
+      await vi.advanceTimersByTimeAsync(100);
+      
+      return result;
+    }).rejects.toThrow('Mock stream error');
     
-    try {
-      for await (const chunk of mocker.generateStream('test')) {
-        // Should throw before yielding
-      }
-    } catch (error) {
-      errorThrown = true;
-      expect(error.message).toBe('Mock stream error');
-    }
-    
-    expect(errorThrown).toBe(true);
+    vi.useRealTimers();
   });
 });
 

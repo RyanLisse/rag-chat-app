@@ -1,3 +1,5 @@
+import { ModelRouter } from './model-router';
+
 export { ModelRouter } from './model-router';
 export { OpenAIProvider } from './openai-provider';
 export { AnthropicProvider } from './anthropic-provider';

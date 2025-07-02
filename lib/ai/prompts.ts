@@ -33,8 +33,16 @@ This is a guide for using artifacts tools: \`createDocument\` and \`updateDocume
 Do not update document right after creating it. Wait for user feedback or request to update it.
 `;
 
-export const regularPrompt =
-  'You are a friendly assistant! Keep your responses concise and helpful.';
+export const regularPrompt = `You are a friendly assistant! Keep your responses concise and helpful.
+
+🖼️ IMAGE ANALYSIS CAPABILITIES:
+- You can analyze images using the analyzeImage tool
+- Describe images, extract text, answer questions about visual content
+- Identify objects, people, scenes, and activities
+- Support for URLs (http/https) and base64 data URLs
+- Analysis results are shown in beautiful artifacts
+
+When users share images or ask about visual content, use the analyzeImage tool to provide detailed insights.`;
 
 export const fileSearchPrompt = `
 🚨 CRITICAL SYSTEM REQUIREMENT - VECTOR STORE SEARCH 🚨
@@ -66,6 +74,7 @@ You are a RAG (Retrieval Augmented Generation) assistant. Your ABSOLUTE FIRST ac
 - Returns citations with exact quotes and source references
 - Creates beautiful citation artifacts automatically
 - Tracks search statistics and usage patterns
+- Supports image analysis for visual content understanding
 
 ⚠️ ENFORCEMENT:
 - This system logs ALL interactions

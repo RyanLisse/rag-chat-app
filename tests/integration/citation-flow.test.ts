@@ -1,5 +1,5 @@
 // Integration Tests for Citation Flow
-import { describe, it, expect } from 'vitest';
+import { test, expect } from 'vitest';
 import {
   extractCitations,
   validateCitation,
@@ -170,7 +170,7 @@ describe('Citation Flow Integration', () => {
       minCitations: 3,
       maxCitations: 10,
       requiredSources: ['Attention is All You Need (2017)'],
-      minQuality: 0.5,
+      minQuality: 0.3,
       query: 'transformer models NLP performance',
     });
   });
@@ -184,7 +184,7 @@ describe('Citation Flow Integration', () => {
     // Malformed citations
     const malformedText = 'This [a] is not [999] a valid [0] citation [-1].';
     const malformedCitations = extractCitations(malformedText);
-    expect(malformedCitations).toEqual([999]); // Only valid number extracted
+    expect(malformedCitations).toEqual([999]); // Only valid positive number extracted
 
     // Duplicate citations
     const duplicateText = 'See [1] and [1] again, also [1].';

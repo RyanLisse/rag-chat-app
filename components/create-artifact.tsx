@@ -23,7 +23,7 @@ type ArtifactAction<M = any> = {
 };
 
 export type ArtifactToolbarContext = {
-  appendMessage: UseChatHelpers['append'];
+  appendMessage: (message: any) => void; // TODO: Fix for AI SDK 5.0
 };
 
 export type ArtifactToolbarItem = {

@@ -19,14 +19,14 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
     for await (const delta of fullStream) {
       const { type } = delta;
 
-      if (type === 'text-delta') {
-        const { textDelta } = delta;
+      if (type === 'text') {
+        const { text } = delta;
 
-        draftContent += textDelta;
+        draftContent += text;
 
         dataStream.writeData({
           type: 'text-delta',
-          content: textDelta,
+          content: text,
         });
       }
     }
@@ -41,26 +41,19 @@ export const textDocumentHandler = createDocumentHandler<'text'>({
       system: updateDocumentPrompt(document.content, 'text'),
       experimental_transform: smoothStream({ chunking: 'word' }),
       prompt: description,
-      experimental_providerMetadata: {
-        openai: {
-          prediction: {
-            type: 'content',
-            content: document.content,
-          },
-        },
-      },
+      // TODO: Re-implement prediction if needed in AI SDK 5.0
     });
 
     for await (const delta of fullStream) {
       const { type } = delta;
 
-      if (type === 'text-delta') {
-        const { textDelta } = delta;
+      if (type === 'text') {
+        const { text } = delta;
 
-        draftContent += textDelta;
+        draftContent += text;
         dataStream.writeData({
           type: 'text-delta',
-          content: textDelta,
+          content: text,
         });
       }
     }

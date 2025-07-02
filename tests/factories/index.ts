@@ -1,6 +1,7 @@
 // Test Data Factories
 import { faker } from '@faker-js/faker';
-import type { Message } from 'ai';
+// TODO: Re-enable UIMessage import after AI SDK 5.0 compatibility
+// import type { UIMessage } from 'ai';
 import type { User } from '@/lib/db/schema';
 
 // User factory
@@ -8,14 +9,11 @@ export const createUser = (overrides?: Partial<User>): User => ({
   id: faker.string.uuid(),
   email: faker.internet.email(),
   password: faker.internet.password(),
-  salt: faker.string.alphanumeric(16),
-  createdAt: new Date(),
-  updatedAt: new Date(),
   ...overrides,
 });
 
-// Message factory
-export const createMessage = (overrides?: Partial<Message>): Message => ({
+// UIMessage factory - TODO: Update for AI SDK 5.0 structure
+export const createUIMessage = (overrides?: any): any => ({
   id: faker.string.uuid(),
   role: faker.helpers.arrayElement(['user', 'assistant', 'system']),
   content: faker.lorem.paragraph(),
@@ -104,14 +102,14 @@ export const createAIResponse = (overrides?: any) => ({
 
 // Conversation factory
 export const createConversation = (messageCount: number = 5) => {
-  const messages: Message[] = [];
+  const messages: any[] = [];
   
   for (let i = 0; i < messageCount; i++) {
     messages.push(
-      createMessage({
+      createUIMessage({
         role: i % 2 === 0 ? 'user' : 'assistant',
         content: i % 2 === 0 
-          ? faker.lorem.question()
+          ? faker.lorem.sentence() + '?'
           : faker.lorem.paragraph() + ' [1] According to the source...',
       })
     );
@@ -139,8 +137,8 @@ export const createTestFile = (overrides?: any): File => {
 export const createUsers = (count: number) => 
   Array.from({ length: count }, () => createUser());
 
-export const createMessages = (count: number) => 
-  Array.from({ length: count }, () => createMessage());
+export const createUIMessages = (count: number) => 
+  Array.from({ length: count }, () => createUIMessage());
 
 export const createDocuments = (count: number) => 
   Array.from({ length: count }, () => createDocument());
@@ -185,7 +183,7 @@ export const createErrorScenarios = () => ({
     code: 'validation_error',
     details: {
       field: 'messages',
-      message: 'Messages array cannot be empty',
+      message: 'UIMessages array cannot be empty',
     },
   },
   vectorStoreError: {

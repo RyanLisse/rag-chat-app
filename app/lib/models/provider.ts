@@ -1,4 +1,4 @@
-import type { LanguageModel, StreamingTextResponse } from 'ai';
+import type { LanguageModel } from 'ai';
 
 export interface ModelConfig {
   id: string;
@@ -14,7 +14,7 @@ export interface ModelConfig {
 
 export interface ChatParams {
   messages: Array<{
-    role: 'system' | 'user' | 'assistant' | 'function';
+    role: 'system' | 'user' | 'assistant';
     content: string;
     name?: string;
   }>;
@@ -39,7 +39,7 @@ export interface ModelProvider {
   id: string;
   name: string;
   models: ModelConfig[];
-  chat(params: ChatParams): Promise<StreamingTextResponse>;
+  chat(params: ChatParams): Promise<Response>;
   getModel(modelId: string): LanguageModel;
 }
 

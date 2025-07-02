@@ -1,5 +1,5 @@
 // Streaming Response Test Utilities
-import { expect } from 'bun:test';
+import { expect } from 'vitest';
 import type { ReadableStream } from 'stream/web';
 
 export interface StreamChunk {

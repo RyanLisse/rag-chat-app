@@ -32,6 +32,15 @@ const baseURL = `http://localhost:${PORT}`;
  */
 export default defineConfig({
   testDir: './tests',
+  /* Exclude vitest test files */
+  testIgnore: [
+    '**/unit/**',
+    '**/integration/**',
+    '**/smoke/**',
+    '**/*-performance.test.ts',
+    '**/*.unit.test.ts',
+    '**/*.integration.test.ts',
+  ],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -45,7 +54,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL,
+    baseURL: baseURL,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'retain-on-failure',
@@ -60,8 +69,53 @@ export default defineConfig({
   /* Configure projects */
   projects: [
     {
+      name: 'e2e-debug',
+      testMatch: /e2e\/debug-screenshot\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-basic',
+      testMatch: /e2e\/basic-workflow\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-workflows-fixed',
+      testMatch: /e2e\/complete-workflow-fixed\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
       name: 'e2e-workflows',
       testMatch: /e2e\/complete-workflow\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-workflows-simplified',
+      testMatch: /e2e\/complete-workflow-simplified\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+      },
+    },
+    {
+      name: 'e2e-accessibility-fixed',
+      testMatch: /e2e\/accessibility-fixed\.test\.ts/,
       use: {
         ...devices['Desktop Chrome'],
         video: 'retain-on-failure',
@@ -175,6 +229,18 @@ export default defineConfig({
         },
       },
     },
+    {
+      name: 'stagehand',
+      testMatch: /stagehand\/.*.test.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+        // Extended timeout for AI-powered tests
+        actionTimeout: 60000,
+        navigationTimeout: 60000,
+      },
+    },
 
     // {
     //   name: 'firefox',
@@ -209,24 +275,16 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'bun dev',
+    command: 'NODE_ENV=test bun dev',
     url: `${baseURL}/api/health`, // Updated to use health check endpoint
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
+    env: {
+      NODE_ENV: 'test',
+      REDIS_URL: '', // Disable Redis for testing to avoid connection errors
+    },
   },
 
   /* Configure test artifacts */
   outputDir: './test-results',
-
-  /* Configure coverage */
-  use: {
-    ...{
-      // Coverage collection
-      coverage: {
-        enabled: true,
-        outputDir: './coverage/e2e',
-        exclude: ['**/node_modules/**', '**/.next/**'],
-      },
-    },
-  },
 });

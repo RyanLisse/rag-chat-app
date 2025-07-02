@@ -1,55 +1,106 @@
-import { describe, test, expect, beforeEach, afterEach } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
+
+// Mock OpenAI with consistent behavior
+vi.mock('openai', () => {
+  let fileIdCounter = 0;
+  
+  return {
+    default: vi.fn().mockImplementation(() => ({
+      files: {
+        create: vi.fn().mockImplementation((params) => 
+          Promise.resolve({ 
+            id: `file-${++fileIdCounter}`, 
+            object: 'file',
+            bytes: params.file?.size || 1024,
+            created_at: Date.now(),
+            filename: params.file?.name || 'test.txt',
+            purpose: params.purpose || 'assistants',
+            status: 'processed',
+          })
+        ),
+      },
+      vectorStores: {
+        create: vi.fn().mockImplementation(() => 
+          Promise.resolve({ 
+            id: 'vs-123', 
+            name: 'Test Store', 
+            object: 'vector_store', 
+            created_at: Date.now() 
+          })
+        ),
+        retrieve: vi.fn().mockResolvedValue({ 
+          id: 'vs-123', 
+          name: 'Test Store', 
+          object: 'vector_store', 
+          created_at: Date.now() 
+        }),
+        fileBatches: {
+          create: vi.fn().mockImplementation((vectorStoreId, { file_ids }) => 
+            Promise.resolve({
+              id: 'batch-123',
+              object: 'vector_store.file_batch',
+              status: 'in_progress',
+              file_counts: { completed: 0, in_progress: file_ids.length, failed: 0, total: file_ids.length },
+              vector_store_id: vectorStoreId,
+              created_at: Date.now(),
+            })
+          ),
+          retrieve: vi.fn().mockImplementation((vectorStoreId: string, batchId: string) => 
+            Promise.resolve({
+              id: batchId,
+              object: 'vector_store.file_batch',
+              status: 'completed',
+              file_counts: { completed: 1, in_progress: 0, failed: 0, total: 1 },
+              vector_store_id: vectorStoreId,
+              created_at: Date.now(),
+            })
+          ),
+        },
+        files: {
+          retrieve: vi.fn().mockImplementation((vectorStoreId: string, fileId: string) =>
+            Promise.resolve({ 
+              id: fileId, 
+              object: 'vector_store.file',
+              status: 'completed',
+              vector_store_id: vectorStoreId,
+              created_at: Date.now(),
+            })
+          ),
+        },
+      },
+    })),
+  };
+});
+
+// Mock auth before importing anything that uses it
+vi.mock('@/app/(auth)/auth', () => ({
+  auth: vi.fn().mockResolvedValue({
+    user: { id: 'test-user', email: 'test@example.com' }
+  })
+}));
+
+// Mock the vector store client (not used by these routes but imported elsewhere)
+vi.mock('@/lib/ai/vector-store', () => ({
+  VectorStoreClient: vi.fn().mockImplementation(() => ({}))
+}));
+
+import { auth } from '@/app/(auth)/auth';
 import { NextRequest } from 'next/server';
 import { POST as uploadPOST } from '@/app/(chat)/api/files/upload/route';
 import { POST as statusPOST } from '@/app/(chat)/api/files/status/route';
 
-// Mock auth
-import { auth } from '@/app/(auth)/auth';
-jest.vi.fn('@/app/(auth)/auth', () => ({
-  auth: jest.fn(),
-}));
-
-// Mock OpenAI
-jest.vi.fn('openai', () => ({
-  default: jest.fn().mockImplementation(() => ({
-    files: {
-      create: jest.fn().mockResolvedValue({ id: 'file-123', status: 'processed' }),
-    },
-    vectorStores: {
-      create: jest.fn().mockResolvedValue({ id: 'vs-123', name: 'Test Store' }),
-      retrieve: jest.fn().mockResolvedValue({ id: 'vs-123', name: 'Test Store' }),
-      files: {
-        create: jest.fn().mockResolvedValue({ id: 'vsf-123', status: 'in_progress' }),
-        retrieve: jest.fn().mockResolvedValue({ id: 'vsf-123', status: 'completed' }),
-      },
-      fileBatches: {
-        create: jest.fn().mockResolvedValue({
-          id: 'batch-123',
-          status: 'in_progress',
-          file_counts: { completed: 0, in_progress: 1, failed: 0 }
-        }),
-        retrieve: jest.fn().mockResolvedValue({
-          id: 'batch-123',
-          status: 'completed',
-          file_counts: { completed: 1, in_progress: 0, failed: 0 }
-        }),
-      },
-    },
-  })),
-}));
-
 describe('File Upload API', () => {
   beforeEach(() => {
     // Mock authenticated user
-    (auth as jest.Mock).mockResolvedValue({ user: { id: 'user-123' } });
-    // Set environment variable
+    vi.mocked(auth).mockResolvedValue({ user: { id: 'user-123' } });
+    // Set environment variables
     process.env.OPENAI_API_KEY = 'test-api-key';
+    process.env.OPENAI_VECTORSTORE_ID = 'vs-123';
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
-    jest.clearAllMocks();
-  
+    // Only clear call history, keep implementations
+    vi.mocked(auth).mockClear();
   });
 
   describe('POST /api/files/upload', () => {
@@ -98,7 +149,7 @@ describe('File Upload API', () => {
     });
 
     test('rejects unauthenticated request', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce(null);
+      vi.mocked(auth).mockResolvedValueOnce(null);
 
       const file = new File(['test'], 'test.txt', { type: 'text/plain' });
       const formData = new FormData();
@@ -210,7 +261,7 @@ describe('File Upload API', () => {
     });
 
     test('rejects unauthenticated request', async () => {
-      (auth as jest.Mock).mockResolvedValueOnce(null);
+      vi.mocked(auth).mockResolvedValueOnce(null);
 
       const request = new NextRequest('http://localhost:3000/api/files/status', {
         method: 'POST',

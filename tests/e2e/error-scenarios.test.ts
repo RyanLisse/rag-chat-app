@@ -1,5 +1,6 @@
 // Error Scenarios and Edge Cases E2E Tests
 import { test, expect, ragHelpers } from '../helpers/stagehand-integration';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Error Scenarios and Edge Cases', () => {
   test.beforeEach(async ({ stagehandPage }) => {

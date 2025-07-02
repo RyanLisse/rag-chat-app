@@ -1,5 +1,4 @@
 // AI Model Response Mocking Utilities
-import { StreamingTextResponse } from 'ai';
 import type { Message } from 'ai';
 
 export interface MockModelConfig {
@@ -28,13 +27,13 @@ export class AIResponseMocker {
     const words = response.split(' ');
 
     for (const word of words) {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, this.config.streamDelay));
-      
-      // Simulate random errors
+      // Simulate random errors before delay to avoid promise rejection timing issues
       if (Math.random() < (this.config.errorRate || 0)) {
         throw new Error('Mock stream error');
       }
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, this.config.streamDelay));
       
       yield word + ' ';
     }
@@ -59,15 +58,19 @@ export class AIResponseMocker {
     return `This is a mock response to: "${prompt}"`;
   }
 
-  // Create a mock StreamingTextResponse
-  createStreamingResponse(prompt: string): StreamingTextResponse {
-    const encoder = new TextEncoder();
+  // Create a mock streaming response using AI SDK v5
+  createStreamingResponse(prompt: string): Response {
     const generateStream = this.generateStream.bind(this);
+    const encoder = new TextEncoder();
     
+    // Create a ReadableStream that simulates AI streaming
     const stream = new ReadableStream({
       async start(controller) {
         try {
+          let responseText = '';
           for await (const chunk of generateStream(prompt)) {
+            responseText += chunk;
+            // Simulate streaming text chunks
             controller.enqueue(encoder.encode(chunk));
           }
           controller.close();
@@ -76,8 +79,13 @@ export class AIResponseMocker {
         }
       },
     });
-
-    return new StreamingTextResponse(stream);
+    
+    // Return a Response object with the stream
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+      },
+    });
   }
 
   // Mock a complete chat response

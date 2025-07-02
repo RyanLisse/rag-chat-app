@@ -57,12 +57,12 @@ export const TEST_PROMPTS: Record<string, CoreMessage> = {
         type: 'tool-result',
         toolCallId: 'call_123',
         toolName: 'createDocument',
-        result: {
+        output: {
           id: '3ca386a4-40c6-4630-8ed1-84cbd46cc7eb',
           title: 'Essay about Silicon Valley',
           kind: 'text',
           content: 'A document was created and is now visible to the user.',
-        },
+        } as any, // TODO: Fix for AI SDK 5.0 ToolResultOutput type
       },
     ],
   },
@@ -82,7 +82,7 @@ export const TEST_PROMPTS: Record<string, CoreMessage> = {
         type: 'tool-result',
         toolCallId: 'call_456',
         toolName: 'getWeather',
-        result: {
+        output: {
           latitude: 37.763283,
           longitude: -122.41286,
           generationtime_ms: 0.06449222564697266,
@@ -134,7 +134,7 @@ export const TEST_PROMPTS: Record<string, CoreMessage> = {
               '2025-03-16T19:17',
             ],
           },
-        },
+        } as any, // TODO: Fix for AI SDK 5.0 ToolResultOutput type
       },
     ],
   },

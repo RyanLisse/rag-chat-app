@@ -3,7 +3,7 @@
  * Supports Claude 4 and other Anthropic models
  */
 
-import { anthropic } from '@ai-sdk/anthropic';
+import { anthropic, createAnthropic } from '@ai-sdk/anthropic';
 import type { LanguageModel } from 'ai';
 import { BaseProvider } from './base';
 import {
@@ -80,7 +80,7 @@ const ANTHROPIC_CAPABILITIES: ProviderCapabilities = {
  * Anthropic provider implementation
  */
 export class AnthropicProvider extends BaseProvider {
-  private client?: typeof anthropic;
+  private provider?: ReturnType<typeof createAnthropic>; // Fixed for AI SDK 5.0
 
   constructor() {
     super('anthropic', Object.keys(ANTHROPIC_MODELS), ANTHROPIC_CAPABILITIES);
@@ -95,7 +95,8 @@ export class AnthropicProvider extends BaseProvider {
     }
 
     try {
-      this.client = anthropic({
+      // TODO: Fix for AI SDK 5.0 - use createAnthropic for provider instance
+      this.provider = createAnthropic({
         apiKey: this.config.apiKey,
         baseURL: this.config.baseUrl,
       });
@@ -114,8 +115,8 @@ export class AnthropicProvider extends BaseProvider {
    * Perform health check
    */
   protected async performHealthCheck(): Promise<void> {
-    if (!this.client) {
-      throw new Error('Client not initialized');
+    if (!this.provider) {
+      throw new Error('Provider not initialized');
     }
 
     try {
@@ -167,7 +168,7 @@ export class AnthropicProvider extends BaseProvider {
     modelId: string,
     options?: GenerationOptions
   ): LanguageModel {
-    if (!this.client) {
+    if (!this.provider) {
       throw new Error('Provider not initialized');
     }
 
@@ -210,7 +211,8 @@ export class AnthropicProvider extends BaseProvider {
       }
     }
 
-    return this.client(modelConfig.id, anthropicOptions);
+    // TODO: Fix for AI SDK 5.0 - options are passed when using the model, not when creating it
+    return this.provider!(modelConfig.id);
   }
 
   /**

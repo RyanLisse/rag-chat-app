@@ -7,7 +7,8 @@ import { useArtifact } from '@/hooks/use-artifact';
 import type { Document, Vote } from '@/lib/db/schema';
 import { fetcher } from '@/lib/utils';
 import type { UseChatHelpers } from '@ai-sdk/react';
-import type { Attachment, UIMessage } from 'ai';
+import type { UIMessage } from 'ai';
+// TODO: Find correct Attachment type in AI SDK 5.0
 import { formatDistance } from 'date-fns';
 import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -73,17 +74,17 @@ function PureArtifact({
 }: {
   chatId: string;
   input: string;
-  setInput: UseChatHelpers['setInput'];
-  status: UseChatHelpers['status'];
-  stop: UseChatHelpers['stop'];
-  attachments: Attachment[];
-  setAttachments: Dispatch<SetStateAction<Attachment[]>>;
+  setInput: (input: string) => void; // TODO: Fix type for AI SDK 5.0
+  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix type for AI SDK 5.0
+  stop: () => void;
+  attachments: any[]; // TODO: Fix Attachment type for AI SDK 5.0
+  setAttachments: Dispatch<SetStateAction<any[]>>;
   messages: UIMessage[];
-  setMessages: UseChatHelpers['setMessages'];
+  setMessages: (messages: UIMessage[]) => void; // TODO: Fix type for AI SDK 5.0
   votes: Vote[] | undefined;
-  append: UseChatHelpers['append'];
-  handleSubmit: UseChatHelpers['handleSubmit'];
-  reload: UseChatHelpers['reload'];
+  append: (message: UIMessage) => void; // TODO: Fix type for AI SDK 5.0
+  handleSubmit: (e: React.FormEvent) => void; // TODO: Fix type for AI SDK 5.0
+  reload: () => void;
   isReadonly: boolean;
   selectedVisibilityType: VisibilityType;
 }) {

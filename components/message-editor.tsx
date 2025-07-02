@@ -2,7 +2,7 @@
 
 import { deleteTrailingMessages } from '@/app/(chat)/actions';
 import type { UseChatHelpers } from '@ai-sdk/react';
-import type { Message } from 'ai';
+import type { UIMessage } from 'ai';
 import {
   type Dispatch,
   type SetStateAction,
@@ -14,10 +14,10 @@ import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 
 export type MessageEditorProps = {
-  message: Message;
+  message: UIMessage;
   setMode: Dispatch<SetStateAction<'view' | 'edit'>>;
-  setMessages: UseChatHelpers['setMessages'];
-  reload: UseChatHelpers['reload'];
+  setMessages: (messages: UIMessage[]) => void; // TODO: Fix for AI SDK 5.0
+  reload: () => void; // TODO: Fix for AI SDK 5.0
 };
 
 export function MessageEditor({
@@ -28,7 +28,9 @@ export function MessageEditor({
 }: MessageEditorProps) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const [draftContent, setDraftContent] = useState<string>(message.content);
+  const [draftContent, setDraftContent] = useState<string>(
+    message.parts?.find(part => part.type === 'text')?.text || '' // Extract text from parts for AI SDK 5.0
+  );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -82,14 +84,13 @@ export function MessageEditor({
             });
 
             // @ts-expect-error todo: support UIMessage in setMessages
-            setMessages((messages) => {
-              const index = messages.findIndex((m) => m.id === message.id);
+            setMessages((messages: UIMessage[]) => {
+              const index = messages.findIndex((m: UIMessage) => m.id === message.id);
 
               if (index !== -1) {
                 const updatedMessage = {
                   ...message,
-                  content: draftContent,
-                  parts: [{ type: 'text', text: draftContent }],
+                  parts: [{ type: 'text', text: draftContent }], // Use parts for AI SDK 5.0
                 };
 
                 return [...messages.slice(0, index), updatedMessage];

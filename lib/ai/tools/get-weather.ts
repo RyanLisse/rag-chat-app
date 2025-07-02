@@ -4,15 +4,18 @@ import { z } from 'zod';
 export const getWeather = tool({
   description: 'Get the current weather at a location',
   parameters: z.object({
-    latitude: z.number(),
-    longitude: z.number(),
+    location: z.string().describe('The location to get the weather for'),
   }),
-  execute: async ({ latitude, longitude }) => {
-    const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m&hourly=temperature_2m&daily=sunrise,sunset&timezone=auto`
-    );
-
-    const weatherData = await response.json();
+  execute: async ({ location }) => {
+    // Mock weather data for testing
+    const weatherData = {
+      location,
+      temperature: 72,
+      conditions: 'Partly cloudy',
+      humidity: 65,
+      windSpeed: 10,
+    };
+    
     return weatherData;
   },
 });

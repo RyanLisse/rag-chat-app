@@ -10,6 +10,7 @@ import {
 import { generateId } from 'ai';
 import { ChatPage } from './pages/chat';
 import { getUnixTime } from 'date-fns';
+import { getTestURL } from './helpers/test-config';
 
 export type UserContext = {
   context: BrowserContext;
@@ -38,9 +39,9 @@ export async function createAuthenticatedContext({
   const page = await context.newPage();
 
   const email = `test-${name}@playwright.com`;
-  const password = generateId(16);
+  const password = Math.random().toString(36).substring(2, 18);
 
-  await page.goto('http://localhost:3000/register');
+  await page.goto(getTestURL('/register'));
   await page.getByPlaceholder('user@acme.com').click();
   await page.getByPlaceholder('user@acme.com').fill(email);
   await page.getByLabel('Password').click();
@@ -72,7 +73,7 @@ export async function createAuthenticatedContext({
 
 export function generateRandomTestUser() {
   const email = `test-${getUnixTime(new Date())}@playwright.com`;
-  const password = generateId(16);
+  const password = Math.random().toString(36).substring(2, 18);
 
   return {
     email,

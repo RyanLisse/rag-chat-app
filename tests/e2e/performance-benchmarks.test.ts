@@ -1,5 +1,6 @@
 // Performance Benchmarks E2E Tests
 import { test, expect, ragHelpers } from '../helpers/stagehand-integration';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Performance Benchmarks', () => {
   let performanceMetrics: Array<{

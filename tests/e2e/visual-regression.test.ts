@@ -1,5 +1,6 @@
 // Visual Regression E2E Tests
 import { test, expect, ragHelpers } from '../helpers/stagehand-integration';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Visual Regression Tests', () => {
   test.beforeEach(async ({ stagehandPage }) => {

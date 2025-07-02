@@ -6,8 +6,9 @@ import { createDocument } from '@/lib/ai/tools/create-document';
 import { getWeather } from '@/lib/ai/tools/get-weather';
 import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
 import { updateDocument } from '@/lib/ai/tools/update-document';
-import { fileSearchTool } from '@/lib/ai/tools/file-search';
+import { retrievalSearchTool } from '@/lib/ai/tools/retrieval-search';
 import { createCitationTool } from '@/lib/ai/tools/create-citation';
+import { imageAnalysisTool } from '@/lib/ai/tools/image-analysis';
 import { isProductionEnvironment } from '@/lib/constants';
 import {
   createStreamId,
@@ -26,11 +27,13 @@ import { enforceVectorSearch } from '@/lib/ai/middleware/enforce-vector-search';
 import { injectFileSearchDirective } from '@/lib/ai/tools/force-file-search';
 import { geolocation } from '@vercel/functions';
 import {
-  appendClientMessage,
-  appendResponseMessages,
-  createDataStream,
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
   smoothStream,
   streamText,
+  type UIMessage,
+  type CoreMessage,
 } from 'ai';
 import { differenceInSeconds } from 'date-fns';
 import { after } from 'next/server';
@@ -97,7 +100,10 @@ export async function POST(request: Request) {
 
     if (!chat) {
       const title = await generateTitleFromUserMessage({
-        message,
+        message: {
+          ...message,
+          id: message.id || generateUUID(),
+        } as UIMessage,
       });
 
       await saveChat({
@@ -112,17 +118,16 @@ export async function POST(request: Request) {
 
     const previousMessages = await getMessagesByChatId({ id });
 
-    let messages = appendClientMessage({
-      // @ts-expect-error: todo add type conversion from DBMessage[] to UIMessage[]
-      messages: previousMessages,
-      message,
-    });
+    let messages = [...previousMessages, message] as UIMessage[];
     
-    // Enforce vector search on every request
-    messages = enforceVectorSearch(messages);
+    // Convert UI messages to Core messages for processing
+    const modelMessages = convertToModelMessages(messages);
+    
+    // Enforce vector search on every request (CoreMessage is an alias for ModelMessage)
+    const coreMessages = enforceVectorSearch(modelMessages);
     
     // Also inject a directive to ensure immediate file search
-    messages = injectFileSearchDirective(messages);
+    const messagesWithDirective = injectFileSearchDirective(coreMessages);
 
     const { longitude, latitude, city, country } = geolocation(request);
 
@@ -149,81 +154,101 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    const stream = createDataStream({
-      execute: (dataStream) => {
+    const streamContext = getStreamContext();
+
+    const stream = createUIMessageStream({
+      execute: async ({ writer }) => {
         const result = streamText({
           model: myProvider.languageModel(selectedChatModel),
           system: systemPrompt({ selectedChatModel, requestHints }),
-          messages,
-          maxSteps: 10, // Increase to ensure file search has enough steps
+          messages: messagesWithDirective,
+          maxRetries: 3, // Allow retries for tools
           experimental_activeTools:
             selectedChatModel === 'chat-model-reasoning'
               ? []
               : [
-                  'getWeather',
-                  'createDocument',
-                  'updateDocument',
-                  'requestSuggestions',
-                  'fileSearch',
-                  'createCitation',
+                  // TODO: Re-enable all tools after AI SDK 5.0 migration
+                  // 'getWeather',
+                  // 'createDocument',
+                  // 'updateDocument',
+                  // 'requestSuggestions',
+                  // 'fileSearch',
+                  // 'analyzeImage',
                 ],
           experimental_transform: smoothStream({ chunking: 'word' }),
-          experimental_generateMessageId: generateUUID,
-          tools: {
-            getWeather,
-            createDocument: createDocument({ session, dataStream }),
-            updateDocument: updateDocument({ session, dataStream }),
-            requestSuggestions: requestSuggestions({
-              session,
-              dataStream,
-            }),
-            fileSearch: {
-              ...fileSearchTool({ dataStream }),
-              // Wrap the execute function to add logging
-              execute: async (args: any) => {
-                console.log('🎯 FILE SEARCH TOOL CALLED!');
-                console.log('Query:', args.query);
-                console.log('User message:', message.content);
-                const result = await fileSearchTool({ dataStream }).execute(args);
-                console.log('✅ File search completed, found', result.citations?.length || 0, 'citations');
-                return result;
-              },
-            },
-            createCitation: createCitationTool,
+          _internal: {
+            generateId: generateUUID,
           },
-          onFinish: async ({ response }) => {
+          tools: {
+            // TODO: Re-enable all tools after AI SDK 5.0 migration
+            // getWeather,
+            // createDocument: createDocument({ session, dataStream: writer }),
+            // updateDocument: updateDocument({ session, dataStream: writer }),
+            // requestSuggestions: requestSuggestions({
+            //   session,
+            //   dataStream: writer,
+            // }),
+            // fileSearch: retrievalSearchTool({ dataStream: writer }),
+            // createCitation: createCitationTool,
+            // analyzeImage: imageAnalysisTool({ dataStream: writer }),
+          },
+          onFinish: async ({ text, content, totalUsage }) => {
             if (session.user?.id) {
               try {
-                const assistantId = getTrailingMessageId({
-                  messages: response.messages.filter(
-                    (message) => message.role === 'assistant'
-                  ),
+                // Generate ID for the assistant message
+                const assistantId = generateUUID();
+
+                // Convert content to parts format for database
+                const parts = content.map(part => {
+                  if (part.type === 'text') {
+                    return { type: 'text', text: part.text };
+                  } else if (part.type === 'reasoning') {
+                    return { type: 'text', text: part.text };
+                  }
+                  // TODO: Re-enable tool-related parts after AI SDK 5.0 migration
+                  // else if (part.type === 'tool-call') {
+                  //   return { 
+                  //     type: 'tool-call', 
+                  //     toolCallId: part.toolCallId,
+                  //     toolName: part.toolName,
+                  //     args: part.input,
+                  //   };
+                  // } else if (part.type === 'tool-result') {
+                  //   return { 
+                  //     type: 'tool-result', 
+                  //     toolCallId: part.toolCallId,
+                  //     toolName: part.toolName,
+                  //     result: part.output,
+                  //   };
+                  else if (part.type === 'file') {
+                    return { 
+                      type: 'file', 
+                      mediaType: part.file.mediaType,
+                      data: part.file.base64,
+                    };
+                  }
+                  return { type: part.type, text: JSON.stringify(part) };
                 });
 
-                if (!assistantId) {
-                  throw new Error('No assistant message found!');
+                // If no content parts but we have text, create a text part
+                if (parts.length === 0 && text) {
+                  parts.push({ type: 'text', text });
                 }
-
-                const [, assistantMessage] = appendResponseMessages({
-                  messages: [message],
-                  responseMessages: response.messages,
-                });
 
                 await saveMessages({
                   messages: [
                     {
                       id: assistantId,
                       chatId: id,
-                      role: assistantMessage.role,
-                      parts: assistantMessage.parts,
-                      attachments:
-                        assistantMessage.experimental_attachments ?? [],
+                      role: 'assistant',
+                      parts,
+                      attachments: [],
                       createdAt: new Date(),
                     },
                   ],
                 });
-              } catch (_) {
-                console.error('Failed to save chat');
+              } catch (error) {
+                console.error('Failed to save chat:', error);
               }
             }
           },
@@ -233,25 +258,20 @@ export async function POST(request: Request) {
           },
         });
 
-        result.consumeStream();
-
-        result.mergeIntoDataStream(dataStream, {
+        writer.merge(result.toUIMessageStream({
           sendReasoning: true,
-        });
+        }));
       },
       onError: () => {
         return 'Oops, an error occurred!';
       },
     });
 
-    const streamContext = getStreamContext();
-
-    if (streamContext) {
-      return new Response(
-        await streamContext.resumableStream(streamId, () => stream)
-      );
-    }
-    return new Response(stream);
+    // TODO: Fix resumable stream integration with AI SDK 5.0
+    // The stream types have changed and need proper conversion
+    return createUIMessageStreamResponse({
+      stream,
+    });
   } catch (error) {
     if (error instanceof ChatSDKError) {
       return error.toResponse();
@@ -308,14 +328,12 @@ export async function GET(request: Request) {
     return new ChatSDKError('not_found:stream').toResponse();
   }
 
-  const emptyDataStream = createDataStream({
+  const emptyDataStream = createUIMessageStream({
     execute: () => {},
   });
 
-  const stream = await streamContext.resumableStream(
-    recentStreamId,
-    () => emptyDataStream
-  );
+  // TODO: Fix resumable stream integration with AI SDK 5.0
+  const stream = null; // Temporarily disable resumable streams
 
   /*
    * For when the generation is streaming during SSR
@@ -339,12 +357,11 @@ export async function GET(request: Request) {
       return new Response(emptyDataStream, { status: 200 });
     }
 
-    const restoredStream = createDataStream({
-      execute: (buffer) => {
-        buffer.writeData({
-          type: 'append-message',
-          message: JSON.stringify(mostRecentMessage),
-        });
+    // TODO: Fix message restoration with AI SDK 5.0 stream format
+    const restoredStream = createUIMessageStream({
+      execute: () => {
+        // Simplified for now - message restoration needs to be implemented
+        // with the new stream part format
       },
     });
 

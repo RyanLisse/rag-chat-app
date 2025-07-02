@@ -1,6 +1,7 @@
 // Concurrent User Scenarios E2E Tests
 import { test, expect, ragHelpers } from '../helpers/stagehand-integration';
 import { chromium, Browser, BrowserContext, Page } from '@playwright/test';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Concurrent User Scenarios', () => {
   let browser: Browser;

@@ -38,9 +38,8 @@ function PureChatHeader({
   useEffect(() => {
     const initVectorStore = async () => {
       try {
-        const response = await fetch('/api/files/upload', {
+        const response = await fetch('/api/vector-store/init', {
           method: 'POST',
-          body: new FormData(), // Empty form data to trigger vector store creation
         });
         
         if (response.ok) {
@@ -54,15 +53,13 @@ function PureChatHeader({
       }
     };
 
-    if (!vectorStoreId && process.env.NEXT_PUBLIC_OPENAI_VECTORSTORE_ID) {
-      setVectorStoreId(process.env.NEXT_PUBLIC_OPENAI_VECTORSTORE_ID);
-    } else {
+    if (!vectorStoreId) {
       initVectorStore();
     }
   }, []);
 
   return (
-    <header className="sticky top-0 flex items-center gap-2 bg-background px-2 py-1.5 md:px-2">
+    <header className="sticky top-0 z-10 flex items-center gap-1 sm:gap-2 bg-background px-2 py-1 sm:py-1.5 md:px-2 border-b">
       <SidebarToggle />
 
       {(!open || windowWidth < 768) && (
@@ -70,14 +67,15 @@ function PureChatHeader({
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              className="order-2 ml-auto px-2 md:order-1 md:ml-0 md:h-fit md:px-2"
+              className="order-2 ml-auto h-8 w-8 md:h-fit md:w-auto md:px-2 md:order-1 md:ml-0"
+              size="icon"
               onClick={() => {
                 router.push('/');
                 router.refresh();
               }}
             >
-              <PlusIcon />
-              <span className="md:sr-only">New Chat</span>
+              <PlusIcon size={16} />
+              <span className="sr-only md:not-sr-only md:ml-1">New Chat</span>
             </Button>
           </TooltipTrigger>
           <TooltipContent>New Chat</TooltipContent>
@@ -105,11 +103,11 @@ function PureChatHeader({
           <TooltipTrigger asChild>
             <Button
               variant="outline"
-              size="icon"
-              className="order-3 md:order-4 h-[34px] w-[34px] relative"
+              className="order-3 md:order-4 h-8 md:h-9 text-xs md:text-sm px-2 md:px-3 relative flex items-center gap-1 md:gap-2"
               onClick={() => setFileManagerOpen(true)}
             >
-              <FileIcon size={16} />
+              <FileIcon size={14} />
+              <span className="hidden sm:inline">Upload</span>
               {vectorStoreId && (
                 <span className="absolute -top-1 -right-1 h-2 w-2 bg-green-500 rounded-full" />
               )}
@@ -119,13 +117,6 @@ function PureChatHeader({
             {vectorStoreId ? 'Knowledge Base Active' : 'Manage Knowledge Base'}
           </TooltipContent>
         </Tooltip>
-      )}
-      
-      {vectorStoreId && (
-        <div className="order-4 ml-auto hidden items-center gap-2 text-sm text-muted-foreground md:flex">
-          <span className="h-2 w-2 bg-green-500 rounded-full" />
-          <span>Vector Store Connected</span>
-        </div>
       )}
 
       <FileManagerDialog

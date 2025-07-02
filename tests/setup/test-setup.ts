@@ -1,4 +1,4 @@
-import { beforeEach, vi } from 'vitest';
+import { beforeEach, afterEach, vi, useFakeTimers, useRealTimers } from 'vitest';
 import '@testing-library/jest-dom';
 
 // Mock environment variables for testing
@@ -107,4 +107,8 @@ if (!global.Response) {
 // Reset mocks before each test
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
 });

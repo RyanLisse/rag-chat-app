@@ -11,14 +11,14 @@ import type { VisibilityType } from './visibility-selector';
 
 interface MessagesProps {
   chatId: string;
-  status: UseChatHelpers['status'];
+  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
   votes: Vote[] | undefined;
   messages: UIMessage[];
-  setMessages: UseChatHelpers['setMessages'];
-  reload: UseChatHelpers['reload'];
+  setMessages: (messages: UIMessage[]) => void; // TODO: Fix for AI SDK 5.0
+  reload: () => void; // TODO: Fix for AI SDK 5.0
   isReadonly: boolean;
   isArtifactVisible: boolean;
-  append?: UseChatHelpers['append'];
+  append?: (message: UIMessage) => void; // TODO: Fix for AI SDK 5.0
   selectedVisibilityType?: VisibilityType;
 }
 
@@ -47,7 +47,7 @@ function PureMessages({
   return (
     <div
       ref={messagesContainerRef}
-      className="relative flex min-w-0 flex-1 flex-col gap-6 overflow-y-scroll pt-4"
+      className="relative flex min-w-0 flex-1 flex-col gap-4 sm:gap-6 overflow-y-scroll pt-2 sm:pt-4 pb-24 sm:pb-32 px-2 sm:px-0"
     >
       {messages.length === 0 && append && selectedVisibilityType && (
         <Greeting 

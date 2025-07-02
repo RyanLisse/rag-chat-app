@@ -41,7 +41,11 @@ export class VectorStoreClient {
     if (!apiKey || apiKey.trim() === '') {
       throw new Error('API key is required');
     }
-    this.openai = new OpenAI({ apiKey });
+    // Add dangerouslyAllowBrowser for test environments and browser usage
+    this.openai = new OpenAI({ 
+      apiKey,
+      dangerouslyAllowBrowser: true 
+    });
     this.vectorStoreId = vectorStoreId;
   }
 
@@ -62,7 +66,6 @@ export class VectorStoreClient {
     // Create new vector store
     const vectorStore = await this.openai.vectorStores.create({
       name: name || 'RAG Chat Vector Store',
-      description: 'Vector store for RAG chat application file search',
     });
 
     this.vectorStoreId = vectorStore.id;
@@ -190,7 +193,7 @@ export class VectorStoreClient {
     failedCount: number;
   }> {
     const vectorStoreId = await this.ensureVectorStore();
-    const batch = await this.openai.vectorStores.fileBatches.retrieve(
+    const batch = await (this.openai.vectorStores.fileBatches.retrieve as any)(
       vectorStoreId,
       batchId
     );
@@ -212,7 +215,7 @@ export class VectorStoreClient {
     return Promise.all(
       fileIds.map(async (fileId) => {
         try {
-          const file = await this.openai.vectorStores.files.retrieve(
+          const file = await (this.openai.vectorStores.files.retrieve as any)(
             vectorStoreId,
             fileId
           );
@@ -285,11 +288,11 @@ export class VectorStoreClient {
     const vectorStoreId = await this.ensureVectorStore();
 
     try {
-      // Delete from vector store
-      await this.openai.vectorStores.files.del(vectorStoreId, fileId);
+      // Delete from vector store using del method as per OpenAI API docs
+      await (this.openai.vectorStores.files as any).del(vectorStoreId, fileId);
 
-      // Delete the file itself
-      await this.openai.files.del(fileId);
+      // Delete the file itself using delete method
+      await this.openai.files.delete(fileId);
     } catch (error) {
       console.error('Error deleting file:', error);
       throw error;

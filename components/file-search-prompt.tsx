@@ -3,18 +3,19 @@
 import { Search, FileText, Database } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import type { UseChatHelpers } from '@ai-sdk/react';
+import type { UIMessage } from 'ai';
 import { motion } from 'framer-motion';
 
 interface FileSearchPromptProps {
-  append: UseChatHelpers['append'];
+  append: (message: UIMessage) => void; // TODO: Fix for AI SDK 5.0
 }
 
 export function FileSearchPrompt({ append }: FileSearchPromptProps) {
   const handleSearch = (query: string) => {
     append({
+      id: `file-search-${Date.now()}`,
       role: 'user',
-      content: query,
+      parts: [{ type: 'text', text: query }], // Updated for AI SDK 5.0
     });
   };
 

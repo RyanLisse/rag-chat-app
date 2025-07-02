@@ -1,16 +1,15 @@
 'use client';
 
 import type { DataPart } from '@/lib/types';
-import type { UseChatHelpers } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import { useEffect } from 'react';
 
 export interface UseAutoResumeParams {
   autoResume: boolean;
   initialMessages: UIMessage[];
-  experimental_resume: UseChatHelpers['experimental_resume'];
-  data: UseChatHelpers['data'];
-  setMessages: UseChatHelpers['setMessages'];
+  experimental_resume: () => void; // TODO: Fix for AI SDK 5.0
+  data: any; // TODO: Fix for AI SDK 5.0
+  setMessages: (messages: UIMessage[]) => void; // TODO: Fix for AI SDK 5.0
 }
 
 export function useAutoResume({

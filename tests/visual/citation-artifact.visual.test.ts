@@ -2,6 +2,7 @@
 import { test, expect, type Page } from '@playwright/test';
 import { generateTestChatSession } from '../helpers/chat-helpers';
 import { waitForArtifactLoad } from '../helpers/artifact-helpers';
+import { getTestURL } from '../helpers/test-config';
 
 test.describe('Citation Artifact Visual Tests', () => {
   let page: Page;

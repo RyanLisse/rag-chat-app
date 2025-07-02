@@ -3,7 +3,7 @@
  * Supports GPT-4.1, o4-mini, and other OpenAI models
  */
 
-import { openai } from '@ai-sdk/openai';
+import { openai, createOpenAI } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { BaseProvider } from './base';
 import {
@@ -73,7 +73,7 @@ const OPENAI_CAPABILITIES: ProviderCapabilities = {
  * OpenAI provider implementation
  */
 export class OpenAIProvider extends BaseProvider {
-  private client?: typeof openai;
+  private client?: ReturnType<typeof createOpenAI>;
 
   constructor() {
     super('openai', Object.keys(OPENAI_MODELS), OPENAI_CAPABILITIES);
@@ -88,7 +88,7 @@ export class OpenAIProvider extends BaseProvider {
     }
 
     try {
-      this.client = openai({
+      this.client = createOpenAI({
         apiKey: this.config.apiKey,
         baseURL: this.config.baseUrl,
       });
@@ -186,7 +186,7 @@ export class OpenAIProvider extends BaseProvider {
       }
     }
 
-    return this.client(modelConfig.id, openAIOptions);
+    return this.client(modelConfig.id);
   }
 
   /**

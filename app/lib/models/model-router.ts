@@ -1,4 +1,4 @@
-import type { LanguageModel, StreamingTextResponse } from 'ai';
+import type { LanguageModel } from 'ai';
 import { AnthropicProvider } from './anthropic-provider';
 import { GoogleProvider } from './google-provider';
 import { OpenAIProvider } from './openai-provider';
@@ -26,7 +26,12 @@ export interface ModelRouterConfig {
 export class ModelRouter {
   private providers: Map<string, ModelProvider> = new Map();
   private modelToProvider: Map<string, string> = new Map();
-  private retryOptions: Required<ModelRouterConfig['retryOptions']>;
+  private retryOptions: {
+    maxRetries: number;
+    initialDelay: number;
+    maxDelay: number;
+    backoffFactor: number;
+  };
 
   constructor(config?: ModelRouterConfig) {
     this.retryOptions = {
@@ -128,7 +133,7 @@ export class ModelRouter {
     return this.providers.get(providerId);
   }
 
-  async chat(params: ChatParams): Promise<StreamingTextResponse> {
+  async chat(params: ChatParams): Promise<Response> {
     const providerId = this.modelToProvider.get(params.model);
     if (!providerId) {
       throw new Error(`Model ${params.model} not found in any provider`);
@@ -145,7 +150,7 @@ export class ModelRouter {
   private async chatWithRetry(
     provider: ModelProvider,
     params: ChatParams
-  ): Promise<StreamingTextResponse> {
+  ): Promise<Response> {
     let lastError: unknown;
     let delay = this.retryOptions.initialDelay;
 

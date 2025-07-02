@@ -110,14 +110,25 @@ export async function POST(request: Request) {
       // Create new vector store
       vectorStore = await openai.vectorStores.create({
         name: 'RAG Chat Vector Store',
-        description: 'Vector store for RAG chat application file search',
       });
-      vectorStoreId = vectorStore.id;
+      vectorStoreId = vectorStore?.id;
+      
+      if (!vectorStoreId) {
+        return NextResponse.json(
+          { error: 'Failed to create vector store', details: 'Vector store creation returned no ID' },
+          { status: 500 }
+        );
+      }
     }
 
     // Upload files to OpenAI
-    const uploadResults = [];
-    const fileIds = [];
+    const uploadResults: Array<{
+      id: string;
+      filename: string;
+      status: 'uploaded' | 'processing' | 'completed' | 'failed';
+      error?: string;
+    }> = [];
+    const fileIds: string[] = [];
 
     for (const file of files) {
       try {

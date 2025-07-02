@@ -8,7 +8,7 @@ export function initializeTelemetry() {
     // via the instrumentation.ts file
     logger.info('OpenTelemetry initialized via @vercel/otel');
   } catch (error) {
-    logger.warn('Failed to initialize OpenTelemetry', error);
+    logger.warn('Failed to initialize OpenTelemetry', error as any);
   }
 }
 

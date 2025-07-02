@@ -59,7 +59,7 @@ export async function withMonitoring(
       }
     );
 
-    return response;
+    return response as NextResponse;
   } catch (error) {
     const duration = Date.now() - startTime;
 

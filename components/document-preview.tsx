@@ -89,7 +89,7 @@ export function DocumentPreview({
     : artifact.status === 'streaming'
       ? {
           title: artifact.title,
-          kind: artifact.kind,
+          kind: artifact.kind === 'citation' ? 'text' : artifact.kind, // Handle citation as text for document compatibility
           content: artifact.content,
           id: artifact.documentId,
           createdAt: new Date(),
