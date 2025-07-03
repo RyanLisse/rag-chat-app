@@ -33,7 +33,10 @@ export async function fetchWithErrorHandlers(
       } catch (parseError) {
         // If response is not JSON, throw a generic error
         console.error('API Error:', response.status, response.statusText);
-        throw new ChatSDKError('bad_request:api', `HTTP ${response.status}: ${response.statusText}`);
+        throw new ChatSDKError(
+          'bad_request:api',
+          `HTTP ${response.status}: ${response.statusText}`
+        );
       }
     }
 

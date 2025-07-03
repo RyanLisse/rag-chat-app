@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/popover';
 import type { Citation, CitationSource } from '@/lib/types/citation';
 import { cn } from '@/lib/utils';
-import { FileText, ExternalLink } from 'lucide-react';
+import { ExternalLink, FileText } from 'lucide-react';
 import { useState } from 'react';
 
 interface CitationDisplayProps {
@@ -38,7 +38,8 @@ export function CitationDisplay({
     );
 
     citationsByPosition.forEach((citation, index) => {
-      const citationNumber = citations.findIndex((c) => c.id === citation.id) + 1;
+      const citationNumber =
+        citations.findIndex((c) => c.id === citation.id) + 1;
       const before = processedContent.slice(0, citation.position.end);
       const after = processedContent.slice(citation.position.end);
       processedContent = `${before}[${citationNumber}]${after}`;
@@ -54,7 +55,7 @@ export function CitationDisplay({
     return parts.map((part, index) => {
       const match = part.match(/\[(\d+)\]/);
       if (match) {
-        const citationNumber = parseInt(match[1], 10);
+        const citationNumber = Number.parseInt(match[1], 10);
         const citation = citations[citationNumber - 1];
         if (!citation) return part;
 
@@ -85,7 +86,9 @@ export function CitationDisplay({
                 <div className="flex items-start gap-2">
                   <FileText className="h-4 w-4 mt-0.5 text-muted-foreground" />
                   <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">{source?.title || 'Unknown Source'}</p>
+                    <p className="text-sm font-medium">
+                      {source?.title || 'Unknown Source'}
+                    </p>
                     {citation.text && (
                       <p className="text-xs text-muted-foreground">
                         &ldquo;{citation.text}&rdquo;
@@ -94,7 +97,9 @@ export function CitationDisplay({
                     {source?.metadata?.lastModified && (
                       <p className="text-xs text-muted-foreground">
                         Last modified:{' '}
-                        {new Date(source.metadata.lastModified).toLocaleDateString()}
+                        {new Date(
+                          source.metadata.lastModified
+                        ).toLocaleDateString()}
                       </p>
                     )}
                   </div>

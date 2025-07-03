@@ -3,7 +3,7 @@
  * Supports Gemini 2.5 Pro, Flash, and other Google models
  */
 
-import { google, createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createGoogleGenerativeAI, google } from '@ai-sdk/google';
 import type { LanguageModel } from 'ai';
 import { BaseProvider } from './base';
 import {

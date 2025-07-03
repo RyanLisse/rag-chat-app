@@ -75,7 +75,12 @@ function PureArtifact({
   chatId: string;
   input: string;
   setInput: (input: string) => void; // TODO: Fix type for AI SDK 5.0
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix type for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix type for AI SDK 5.0
   stop: () => void;
   attachments: any[]; // TODO: Fix Attachment type for AI SDK 5.0
   setAttachments: Dispatch<SetStateAction<any[]>>;

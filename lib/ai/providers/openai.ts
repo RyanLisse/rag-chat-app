@@ -3,7 +3,7 @@
  * Supports GPT-4.1, o4-mini, and other OpenAI models
  */
 
-import { openai, createOpenAI } from '@ai-sdk/openai';
+import { createOpenAI, openai } from '@ai-sdk/openai';
 import type { LanguageModel } from 'ai';
 import { BaseProvider } from './base';
 import {

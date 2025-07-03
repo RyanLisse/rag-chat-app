@@ -10,6 +10,6 @@ interface UpdateDocumentProps {
 }
 
 // TODO: Reimplement updateDocument for AI SDK 5.0
-// Tool execution signature has changed  
+// Tool execution signature has changed
 export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
   undefined;

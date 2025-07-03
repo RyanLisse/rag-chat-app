@@ -1,24 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { 
-  Database, 
-  FileText, 
-  CheckCircle2, 
-  AlertCircle, 
-  Clock,
-  TrendingUp,
+import { Skeleton } from '@/components/ui/skeleton';
+import { formatDistanceToNow } from 'date-fns';
+import {
   Activity,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  Database,
+  FileText,
   HardDrive,
   Search,
-  Upload
+  TrendingUp,
+  Upload,
 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { useEffect, useState } from 'react';
 
 interface VectorStoreStats {
   totalDocuments: number;
@@ -59,7 +65,7 @@ export function VectorStoreStatus() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
       // Set disconnected status on error
-      setStats(prev => prev ? { ...prev, status: 'error' } : null);
+      setStats((prev) => (prev ? { ...prev, status: 'error' } : null));
     } finally {
       setLoading(false);
     }
@@ -112,12 +118,21 @@ export function VectorStoreStatus() {
             <Database className="h-5 w-5" />
             <CardTitle>Knowledge Base Status</CardTitle>
           </div>
-          <Badge variant={
-            stats?.status === 'connected' ? 'default' : 
-            stats?.status === 'error' ? 'destructive' : 'secondary'
-          }>
-            {stats?.status === 'connected' && <CheckCircle2 className="h-3 w-3 mr-1" />}
-            {stats?.status === 'error' && <AlertCircle className="h-3 w-3 mr-1" />}
+          <Badge
+            variant={
+              stats?.status === 'connected'
+                ? 'default'
+                : stats?.status === 'error'
+                  ? 'destructive'
+                  : 'secondary'
+            }
+          >
+            {stats?.status === 'connected' && (
+              <CheckCircle2 className="h-3 w-3 mr-1" />
+            )}
+            {stats?.status === 'error' && (
+              <AlertCircle className="h-3 w-3 mr-1" />
+            )}
             {stats?.status || 'Unknown'}
           </Badge>
         </div>
@@ -134,7 +149,9 @@ export function VectorStoreStatus() {
                 <FileText className="h-3 w-3" />
                 Total Documents
               </span>
-              <span className="text-2xl font-bold">{stats?.totalDocuments || 0}</span>
+              <span className="text-2xl font-bold">
+                {stats?.totalDocuments || 0}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground flex items-center gap-1">
@@ -146,14 +163,16 @@ export function VectorStoreStatus() {
               </span>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground flex items-center gap-1">
                 <Activity className="h-3 w-3" />
                 Processing
               </span>
-              <span className="text-2xl font-bold">{stats?.processingFiles || 0}</span>
+              <span className="text-2xl font-bold">
+                {stats?.processingFiles || 0}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground flex items-center gap-1">
@@ -161,35 +180,51 @@ export function VectorStoreStatus() {
                 Last Updated
               </span>
               <span className="text-sm font-medium">
-                {stats?.lastUpdated ? formatDistanceToNow(new Date(stats.lastUpdated), { addSuffix: true }) : 'Never'}
+                {stats?.lastUpdated
+                  ? formatDistanceToNow(new Date(stats.lastUpdated), {
+                      addSuffix: true,
+                    })
+                  : 'Never'}
               </span>
             </div>
           </div>
         </div>
 
         {/* Processing Progress */}
-        {stats && (stats.processingFiles > 0 || stats.completedFiles > 0 || stats.failedFiles > 0) && (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Processing Progress</span>
-              <span className="font-medium">
-                {stats.completedFiles} / {stats.completedFiles + stats.processingFiles + stats.failedFiles}
-              </span>
+        {stats &&
+          (stats.processingFiles > 0 ||
+            stats.completedFiles > 0 ||
+            stats.failedFiles > 0) && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Processing Progress
+                </span>
+                <span className="font-medium">
+                  {stats.completedFiles} /{' '}
+                  {stats.completedFiles +
+                    stats.processingFiles +
+                    stats.failedFiles}
+                </span>
+              </div>
+              <Progress
+                value={
+                  (stats.completedFiles /
+                    (stats.completedFiles +
+                      stats.processingFiles +
+                      stats.failedFiles)) *
+                  100
+                }
+                className="h-2"
+              />
+              {stats.failedFiles > 0 && (
+                <p className="text-xs text-destructive flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {stats.failedFiles} files failed to process
+                </p>
+              )}
             </div>
-            <Progress 
-              value={
-                (stats.completedFiles / (stats.completedFiles + stats.processingFiles + stats.failedFiles)) * 100
-              } 
-              className="h-2"
-            />
-            {stats.failedFiles > 0 && (
-              <p className="text-xs text-destructive flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {stats.failedFiles} files failed to process
-              </p>
-            )}
-          </div>
-        )}
+          )}
 
         {/* Recent Uploads */}
         {stats?.recentUploads && stats.recentUploads.length > 0 && (
@@ -201,23 +236,37 @@ export function VectorStoreStatus() {
             <ScrollArea className="h-24">
               <div className="space-y-1">
                 {stats.recentUploads.map((upload, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm py-1">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between text-sm py-1"
+                  >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <Badge 
+                      <Badge
                         variant={
-                          upload.status === 'completed' ? 'default' : 
-                          upload.status === 'processing' ? 'secondary' : 'destructive'
+                          upload.status === 'completed'
+                            ? 'default'
+                            : upload.status === 'processing'
+                              ? 'secondary'
+                              : 'destructive'
                         }
                         className="h-5 px-1 text-xs"
                       >
-                        {upload.status === 'completed' && <CheckCircle2 className="h-3 w-3" />}
-                        {upload.status === 'processing' && <Clock className="h-3 w-3" />}
-                        {upload.status === 'failed' && <AlertCircle className="h-3 w-3" />}
+                        {upload.status === 'completed' && (
+                          <CheckCircle2 className="h-3 w-3" />
+                        )}
+                        {upload.status === 'processing' && (
+                          <Clock className="h-3 w-3" />
+                        )}
+                        {upload.status === 'failed' && (
+                          <AlertCircle className="h-3 w-3" />
+                        )}
                       </Badge>
                       <span className="truncate">{upload.filename}</span>
                     </div>
                     <span className="text-xs text-muted-foreground ml-2">
-                      {formatDistanceToNow(new Date(upload.timestamp), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(upload.timestamp), {
+                        addSuffix: true,
+                      })}
                     </span>
                   </div>
                 ))}
@@ -236,14 +285,19 @@ export function VectorStoreStatus() {
             <ScrollArea className="h-20">
               <div className="space-y-1">
                 {stats.recentSearches.map((search, index) => (
-                  <div key={index} className="flex items-center justify-between text-sm py-1">
+                  <div
+                    key={index}
+                    className="flex items-center justify-between text-sm py-1"
+                  >
                     <span className="truncate flex-1">{search.query}</span>
                     <div className="flex items-center gap-2 ml-2">
                       <Badge variant="outline" className="h-5 px-1 text-xs">
                         {search.resultCount} results
                       </Badge>
                       <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(search.timestamp), { addSuffix: true })}
+                        {formatDistanceToNow(new Date(search.timestamp), {
+                          addSuffix: true,
+                        })}
                       </span>
                     </div>
                   </div>
@@ -258,7 +312,9 @@ export function VectorStoreStatus() {
           <div className="text-center py-6 text-muted-foreground">
             <Database className="h-12 w-12 mx-auto mb-3 opacity-50" />
             <p className="text-sm">No documents in the knowledge base yet.</p>
-            <p className="text-xs mt-1">Upload documents to enable RAG search functionality.</p>
+            <p className="text-xs mt-1">
+              Upload documents to enable RAG search functionality.
+            </p>
           </div>
         )}
       </CardContent>
@@ -272,5 +328,5 @@ function formatBytes(bytes: number): string {
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+  return `${Number.parseFloat((bytes / k ** i).toFixed(2))} ${sizes[i]}`;
 }

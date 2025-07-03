@@ -83,7 +83,7 @@ test.describe('Performance Benchmarks', () => {
       const uploadTime = endTime - startTime;
       
       // Performance expectations based on file size
-      let expectedMaxTime;
+      let expectedMaxTime = 0;
       switch (fileSize.name) {
         case 'small': expectedMaxTime = 2000; break; // 2s
         case 'medium': expectedMaxTime = 5000; break; // 5s

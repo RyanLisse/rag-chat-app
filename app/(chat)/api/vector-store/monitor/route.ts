@@ -16,14 +16,14 @@ const stats = {
 };
 
 export async function GET() {
-  const successRate = stats.totalSearches > 0 
-    ? stats.successfulSearches / stats.totalSearches 
-    : 1;
-    
-  const averageResponseTime = stats.totalSearches > 0
-    ? stats.totalResponseTime / stats.totalSearches
-    : 0;
-    
+  const successRate =
+    stats.totalSearches > 0
+      ? stats.successfulSearches / stats.totalSearches
+      : 1;
+
+  const averageResponseTime =
+    stats.totalSearches > 0 ? stats.totalResponseTime / stats.totalSearches : 0;
+
   const lastQuery = stats.queries[stats.queries.length - 1];
 
   return NextResponse.json({
@@ -46,14 +46,14 @@ export async function POST(request: Request) {
     } else {
       stats.failedSearches++;
     }
-    
+
     stats.totalResponseTime += responseTime || 0;
-    
+
     // Keep only last 100 queries
     if (stats.queries.length >= 100) {
       stats.queries.shift();
     }
-    
+
     stats.queries.push({
       query,
       timestamp: new Date().toISOString(),

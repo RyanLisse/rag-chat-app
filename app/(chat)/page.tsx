@@ -18,11 +18,13 @@ export default async function Page() {
 
   const cookieStore = await cookies();
   const modelIdFromCookie = cookieStore.get('chat-model');
-  
+
   // Validate that the model from cookie exists, otherwise use default
   let initialChatModel = DEFAULT_CHAT_MODEL;
   if (modelIdFromCookie) {
-    const modelExists = chatModels.some(model => model.id === modelIdFromCookie.value);
+    const modelExists = chatModels.some(
+      (model) => model.id === modelIdFromCookie.value
+    );
     if (modelExists) {
       initialChatModel = modelIdFromCookie.value;
     }

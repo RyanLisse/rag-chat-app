@@ -47,7 +47,12 @@ function PureMultimodalInput({
   chatId: string;
   input: string; // TODO: Fix for AI SDK 5.0
   setInput: (input: string) => void; // TODO: Fix for AI SDK 5.0
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix for AI SDK 5.0
   stop: () => void;
   attachments: Attachment[];
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
@@ -221,7 +226,6 @@ function PureMultimodalInput({
         )}
       </AnimatePresence>
 
-
       <input
         type="file"
         className="-top-4 -left-4 pointer-events-none fixed size-0.5 opacity-0"
@@ -327,7 +331,12 @@ function PureAttachmentsButton({
   status,
 }: {
   fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix for AI SDK 5.0
 }) {
   return (
     <Button

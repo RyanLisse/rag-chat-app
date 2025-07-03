@@ -29,7 +29,7 @@ export function MessageEditor({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [draftContent, setDraftContent] = useState<string>(
-    message.parts?.find(part => part.type === 'text')?.text || '' // Extract text from parts for AI SDK 5.0
+    message.parts?.find((part) => part.type === 'text')?.text || '' // Extract text from parts for AI SDK 5.0
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -85,7 +85,9 @@ export function MessageEditor({
 
             // @ts-expect-error todo: support UIMessage in setMessages
             setMessages((messages: UIMessage[]) => {
-              const index = messages.findIndex((m: UIMessage) => m.id === message.id);
+              const index = messages.findIndex(
+                (m: UIMessage) => m.id === message.id
+              );
 
               if (index !== -1) {
                 const updatedMessage = {

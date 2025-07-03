@@ -13,7 +13,11 @@ export function initializeTelemetry() {
 }
 
 // Custom metrics for RAG operations
-export function trackRAGOperation(operation: string, duration: number, metadata?: Record<string, any>) {
+export function trackRAGOperation(
+  operation: string,
+  duration: number,
+  metadata?: Record<string, any>
+) {
   logger.info('RAG operation tracked', {
     operation,
     duration,
@@ -22,7 +26,11 @@ export function trackRAGOperation(operation: string, duration: number, metadata?
 }
 
 // Model inference tracking
-export function trackModelInference(model: string, duration: number, tokenCount?: number) {
+export function trackModelInference(
+  model: string,
+  duration: number,
+  tokenCount?: number
+) {
   logger.info('Model inference tracked', {
     model,
     duration,
@@ -31,7 +39,11 @@ export function trackModelInference(model: string, duration: number, tokenCount?
 }
 
 // Vector search tracking
-export function trackVectorSearch(query: string, results: number, duration: number) {
+export function trackVectorSearch(
+  query: string,
+  results: number,
+  duration: number
+) {
   logger.info('Vector search tracked', {
     queryLength: query.length,
     resultCount: results,
@@ -40,7 +52,11 @@ export function trackVectorSearch(query: string, results: number, duration: numb
 }
 
 // Document processing tracking
-export function trackDocumentProcessing(stage: string, documentId: string, duration: number) {
+export function trackDocumentProcessing(
+  stage: string,
+  documentId: string,
+  duration: number
+) {
   logger.info('Document processing tracked', {
     stage,
     documentId,
@@ -49,7 +65,10 @@ export function trackDocumentProcessing(stage: string, documentId: string, durat
 }
 
 // Citation generation tracking
-export function trackCitationGeneration(citationCount: number, duration: number) {
+export function trackCitationGeneration(
+  citationCount: number,
+  duration: number
+) {
   logger.info('Citation generation tracked', {
     citationCount,
     duration,

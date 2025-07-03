@@ -95,7 +95,19 @@ export async function POST(request: Request) {
 
     // Get or create vector store
     let vectorStoreId = process.env.OPENAI_VECTORSTORE_ID;
-    let vectorStore;
+    let vectorStore:
+      | {
+          id?: string;
+          status?: string;
+          file_counts?: {
+            completed?: number;
+            in_progress?: number;
+            failed?: number;
+            cancelled?: number;
+            total?: number;
+          };
+        }
+      | undefined;
 
     try {
       if (vectorStoreId) {
@@ -112,10 +124,13 @@ export async function POST(request: Request) {
         name: 'RAG Chat Vector Store',
       });
       vectorStoreId = vectorStore?.id;
-      
+
       if (!vectorStoreId) {
         return NextResponse.json(
-          { error: 'Failed to create vector store', details: 'Vector store creation returned no ID' },
+          {
+            error: 'Failed to create vector store',
+            details: 'Vector store creation returned no ID',
+          },
           { status: 500 }
         );
       }
@@ -165,8 +180,11 @@ export async function POST(request: Request) {
     // Add successfully uploaded files to vector store
     if (fileIds.length > 0) {
       try {
+        if (!vectorStoreId) {
+          throw new Error('Vector store ID is undefined');
+        }
         const batch = await openai.vectorStores.fileBatches.create(
-          vectorStoreId!,
+          vectorStoreId,
           {
             file_ids: fileIds,
           }

@@ -212,7 +212,7 @@ export class AnthropicProvider extends BaseProvider {
     }
 
     // TODO: Fix for AI SDK 5.0 - options are passed when using the model, not when creating it
-    return this.provider!(modelConfig.id);
+    return this.provider?.(modelConfig.id);
   }
 
   /**

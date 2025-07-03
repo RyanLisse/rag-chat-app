@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { PlusIcon } from '@/components/icons';
 import { SidebarHistory } from '@/components/sidebar-history';
 import { SidebarUserNav } from '@/components/sidebar-user-nav';
-import { VectorStoreStatus } from '@/components/vector-store-status';
 import { Button } from '@/components/ui/button';
 import {
   Sidebar,
@@ -16,6 +15,7 @@ import {
   SidebarMenu,
   useSidebar,
 } from '@/components/ui/sidebar';
+import { VectorStoreStatus } from '@/components/vector-store-status';
 import Link from 'next/link';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 

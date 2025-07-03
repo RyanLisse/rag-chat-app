@@ -1,7 +1,7 @@
+import { generateUUID } from '@/lib/utils';
 import { tool } from 'ai';
 import OpenAI from 'openai';
 import { z } from 'zod';
-import { generateUUID } from '@/lib/utils';
 
 // Initialize OpenAI client
 const openai = new OpenAI({

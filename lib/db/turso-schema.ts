@@ -1,20 +1,22 @@
 import type { InferSelectModel } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 import {
   integer,
+  primaryKey,
   sqliteTable,
   text,
-  primaryKey,
 } from 'drizzle-orm/sqlite-core';
-import { sql } from 'drizzle-orm';
 
 // SQLite doesn't have native UUID support, so we'll use TEXT with a UUID constraint
-const uuid = (name: string) => text(name)
-  .$defaultFn(() => crypto.randomUUID())
-  .notNull();
+const uuid = (name: string) =>
+  text(name)
+    .$defaultFn(() => crypto.randomUUID())
+    .notNull();
 
-const timestamp = (name: string) => text(name)
-  .$defaultFn(() => new Date().toISOString())
-  .notNull();
+const timestamp = (name: string) =>
+  text(name)
+    .$defaultFn(() => new Date().toISOString())
+    .notNull();
 
 export const user = sqliteTable('User', {
   id: uuid('id').primaryKey(),
@@ -128,34 +130,30 @@ export const document = sqliteTable(
 
 export type Document = InferSelectModel<typeof document>;
 
-export const suggestion = sqliteTable(
-  'Suggestion',
-  {
-    id: uuid('id').primaryKey(),
-    documentId: text('documentId').notNull(),
-    documentCreatedAt: text('documentCreatedAt').notNull(),
-    originalText: text('originalText').notNull(),
-    suggestedText: text('suggestedText').notNull(),
-    description: text('description'),
-    isResolved: integer('isResolved', { mode: 'boolean' }).notNull().default(false),
-    userId: text('userId')
-      .notNull()
-      .references(() => user.id),
-    createdAt: timestamp('createdAt'),
-  }
-);
+export const suggestion = sqliteTable('Suggestion', {
+  id: uuid('id').primaryKey(),
+  documentId: text('documentId').notNull(),
+  documentCreatedAt: text('documentCreatedAt').notNull(),
+  originalText: text('originalText').notNull(),
+  suggestedText: text('suggestedText').notNull(),
+  description: text('description'),
+  isResolved: integer('isResolved', { mode: 'boolean' })
+    .notNull()
+    .default(false),
+  userId: text('userId')
+    .notNull()
+    .references(() => user.id),
+  createdAt: timestamp('createdAt'),
+});
 
 export type Suggestion = InferSelectModel<typeof suggestion>;
 
-export const stream = sqliteTable(
-  'Stream',
-  {
-    id: uuid('id').primaryKey(),
-    chatId: text('chatId')
-      .notNull()
-      .references(() => chat.id),
-    createdAt: timestamp('createdAt'),
-  }
-);
+export const stream = sqliteTable('Stream', {
+  id: uuid('id').primaryKey(),
+  chatId: text('chatId')
+    .notNull()
+    .references(() => chat.id),
+  createdAt: timestamp('createdAt'),
+});
 
 export type Stream = InferSelectModel<typeof stream>;

@@ -7,11 +7,11 @@ import {
 } from './sentry';
 import {
   initializeTelemetry,
-  trackRAGOperation,
-  trackModelInference,
-  trackVectorSearch,
-  trackDocumentProcessing,
   trackCitationGeneration,
+  trackDocumentProcessing,
+  trackModelInference,
+  trackRAGOperation,
+  trackVectorSearch,
 } from './telemetry';
 
 // Simple metrics object for the application
@@ -149,9 +149,13 @@ export function createRequestLogger(
   sessionId?: string
 ) {
   return {
-    info: (message: string, meta?: any) => logger.info(message, { requestId, userId, sessionId, ...meta }),
-    error: (message: string, meta?: any) => logger.error(message, { requestId, userId, sessionId, ...meta }),
-    warn: (message: string, meta?: any) => logger.warn(message, { requestId, userId, sessionId, ...meta }),
-    debug: (message: string, meta?: any) => logger.debug(message, { requestId, userId, sessionId, ...meta }),
+    info: (message: string, meta?: any) =>
+      logger.info(message, { requestId, userId, sessionId, ...meta }),
+    error: (message: string, meta?: any) =>
+      logger.error(message, { requestId, userId, sessionId, ...meta }),
+    warn: (message: string, meta?: any) =>
+      logger.warn(message, { requestId, userId, sessionId, ...meta }),
+    debug: (message: string, meta?: any) =>
+      logger.debug(message, { requestId, userId, sessionId, ...meta }),
   };
 }

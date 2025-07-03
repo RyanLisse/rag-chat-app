@@ -1,5 +1,7 @@
 'use client';
 
+import { FileUploadDropzone } from '@/components/file-upload-dropzone';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -8,10 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { FileUploadDropzone } from '@/components/file-upload-dropzone';
 import { VectorStoreClient } from '@/lib/ai/vector-store';
 import {
   AlertCircle,

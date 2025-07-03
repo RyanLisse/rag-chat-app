@@ -87,7 +87,8 @@ export const chatModels: ChatModel[] = [
   {
     id: 'gpt-4o-mini',
     name: 'GPT-4o mini',
-    description: 'Affordable small model for fast tasks with vision support (July 2025)',
+    description:
+      'Affordable small model for fast tasks with vision support (July 2025)',
     provider: 'openai',
     contextLength: 128000,
     maxOutputTokens: 16384,
@@ -131,7 +132,8 @@ export const chatModels: ChatModel[] = [
   {
     id: 'o1',
     name: 'o1',
-    description: 'Advanced reasoning model for complex problem-solving (July 2025)',
+    description:
+      'Advanced reasoning model for complex problem-solving (July 2025)',
     provider: 'openai',
     contextLength: 200000,
     maxOutputTokens: 100000,
@@ -177,7 +179,8 @@ export const chatModels: ChatModel[] = [
   {
     id: 'o1-mini',
     name: 'o1-mini',
-    description: 'Faster reasoning model for coding, math, and science (July 2025)',
+    description:
+      'Faster reasoning model for coding, math, and science (July 2025)',
     provider: 'openai',
     contextLength: 128000,
     maxOutputTokens: 65536,
@@ -267,7 +270,8 @@ export const chatModels: ChatModel[] = [
   {
     id: 'gemini-2.5-pro',
     name: 'Gemini 2.5 Pro',
-    description: "Google's most capable model with multimodal support (July 2025)",
+    description:
+      "Google's most capable model with multimodal support (July 2025)",
     provider: 'google',
     contextLength: 2097152,
     maxOutputTokens: 8192,
