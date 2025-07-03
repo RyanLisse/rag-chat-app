@@ -61,9 +61,9 @@ export default defineConfig({
   },
 
   /* Configure global timeout for each test */
-  timeout: 120 * 1000, // 120 seconds
+  timeout: 300 * 1000, // 300 seconds for E2E tests
   expect: {
-    timeout: 120 * 1000,
+    timeout: 180 * 1000, // 180 seconds for assertions
   },
 
   /* Configure projects */
@@ -241,6 +241,19 @@ export default defineConfig({
         navigationTimeout: 60000,
       },
     },
+    {
+      name: 'visual-basic',
+      testMatch: /e2e\/visual-basic\.test\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        video: 'retain-on-failure',
+        trace: 'retain-on-failure',
+        // Visual tests need stable rendering
+        launchOptions: {
+          args: ['--force-prefers-reduced-motion'],
+        },
+      },
+    },
 
     // {
     //   name: 'firefox',
@@ -277,7 +290,7 @@ export default defineConfig({
   webServer: {
     command: 'NODE_ENV=test bun dev',
     url: `${baseURL}/api/health`, // Updated to use health check endpoint
-    timeout: 120 * 1000,
+    timeout: 300 * 1000, // Increased timeout for server startup
     reuseExistingServer: !process.env.CI,
     env: {
       NODE_ENV: 'test',

@@ -428,6 +428,23 @@ export class ModelRouterImpl implements ModelRouter {
 
     return circuitBreaker || new CircuitBreaker(0, 0); // Disabled circuit breaker
   }
+
+  /**
+   * Cleanup router resources
+   */
+  async cleanup(): Promise<void> {
+    // Clear health cache
+    this.healthCache.clear();
+    
+    // Reset circuit breakers
+    this.circuitBreakers.clear();
+    
+    // Clear providers map (the factory will handle cleanup)
+    this.providers.clear();
+    
+    // Reset timestamps
+    this.lastHealthCheck = 0;
+  }
 }
 
 /**

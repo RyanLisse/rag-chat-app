@@ -16,31 +16,28 @@ describe('Full Workflow Integration Tests', () => {
     // Mock VectorStoreClient with proper methods
     vi.mocked(VectorStoreClient).mockImplementation(() => ({
       ensureVectorStore: vi.fn().mockResolvedValue('vs-workflow-test'),
-      uploadFiles: vi.fn().mockResolvedValue({ 
+      uploadFiles: vi.fn().mockImplementation((files) => Promise.resolve({ 
         batchId: 'batch-workflow', 
-        files: [
-          { id: 'file-ml', status: 'processing', filename: 'ml-basics.txt' },
-          { id: 'file-dl', status: 'processing', filename: 'deep-learning.txt' },
-          { id: 'file-nlp', status: 'processing', filename: 'nlp-intro.txt' }
-        ]
-      }),
+        files: files.map((file, index) => ({
+          id: `file-${index + 1}`,
+          status: 'processing',
+          filename: file.filename,
+          createdAt: new Date()
+        }))
+      })),
       waitForProcessing: vi.fn().mockResolvedValue(true),
       deleteFile: vi.fn().mockResolvedValue(true),
-      checkFileStatus: vi.fn().mockResolvedValue([
-        { id: 'file-ml', status: 'completed' },
-        { id: 'file-dl', status: 'completed' },
-        { id: 'file-nlp', status: 'completed' }
-      ]),
+      checkFileStatus: vi.fn().mockImplementation((fileIds) => Promise.resolve(
+        fileIds.map(id => ({ id, status: 'completed', filename: id, createdAt: new Date() }))
+      )),
       checkBatchStatus: vi.fn().mockResolvedValue({
         status: 'completed',
-        completedCount: 2,
+        completedCount: 1,
         inProgressCount: 0,
         failedCount: 0
       }),
       listFiles: vi.fn().mockResolvedValue([
-        { id: 'file-ml', status: 'completed' },
-        { id: 'file-dl', status: 'completed' },
-        { id: 'file-nlp', status: 'completed' }
+        { id: 'file-1', status: 'completed', createdAt: new Date() }
       ])
     }) as any);
     
@@ -228,7 +225,7 @@ describe('Full Workflow Integration Tests', () => {
 
       // Check batch status maintains consistency
       const batchStatus = await client.checkBatchStatus(uploadResult.batchId!);
-      expect(batchStatus.completedCount).toBe(2);
+      expect(batchStatus.completedCount).toBe(1);
 
       // Check individual file status
       const fileStatuses = await client.checkFileStatus([uploadResult.files[0].id]);

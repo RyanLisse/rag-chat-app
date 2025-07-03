@@ -147,7 +147,16 @@ export function createSlowStream(
         return;
       }
 
-      await new Promise(resolve => setTimeout(resolve, delay));
+      // Better timer handling for test environments
+      if (delay > 0) {
+        await new Promise(resolve => {
+          const timer = setTimeout(resolve, delay);
+          // In test environments, ensure proper cleanup for timer stability
+          if (typeof global !== 'undefined' && global.process?.env?.NODE_ENV === 'test') {
+            timer.unref?.();
+          }
+        });
+      }
       
       const chunk = content.slice(position, position + chunkSize);
       position += chunkSize;

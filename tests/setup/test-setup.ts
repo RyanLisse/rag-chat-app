@@ -1,5 +1,7 @@
-import { beforeEach, afterEach, vi, useFakeTimers, useRealTimers } from 'vitest';
+import { beforeEach, afterEach, vi } from 'vitest';
 import '@testing-library/jest-dom';
+import { mockRegistry, mockStateManager } from './mock-factory';
+import { testSpecificMockManager } from './test-isolation';
 
 // Mock environment variables for testing
 process.env.NODE_ENV = 'test';
@@ -104,11 +106,27 @@ if (!global.Response) {
   } as any;
 }
 
-// Reset mocks before each test
+// Enhanced mock management with isolation
 beforeEach(() => {
   vi.clearAllMocks();
+  // Only reset fetch mock if it exists
+  if (global.fetch && vi.isMockFunction(global.fetch)) {
+    global.fetch.mockClear();
+  }
+  // Apply test-specific mock overrides if any
+  const testPath = expect.getState().currentTestName || '';
+  testSpecificMockManager.applyOverrides(testPath);
 });
 
+// Clean mock state management
 afterEach(() => {
-  vi.restoreAllMocks();
+  // Only clear timers if they were used
+  if (vi.getTimerCount() > 0) {
+    vi.clearAllTimers();
+  }
+  // Reset mock registry to clean state
+  mockRegistry.reset();
 });
+
+// Export utilities for test files
+export { mockRegistry, mockStateManager, testSpecificMockManager };

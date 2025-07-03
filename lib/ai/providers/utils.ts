@@ -102,15 +102,24 @@ export function validateApiKey(apiKey: string, provider: string): boolean {
     return false;
   }
 
+  // Check for whitespace or control characters that indicate invalid keys
+  if (apiKey !== apiKey.trim() || /[\n\r\t\0]/.test(apiKey)) {
+    return false;
+  }
+
   switch (provider) {
     case 'openai':
-      return apiKey.startsWith('sk-') && apiKey.length > 10;
+      // OpenAI keys start with 'sk-' and are typically 40+ chars total
+      return apiKey.startsWith('sk-') && apiKey.length >= 15 && !/\s/.test(apiKey);
     case 'anthropic':
-      return apiKey.startsWith('sk-ant-') && apiKey.length > 10;
+      // Anthropic keys start with 'sk-ant-' and are longer
+      return apiKey.startsWith('sk-ant-') && apiKey.length >= 20 && !/\s/.test(apiKey);
     case 'google':
-      return apiKey.length > 10; // Google API keys don't have a standard prefix
+      // Google API keys don't have a standard prefix but have minimum length
+      return apiKey.length > 10 && !/\s/.test(apiKey);
     default:
-      return apiKey.length > 5;
+      // Generic validation for unknown providers
+      return apiKey.length > 5 && !/\s/.test(apiKey);
   }
 }
 

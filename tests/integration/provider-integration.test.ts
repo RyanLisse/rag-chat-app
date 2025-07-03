@@ -1,302 +1,31 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { createModelRouter } from '@/lib/ai/providers/router';
 import type { ModelRouter } from '@/lib/ai/providers/types';
+import { createTestIsolation } from '../setup/test-isolation';
+import {
+  createProviderIntegrationMocks,
+  createProviderFactoryMock,
+  createProviderRouterMock
+} from './provider-mocks';
 
+// Use isolated mocks to avoid conflicts with global mocks
 vi.mock('@/lib/ai/providers/openai', () => {
-  class MockOpenAIProvider {
-    name = 'openai';
-    supportedModels = ['gpt-4.1', 'o4-mini', 'gpt-4', 'gpt-4-turbo'];
-    capabilities = {
-      streaming: true,
-      functionCalling: true,
-      vision: true,
-      audioInput: false,
-      audioOutput: false,
-      batchRequests: true,
-      contextCaching: false,
-    };
-    
-    initialize = vi.fn().mockImplementation(async (config) => {
-      if (config.apiKey === 'invalid-key') {
-        throw new Error('Invalid API key');
-      }
-      return undefined;
-    });
-    
-    validateConnection = vi.fn().mockResolvedValue(undefined);
-    
-    getModel = vi.fn().mockImplementation((modelId) => {
-      if (modelId === 'unsupported-model') {
-        throw new Error('Unsupported model');
-      }
-      return { provider: 'openai', modelId: 'gpt-4.1' };
-    });
-    
-    supportsModel = vi.fn().mockReturnValue(true);
-    supportsVision = vi.fn().mockReturnValue(true);
-    supportsContextCaching = vi.fn().mockReturnValue(false);
-    
-    getHealth = vi.fn().mockResolvedValue({ 
-      status: 'healthy', 
-      latency: 100, 
-      errorRate: 0, 
-      lastChecked: new Date() 
-    });
-    
-    getMetrics = vi.fn().mockReturnValue({
-      requestCount: 0,
-      errorCount: 0,
-      totalLatency: 0,
-      averageLatency: 0,
-      tokenUsage: { input: 0, output: 0, total: 0 },
-      costEstimate: 0,
-      lastReset: new Date(),
-    });
-    
-    resetMetrics = vi.fn();
-    cleanup = vi.fn().mockResolvedValue(undefined);
-  }
-  
-  return {
-    OpenAIProvider: MockOpenAIProvider,
-  };
+  const mocks = createProviderIntegrationMocks();
+  return { OpenAIProvider: mocks.OpenAIProvider };
 });
 
 vi.mock('@/lib/ai/providers/anthropic', () => {
-  class MockAnthropicProvider {
-    name = 'anthropic';
-    supportedModels = ['claude-4', 'claude-3.5-sonnet', 'claude-3-opus'];
-    capabilities = {
-      streaming: true,
-      functionCalling: true,
-      vision: true,
-      audioInput: false,
-      audioOutput: false,
-      batchRequests: false,
-      contextCaching: true,
-    };
-    
-    initialize = vi.fn().mockImplementation(async (config) => {
-      if (config.apiKey === 'invalid-key') {
-        throw new Error('Invalid API key');
-      }
-      return undefined;
-    });
-    
-    validateConnection = vi.fn().mockResolvedValue(undefined);
-    
-    getModel = vi.fn().mockImplementation((modelId) => {
-      if (modelId === 'unsupported-model') {
-        throw new Error('Unsupported model');
-      }
-      return { provider: 'anthropic', modelId: 'claude-4' };
-    });
-    
-    supportsModel = vi.fn().mockReturnValue(true);
-    supportsVision = vi.fn().mockReturnValue(true);
-    supportsContextCaching = vi.fn().mockReturnValue(true);
-    
-    getHealth = vi.fn().mockResolvedValue({ 
-      status: 'healthy', 
-      latency: 150, 
-      errorRate: 0, 
-      lastChecked: new Date() 
-    });
-    
-    getMetrics = vi.fn().mockReturnValue({
-      requestCount: 0,
-      errorCount: 0,
-      totalLatency: 0,
-      averageLatency: 0,
-      tokenUsage: { input: 0, output: 0, total: 0 },
-      costEstimate: 0,
-      lastReset: new Date(),
-    });
-    
-    resetMetrics = vi.fn();
-    cleanup = vi.fn().mockResolvedValue(undefined);
-  }
-  
-  return {
-    AnthropicProvider: MockAnthropicProvider,
-  };
+  const mocks = createProviderIntegrationMocks();
+  return { AnthropicProvider: mocks.AnthropicProvider };
 });
 
 vi.mock('@/lib/ai/providers/google', () => {
-  class MockGoogleProvider {
-    name = 'google';
-    supportedModels = ['gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-pro'];
-    capabilities = {
-      streaming: true,
-      functionCalling: true,
-      vision: true,
-      audioInput: true,
-      audioOutput: true,
-      batchRequests: false,
-      contextCaching: false,
-    };
-    
-    initialize = vi.fn().mockImplementation(async (config) => {
-      if (config.apiKey === 'invalid-key') {
-        throw new Error('Invalid API key');
-      }
-      return undefined;
-    });
-    
-    validateConnection = vi.fn().mockResolvedValue(undefined);
-    
-    getModel = vi.fn().mockImplementation((modelId) => {
-      if (modelId === 'unsupported-model') {
-        throw new Error('Unsupported model');
-      }
-      return { provider: 'google', modelId: 'gemini-2.5-pro' };
-    });
-    
-    supportsModel = vi.fn().mockReturnValue(true);
-    supportsVision = vi.fn().mockReturnValue(true);
-    supportsAudioInput = vi.fn().mockReturnValue(true);
-    supportsAudioOutput = vi.fn().mockReturnValue(true);
-    
-    getHealth = vi.fn().mockResolvedValue({ 
-      status: 'healthy', 
-      latency: 120, 
-      errorRate: 0, 
-      lastChecked: new Date() 
-    });
-    
-    getMetrics = vi.fn().mockReturnValue({
-      requestCount: 0,
-      errorCount: 0,
-      totalLatency: 0,
-      averageLatency: 0,
-      tokenUsage: { input: 0, output: 0, total: 0 },
-      costEstimate: 0,
-      lastReset: new Date(),
-    });
-    
-    resetMetrics = vi.fn();
-    cleanup = vi.fn().mockResolvedValue(undefined);
-  }
-  
-  return {
-    GoogleProvider: MockGoogleProvider,
-  };
+  const mocks = createProviderIntegrationMocks();
+  return { GoogleProvider: mocks.GoogleProvider };
 });
 
-// Mock the factory to use our mocked providers
 vi.mock('@/lib/ai/providers/factory', () => {
-  const providerCache = new Map();
-  
-  // Create mock provider classes directly here
-  class MockOpenAI {
-    name = 'openai';
-    initialize = vi.fn().mockResolvedValue(undefined);
-    cleanup = vi.fn().mockResolvedValue(undefined);
-    getMetrics = vi.fn().mockReturnValue({ requestCount: 0, errorCount: 0, totalLatency: 0, averageLatency: 0, tokenUsage: { input: 0, output: 0, total: 0 }, costEstimate: 0, lastReset: new Date() });
-  }
-  
-  class MockAnthropic {
-    name = 'anthropic';
-    initialize = vi.fn().mockResolvedValue(undefined);
-    cleanup = vi.fn().mockResolvedValue(undefined);
-    getMetrics = vi.fn().mockReturnValue({ requestCount: 0, errorCount: 0, totalLatency: 0, averageLatency: 0, tokenUsage: { input: 0, output: 0, total: 0 }, costEstimate: 0, lastReset: new Date() });
-  }
-  
-  class MockGoogle {
-    name = 'google';
-    initialize = vi.fn().mockResolvedValue(undefined);
-    cleanup = vi.fn().mockResolvedValue(undefined);
-    getMetrics = vi.fn().mockReturnValue({ requestCount: 0, errorCount: 0, totalLatency: 0, averageLatency: 0, tokenUsage: { input: 0, output: 0, total: 0 }, costEstimate: 0, lastReset: new Date() });
-  }
-  
-  const mockFactory = {
-    createProvider: vi.fn().mockImplementation(async (name: string, config: any) => {
-      const providers = {
-        openai: MockOpenAI,
-        anthropic: MockAnthropic,
-        google: MockGoogle,
-      };
-      
-      const ProviderClass = providers[name as keyof typeof providers];
-      if (!ProviderClass) {
-        throw new Error(`Unknown provider: ${name}`);
-      }
-      
-      const provider = new ProviderClass();
-      await provider.initialize(config);
-      return provider;
-    }),
-    getProvider: vi.fn().mockImplementation(async (name: string, config: any) => {
-      const cacheKey = `${name}_${JSON.stringify(config)}`;
-      if (providerCache.has(cacheKey)) {
-        return providerCache.get(cacheKey);
-      }
-      const provider = await mockFactory.createProvider(name, config);
-      providerCache.set(cacheKey, provider);
-      return provider;
-    }),
-    getSupportedProviders: vi.fn().mockReturnValue(['openai', 'anthropic', 'google']),
-    removeProvider: vi.fn().mockImplementation(async (name: string, config?: any) => {
-      if (config) {
-        const cacheKey = `${name}_${JSON.stringify(config)}`;
-        const provider = providerCache.get(cacheKey);
-        if (provider) {
-          await provider.cleanup();
-          return providerCache.delete(cacheKey);
-        }
-        return false;
-      }
-      
-      // Remove all providers with this name
-      let removed = false;
-      for (const [key, provider] of providerCache.entries()) {
-        if (key.startsWith(`${name}_`)) {
-          await provider.cleanup();
-          providerCache.delete(key);
-          removed = true;
-        }
-      }
-      
-      return removed;
-    }),
-    clearAll: vi.fn().mockImplementation(async () => {
-      for (const provider of providerCache.values()) {
-        await provider.cleanup();
-      }
-      providerCache.clear();
-    }),
-    getProviderStats: vi.fn().mockImplementation(() => {
-      const stats = new Map();
-      
-      for (const [key, provider] of providerCache.entries()) {
-        const providerName = key.split('_')[0];
-        const metrics = provider.getMetrics();
-        
-        const current = stats.get(providerName) || {
-          instanceCount: 0,
-          totalRequests: 0,
-          totalErrors: 0,
-          totalLatency: 0,
-        };
-        
-        current.instanceCount++;
-        current.totalRequests += metrics.requestCount;
-        current.totalErrors += metrics.errorCount;
-        current.totalLatency += metrics.totalLatency;
-        
-        stats.set(providerName, current);
-      }
-      
-      return Array.from(stats.entries()).map(([name, data]) => ({
-        name,
-        instanceCount: data.instanceCount,
-        totalRequests: data.totalRequests,
-        totalErrors: data.totalErrors,
-        averageLatency: data.totalRequests > 0 ? data.totalLatency / data.totalRequests : 0,
-      }));
-    }),
-  };
-  
+  const mockFactory = createProviderFactoryMock();
   const MockModelProviderFactory = vi.fn().mockImplementation(() => mockFactory);
   MockModelProviderFactory.getInstance = vi.fn().mockReturnValue(mockFactory);
 
@@ -306,58 +35,19 @@ vi.mock('@/lib/ai/providers/factory', () => {
   };
 });
 
-// Mock the router 
 vi.mock('@/lib/ai/providers/router', () => {
-  const mockRouter = {
-    initialize: vi.fn().mockResolvedValue(undefined),
-    route: vi.fn().mockImplementation(async (modelId: string) => {
-      // Simple routing logic for tests
-      let provider: any;
-      let providerName: string;
-      
-      if (modelId.includes('gpt') || modelId.includes('o4')) {
-        providerName = 'openai';
-        const { OpenAIProvider } = await import('@/lib/ai/providers/openai');
-        provider = new OpenAIProvider();
-      } else if (modelId.includes('claude')) {
-        providerName = 'anthropic';
-        const { AnthropicProvider } = await import('@/lib/ai/providers/anthropic');
-        provider = new AnthropicProvider();
-      } else if (modelId.includes('gemini')) {
-        providerName = 'google';
-        const { GoogleProvider } = await import('@/lib/ai/providers/google');
-        provider = new GoogleProvider();
-      } else {
-        throw new Error(`No provider available for model: ${modelId}`);
-      }
-      
-      return {
-        provider,
-        model: provider.getModel(modelId),
-        metadata: { model: modelId },
-      };
-    }),
-    getBestProvider: vi.fn().mockImplementation(async (modelId: string) => {
-      if (modelId.includes('gpt') || modelId.includes('o4')) {
-        const { OpenAIProvider } = await import('@/lib/ai/providers/openai');
-        return new OpenAIProvider();
-      } else if (modelId.includes('claude')) {
-        const { AnthropicProvider } = await import('@/lib/ai/providers/anthropic');
-        return new AnthropicProvider();
-      } else if (modelId.includes('gemini')) {
-        const { GoogleProvider } = await import('@/lib/ai/providers/google');
-        return new GoogleProvider();
-      }
-      return null;
-    }),
-    updateConfig: vi.fn(),
-    cleanup: vi.fn().mockResolvedValue(undefined),
-  };
-  
+  const mockRouter = createProviderRouterMock();
   return {
     createModelRouter: vi.fn().mockReturnValue(mockRouter),
     ModelRouterImpl: vi.fn().mockImplementation(() => mockRouter),
   };
+});
+
+// Create test isolation for this test suite
+const testIsolation = createTestIsolation({
+  resetMocks: true,
+  clearMocks: true,
+  isolateModules: true // Need module isolation for provider tests
 });
 
 describe('Provider Integration Tests', () => {
@@ -365,6 +55,8 @@ describe('Provider Integration Tests', () => {
   let factory: any;
 
   beforeAll(async () => {
+    testIsolation.setup();
+    
     const { getProviderFactory } = await import('@/lib/ai/providers/factory');
     factory = getProviderFactory();
     
@@ -387,6 +79,7 @@ describe('Provider Integration Tests', () => {
     if (factory) {
       await factory.clearAll();
     }
+    testIsolation.cleanup();
   });
 
   describe('OpenAI Provider Integration', () => {

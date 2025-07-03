@@ -1,5 +1,6 @@
 import { VectorStoreClient } from '@/lib/ai/vector-store';
 import OpenAI from 'openai';
+import { expect } from 'vitest';
 
 export interface MockVectorStore {
   id: string;

@@ -32,8 +32,17 @@ export class AIResponseMocker {
         throw new Error('Mock stream error');
       }
       
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, this.config.streamDelay));
+      // Simulate network delay with better timer handling
+      if (this.config.streamDelay && this.config.streamDelay > 0) {
+        await new Promise(resolve => {
+          const timer = setTimeout(resolve, this.config.streamDelay);
+          // In test environments, ensure proper cleanup
+          if (typeof global !== 'undefined' && global.process?.env?.NODE_ENV === 'test') {
+            // Make timer cancellable for test stability
+            timer.unref?.();
+          }
+        });
+      }
       
       yield word + ' ';
     }

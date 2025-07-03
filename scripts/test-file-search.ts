@@ -13,6 +13,7 @@ config({ path: resolve(process.cwd(), '.env.local') });
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
+  dangerouslyAllowBrowser: true
 });
 
 async function testFileSearch() {
@@ -51,7 +52,7 @@ async function testFileSearch() {
     
     if (assistantId) {
       try {
-        assistant = await openai.assistants.retrieve(assistantId);
+        assistant = await openai.beta.assistants.retrieve(assistantId);
         console.log(`✅ Using existing assistant: ${assistant.name}`);
       } catch {
         console.log('⚠️  Assistant not found, creating new one...');
@@ -59,7 +60,7 @@ async function testFileSearch() {
     }
     
     if (!assistant) {
-      assistant = await openai.assistants.create({
+      assistant = await openai.beta.assistants.create({
         name: 'Test File Search Assistant',
         instructions: 'You are a helpful assistant that searches through documents.',
         model: 'gpt-4o',
@@ -74,7 +75,7 @@ async function testFileSearch() {
     console.log(`Query: "${testQuery}"`);
 
     // Create thread with file search
-    const thread = await openai.threads.create({
+    const thread = await openai.beta.threads.create({
       messages: [
         {
           role: 'user',
@@ -91,17 +92,17 @@ async function testFileSearch() {
 
     // Run the assistant
     console.log('⏳ Running assistant (this may take a few seconds)...');
-    const run = await openai.threads.runs.create(thread.id, {
+    const run = await openai.beta.threads.runs.create(thread.id, {
       assistant_id: assistant.id,
     });
 
     // Wait for completion
-    let runStatus = await openai.threads.runs.retrieve(thread.id, run.id);
+    let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     let attempts = 0;
     
     while (runStatus.status !== 'completed' && runStatus.status !== 'failed' && attempts < 30) {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      runStatus = await openai.threads.runs.retrieve(thread.id, run.id);
+      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
       attempts++;
       process.stdout.write(`\r⏳ Status: ${runStatus.status} (${attempts}s)`);
     }
@@ -121,7 +122,7 @@ async function testFileSearch() {
     console.log('✅ Run completed!');
 
     // Get the response
-    const messages = await openai.threads.messages.list(thread.id);
+    const messages = await openai.beta.threads.messages.list(thread.id);
     const assistantMessage = messages.data.find(msg => msg.role === 'assistant');
 
     if (assistantMessage && assistantMessage.content[0].type === 'text') {

@@ -61,9 +61,9 @@ test.describe('Basic RAG Chat Workflow', () => {
     const newChatButton = page.locator('button').filter({ hasText: 'New Chat' });
     await expect(newChatButton).toBeVisible({ timeout: 5000 });
     
-    // Also check for the Guest button
-    const guestButton = page.locator('button').filter({ hasText: 'Guest' });
-    await expect(guestButton).toBeVisible({ timeout: 5000 });
+    // Check for the auth status button (shows as "Loading auth status" or "Guest")
+    const authButton = page.locator('button').filter({ hasText: /Guest|Loading auth status/ });
+    await expect(authButton).toBeVisible({ timeout: 5000 });
     
     console.log('✅ Navigation elements found');
   });

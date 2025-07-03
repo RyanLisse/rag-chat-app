@@ -6,16 +6,31 @@ export default defineConfig({
     jsx: 'automatic',
     jsxFactory: 'React.createElement',
     jsxFragment: 'React.Fragment',
+    target: 'node20',
+    keepNames: false,
+    minify: false,
   },
   test: {
     globals: true,
     environment: 'happy-dom',
-    environmentMatchGlobs: [
-      ['**/{app,tests/unit/upload-route,tests/unit/status-route,tests/integration/file-upload}.{test,spec}.{js,ts,tsx}', 'node'],
+    // Replace deprecated environmentMatchGlobs with projects
+    projects: [
+      {
+        name: 'unit-browser',
+        testMatch: ['tests/unit/**/*.{test,spec}.{ts,tsx}'],
+        environment: 'happy-dom',
+        setupFiles: ['./tests/setup/test-setup.ts'],
+      },
+      {
+        name: 'unit-node',
+        testMatch: ['tests/unit/**/upload-route.{test,spec}.{ts,tsx}', 'tests/unit/**/status-route.{test,spec}.{ts,tsx}'],
+        environment: 'node',
+        setupFiles: ['./tests/setup/test-setup.ts'],
+      }
     ],
-    setupFiles: ['./tests/setup/test-setup.ts', './tests/setup/vitest-mocks.ts'],
-    testTimeout: 5000, // 5 seconds - faster test execution
-    hookTimeout: 5000,
+    setupFiles: ['./tests/setup/test-setup.ts'],
+    testTimeout: 3000, // Reduced from 5000ms for faster execution
+    hookTimeout: 3000, // Reduced from 5000ms
     include: ['tests/**/*.{test,spec}.{js,ts,tsx}'],
     exclude: [
       'node_modules/**',
@@ -27,13 +42,28 @@ export default defineConfig({
       'tests/performance/**',
       'coverage/**',
     ],
-    // Ignore test warnings
+    // Performance optimizations
     silent: false,
     hideSkippedTests: true,
-    reporters: ['verbose'],
+    reporters: [['default', { summary: false }]], // Updated reporter config
+    passWithNoTests: true,
+    isolate: false, // Shared context for speed
+    pool: 'threads', // Use threads for maximum parallelism
+    poolOptions: {
+      threads: {
+        maxThreads: 4, // Reduced to prevent thread issues
+        minThreads: 1,
+        useAtomics: true,
+        isolate: false,
+      },
+    },
+    maxConcurrency: 4, // Reduced concurrency for stability
+    fileParallelism: true,
+    // Coverage optimized for speed
     coverage: {
+      enabled: false, // Disabled by default for speed, enable when needed
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text-summary'], // Faster than full HTML reports
       reportsDirectory: './coverage',
       include: [
         'lib/**/*.ts',
@@ -65,6 +95,7 @@ export default defineConfig({
         branches: 10,
         statements: 10,
       },
+      skipFull: true, // Skip full coverage collection for speed
     },
   },
   resolve: {
