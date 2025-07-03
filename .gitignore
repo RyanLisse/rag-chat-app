@@ -57,3 +57,10 @@ yarn-error.log*
 !.worktrees/.gitignore
 !.worktrees/.hooks/
 !.worktrees/.templates/
+
+# Agent-specific files
+.agents/
+agent-workspace/
+agent-session-*
+.claude-cache/
+.ai-context/
