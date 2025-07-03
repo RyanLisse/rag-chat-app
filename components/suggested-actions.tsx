@@ -59,7 +59,7 @@ function PureSuggestedActions({
               window.history.replaceState({}, '', `/chat/${chatId}`);
 
               append({
-                id: `suggested-${Date.now()}`,
+                id: `suggested-${crypto.randomUUID()}`,
                 role: 'user',
                 parts: [{ type: 'text', text: suggestedAction.action }], // Updated for AI SDK 5.0
               });
