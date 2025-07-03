@@ -1,8 +1,8 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
   "files": {
     "ignoreUnknown": false,
-    "ignore": [
+    "experimentalScannerIgnores": [
       "**/bun.lockb",
       "lib/db/migrations",
       "lib/editor/react-renderer.tsx",
