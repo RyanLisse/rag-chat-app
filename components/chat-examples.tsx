@@ -6,30 +6,42 @@ import { MessageSquare, User } from 'lucide-react';
 export function ChatExamples() {
   const examples = [
     {
-      title: 'Technical Support',
+      title: 'Document Analysis',
       messages: [
         {
           role: 'user',
-          content: 'How do I calibrate the RoboRail system?',
+          content:
+            'Can you summarize the key features from my API documentation?',
         },
         {
           role: 'assistant',
-          content: 'To calibrate the RoboRail system, follow these steps:\n\n1. **Power on the system** and ensure all sensors are connected [1]\n2. **Access the calibration menu** by pressing Menu > Settings > Calibration [2]\n3. **Run the auto-calibration sequence** which takes approximately 5 minutes [3]\n4. **Verify calibration** by checking the sensor readings match expected values [4]\n\nThe system will indicate successful calibration with a green LED. If calibration fails, check sensor connections and retry.',
-          citations: ['RoboRail Manual v2.3, Page 45', 'Quick Start Guide, Section 3', 'Calibration Procedures, Step 2.1', 'Troubleshooting Guide, Page 12'],
+          content:
+            'Based on your uploaded API documentation, here are the key features:\n\n1. **RESTful API Design** with comprehensive endpoint coverage [1]\n2. **Authentication & Authorization** using JWT tokens and OAuth 2.0 [2]\n3. **Rate Limiting** with configurable limits per endpoint [3]\n4. **Real-time Updates** via WebSocket connections [4]\n5. **Comprehensive Error Handling** with detailed error codes [5]\n\nThe API supports both synchronous and asynchronous operations, with automatic retry mechanisms for failed requests.',
+          citations: [
+            'API Documentation v3.2, Overview',
+            'Authentication Guide, Section 2',
+            'Rate Limiting Policy',
+            'WebSocket Implementation',
+            'Error Handling Reference',
+          ],
         },
       ],
     },
     {
-      title: 'Safety Procedures',
+      title: 'Code Generation',
       messages: [
         {
           role: 'user',
-          content: 'What are the safety procedures for RoboRail?',
+          content: 'Generate a Python example for the user authentication flow',
         },
         {
           role: 'assistant',
-          content: 'Key safety procedures for RoboRail operations include:\n\n**Pre-Operation Safety:**\n- Emergency stop buttons must be tested daily [1]\n- Safety barriers should be in place before operation [2]\n- All operators must wear appropriate PPE [3]\n\n**During Operation:**\n- Maintain 2-meter safety zone around moving parts [4]\n- Monitor system status indicators continuously [5]\n- Never bypass safety interlocks [6]\n\n**Emergency Procedures:**\n- Press E-STOP for immediate shutdown\n- Follow lockout/tagout procedures for maintenance\n- Report all safety incidents immediately',
-          citations: ['Safety Manual Ch. 1', 'OSHA Guidelines', 'PPE Requirements', 'Operating Procedures 4.2', 'System Monitoring Guide', 'Safety Compliance Doc'],
+          content:
+            'Based on your authentication documentation, here\'s a Python example:\n\n```python\nimport requests\nimport json\n\nclass APIClient:\n    def __init__(self, base_url, client_id, client_secret):\n        self.base_url = base_url\n        self.client_id = client_id\n        self.client_secret = client_secret\n        self.access_token = None\n    \n    def authenticate(self, username, password):\n        """Authenticate user and get access token [1]"""\n        auth_data = {\n            "grant_type": "password",\n            "username": username,\n            "password": password,\n            "client_id": self.client_id,\n            "client_secret": self.client_secret\n        }\n        \n        response = requests.post(f"{self.base_url}/auth/token", data=auth_data)\n        if response.status_code == 200:\n            self.access_token = response.json()["access_token"]\n            return True\n        return False\n```\n\nThis follows the OAuth 2.0 password grant flow as specified in your documentation [2].',
+          citations: [
+            'Authentication Flow Diagram',
+            'OAuth 2.0 Implementation Guide',
+          ],
         },
       ],
     },
@@ -76,15 +88,21 @@ export function ChatExamples() {
                       </div>
                       {message.citations && (
                         <div className="mt-3 space-y-1">
-                          <p className="text-xs font-medium text-muted-foreground">Sources:</p>
+                          <p className="text-xs font-medium text-muted-foreground">
+                            Sources:
+                          </p>
                           <div className="flex flex-wrap gap-2">
                             {message.citations.map((citation, citIndex) => (
                               <span
                                 key={citIndex}
                                 className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs"
                               >
-                                <span className="font-medium">[{citIndex + 1}]</span>
-                                <span className="text-muted-foreground">{citation}</span>
+                                <span className="font-medium">
+                                  [{citIndex + 1}]
+                                </span>
+                                <span className="text-muted-foreground">
+                                  {citation}
+                                </span>
                               </span>
                             ))}
                           </div>

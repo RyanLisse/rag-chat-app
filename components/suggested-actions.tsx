@@ -19,24 +19,27 @@ function PureSuggestedActions({
 }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'How do I calibrate',
-      label: 'the RoboRail system?',
-      action: 'How do I calibrate the RoboRail system?',
+      title: 'Summarize my documents',
+      label: 'and key insights',
+      action:
+        'Can you summarize my uploaded documents and provide key insights?',
     },
     {
-      title: 'What are the safety procedures',
-      label: 'for RoboRail?',
-      action: 'What are the safety procedures for RoboRail?',
+      title: 'Search for specific information',
+      label: 'in my knowledge base',
+      action: 'Help me find specific information in my uploaded documents',
     },
     {
-      title: 'Explain the error codes',
-      label: 'for RoboRail diagnostics',
-      action: 'Explain the error codes for RoboRail diagnostics',
+      title: 'Analyze and compare',
+      label: 'different document sections',
+      action:
+        'Can you analyze and compare information across my uploaded documents?',
     },
     {
-      title: 'How do I perform maintenance',
-      label: 'on the RoboRail system?',
-      action: 'How do I perform maintenance on the RoboRail system?',
+      title: 'Generate code examples',
+      label: 'based on documentation',
+      action:
+        'Generate code examples based on the technical documentation I uploaded',
     },
   ];
 
