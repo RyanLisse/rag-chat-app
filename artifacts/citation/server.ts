@@ -75,8 +75,9 @@ Instructions:
       }
 
       if (delta.object.sources) {
-        const validSources = delta.object.sources.filter((source): source is CitationSource => 
-          source !== undefined && source !== null
+        const validSources = delta.object.sources.filter(
+          (source): source is CitationSource =>
+            source !== undefined && source !== null
         );
         sources.push(...validSources);
         dataStream.writeData({

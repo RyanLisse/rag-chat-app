@@ -40,7 +40,12 @@ export const {
   providers: [
     Credentials({
       credentials: {},
-      async authorize({ email, password }: any) {
+      async authorize(
+        credentials: { email?: string; password?: string } | undefined
+      ) {
+        const email = credentials?.email ?? '';
+        const password = credentials?.password ?? '';
+
         const users = await getUser(email);
 
         if (users.length === 0) {

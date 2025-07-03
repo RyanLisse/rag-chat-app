@@ -147,7 +147,10 @@ export async function monitorVectorSearch<T>(
   if ('resultCount' in result && typeof result.resultCount === 'number') {
     // TODO: Fix ragMetrics compatibility with monitoring system
     if ('vectorSearchResults' in ragMetrics) {
-      (ragMetrics as any).vectorSearchResults.record(result.resultCount, metadata);
+      (ragMetrics as any).vectorSearchResults.record(
+        result.resultCount,
+        metadata
+      );
     }
   }
 

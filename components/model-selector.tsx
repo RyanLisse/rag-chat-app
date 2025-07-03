@@ -74,7 +74,7 @@ const modelSpeedConfig = {
   'gpt-4o': 'balanced',
   'gpt-4o-2025-07-01': 'balanced',
   'claude-4': 'balanced',
-  'o1': 'thorough',
+  o1: 'thorough',
   'o1-preview': 'thorough',
   'gemini-2.5-pro': 'thorough',
 } as const;

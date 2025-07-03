@@ -1,5 +1,5 @@
-import { motion } from 'framer-motion';
 import type { UIMessage } from 'ai';
+import { motion } from 'framer-motion';
 import { SuggestedActions } from './suggested-actions';
 import type { VisibilityType } from './visibility-selector';
 
@@ -9,7 +9,11 @@ interface GreetingProps {
   selectedVisibilityType: VisibilityType;
 }
 
-export const Greeting = ({ chatId, append, selectedVisibilityType }: GreetingProps) => {
+export const Greeting = ({
+  chatId,
+  append,
+  selectedVisibilityType,
+}: GreetingProps) => {
   return (
     <div
       key="overview"
@@ -31,9 +35,10 @@ export const Greeting = ({ chatId, append, selectedVisibilityType }: GreetingPro
         transition={{ delay: 0.6 }}
         className="text-sm sm:text-base md:text-xl text-zinc-500 mb-4 sm:mb-6 max-w-2xl"
       >
-        Ask me anything about RoboRail systems, calibration, safety, or operations.
+        Ask me anything about RoboRail systems, calibration, safety, or
+        operations.
       </motion.div>
-      <SuggestedActions 
+      <SuggestedActions
         chatId={chatId}
         append={append}
         selectedVisibilityType={selectedVisibilityType}

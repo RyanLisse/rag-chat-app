@@ -59,14 +59,31 @@ export async function POST(request: Request) {
     // If batchId is provided, check batch status
     if (batchId) {
       try {
-        const batch = await (openai.vectorStores.fileBatches as any).retrieve(
-          vectorStoreId,
-          batchId
-        );
+        type FileBatchesAPI = {
+          retrieve: (
+            vectorStoreId: string,
+            batchId: string
+          ) => Promise<{
+            status?: string;
+            file_counts?: {
+              completed?: number;
+              in_progress?: number;
+              failed?: number;
+            };
+          }>;
+        };
+        const fileBatchesApi = openai.vectorStores
+          .fileBatches as unknown as FileBatchesAPI;
+        const batch = await fileBatchesApi.retrieve(vectorStoreId, batchId);
 
         const response: StatusResponse = {
           success: true,
-          status: batch?.status || 'unknown',
+          status:
+            (batch?.status as
+              | 'in_progress'
+              | 'completed'
+              | 'failed'
+              | 'cancelled') || 'in_progress',
           completedCount: batch?.file_counts?.completed || 0,
           inProgressCount: batch?.file_counts?.in_progress || 0,
           failedCount: batch?.file_counts?.failed || 0,
@@ -88,13 +105,22 @@ export async function POST(request: Request) {
         const fileStatuses = await Promise.all(
           fileIds.map(async (fileId) => {
             try {
-              const file = await (openai.vectorStores.files as any).retrieve(
-                vectorStoreId,
-                fileId
-              );
+              type FilesAPI = {
+                retrieve: (
+                  vectorStoreId: string,
+                  fileId: string
+                ) => Promise<{ status?: string }>;
+              };
+              const filesApi = openai.vectorStores.files as unknown as FilesAPI;
+              const file = await filesApi.retrieve(vectorStoreId, fileId);
               return {
                 id: fileId,
-                status: file.status as any,
+                status:
+                  (file.status as
+                    | 'in_progress'
+                    | 'completed'
+                    | 'failed'
+                    | 'cancelled') ?? 'failed',
               };
             } catch (_error) {
               return {

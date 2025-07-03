@@ -71,7 +71,9 @@ export function CitationStatisticsPanel({
               <BarChart3Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <p className="text-blue-700 dark:text-blue-300 text-xs font-medium">Total Citations</p>
+              <p className="text-blue-700 dark:text-blue-300 text-xs font-medium">
+                Total Citations
+              </p>
               <p className="font-bold text-xl text-blue-900 dark:text-blue-100">
                 {statistics.totalCitations}
               </p>
@@ -85,7 +87,9 @@ export function CitationStatisticsPanel({
               <TargetIcon className="h-4 w-4 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="text-green-700 dark:text-green-300 text-xs font-medium">Unique Sources</p>
+              <p className="text-green-700 dark:text-green-300 text-xs font-medium">
+                Unique Sources
+              </p>
               <p className="font-bold text-xl text-green-900 dark:text-green-100">
                 {statistics.uniqueSources}
               </p>
@@ -101,7 +105,9 @@ export function CitationStatisticsPanel({
             <div className="p-2 rounded-lg bg-purple-500/20">
               <TrendingUpIcon className="h-4 w-4 text-purple-600 dark:text-purple-400" />
             </div>
-            <span className="font-semibold text-sm text-purple-900 dark:text-purple-100">Relevance Quality</span>
+            <span className="font-semibold text-sm text-purple-900 dark:text-purple-100">
+              Relevance Quality
+            </span>
           </div>
           <Badge
             variant="secondary"
@@ -134,7 +140,9 @@ export function CitationStatisticsPanel({
           <div className="p-2 rounded-lg bg-indigo-500/20">
             <FileTextIcon className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
           </div>
-          <span className="font-semibold text-sm text-indigo-900 dark:text-indigo-100">Source Types</span>
+          <span className="font-semibold text-sm text-indigo-900 dark:text-indigo-100">
+            Source Types
+          </span>
         </div>
 
         <div className="space-y-3">
@@ -177,7 +185,9 @@ export function CitationStatisticsPanel({
             <div className="p-2 rounded-lg bg-cyan-500/20">
               <BarChart3Icon className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
             </div>
-            <span className="font-semibold text-sm text-cyan-900 dark:text-cyan-100">Citation Density</span>
+            <span className="font-semibold text-sm text-cyan-900 dark:text-cyan-100">
+              Citation Density
+            </span>
           </div>
 
           <div className="grid grid-cols-2 gap-4 text-sm">

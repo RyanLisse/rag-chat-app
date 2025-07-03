@@ -58,8 +58,12 @@ export async function POST(request: Request) {
           return {
             id: vsFile.id,
             filename: file.filename || vsFile.id,
-            status: vsFile.status === 'completed' ? 'completed' : 
-                   vsFile.status === 'failed' ? 'failed' : 'processing',
+            status:
+              vsFile.status === 'completed'
+                ? 'completed'
+                : vsFile.status === 'failed'
+                  ? 'failed'
+                  : 'processing',
             createdAt: new Date(vsFile.created_at * 1000),
           };
         } catch (error) {

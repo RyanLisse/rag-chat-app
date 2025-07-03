@@ -113,7 +113,7 @@ export const systemPrompt = ({
   // ALWAYS put fileSearchPrompt FIRST to ensure it's the primary instruction
   // Also add vector store enforcement from config
   const basePrompt = `${fileSearchPrompt}\n\n${vectorEnforcement}\n\n${regularPrompt}`;
-  
+
   if (selectedChatModel === 'chat-model-reasoning') {
     return `${basePrompt}\n\n${requestPrompt}`;
   }

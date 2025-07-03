@@ -14,8 +14,14 @@ export function ChatExamples() {
         },
         {
           role: 'assistant',
-          content: 'To calibrate the RoboRail system, follow these steps:\n\n1. **Power on the system** and ensure all sensors are connected [1]\n2. **Access the calibration menu** by pressing Menu > Settings > Calibration [2]\n3. **Run the auto-calibration sequence** which takes approximately 5 minutes [3]\n4. **Verify calibration** by checking the sensor readings match expected values [4]\n\nThe system will indicate successful calibration with a green LED. If calibration fails, check sensor connections and retry.',
-          citations: ['RoboRail Manual v2.3, Page 45', 'Quick Start Guide, Section 3', 'Calibration Procedures, Step 2.1', 'Troubleshooting Guide, Page 12'],
+          content:
+            'To calibrate the RoboRail system, follow these steps:\n\n1. **Power on the system** and ensure all sensors are connected [1]\n2. **Access the calibration menu** by pressing Menu > Settings > Calibration [2]\n3. **Run the auto-calibration sequence** which takes approximately 5 minutes [3]\n4. **Verify calibration** by checking the sensor readings match expected values [4]\n\nThe system will indicate successful calibration with a green LED. If calibration fails, check sensor connections and retry.',
+          citations: [
+            'RoboRail Manual v2.3, Page 45',
+            'Quick Start Guide, Section 3',
+            'Calibration Procedures, Step 2.1',
+            'Troubleshooting Guide, Page 12',
+          ],
         },
       ],
     },
@@ -28,8 +34,16 @@ export function ChatExamples() {
         },
         {
           role: 'assistant',
-          content: 'Key safety procedures for RoboRail operations include:\n\n**Pre-Operation Safety:**\n- Emergency stop buttons must be tested daily [1]\n- Safety barriers should be in place before operation [2]\n- All operators must wear appropriate PPE [3]\n\n**During Operation:**\n- Maintain 2-meter safety zone around moving parts [4]\n- Monitor system status indicators continuously [5]\n- Never bypass safety interlocks [6]\n\n**Emergency Procedures:**\n- Press E-STOP for immediate shutdown\n- Follow lockout/tagout procedures for maintenance\n- Report all safety incidents immediately',
-          citations: ['Safety Manual Ch. 1', 'OSHA Guidelines', 'PPE Requirements', 'Operating Procedures 4.2', 'System Monitoring Guide', 'Safety Compliance Doc'],
+          content:
+            'Key safety procedures for RoboRail operations include:\n\n**Pre-Operation Safety:**\n- Emergency stop buttons must be tested daily [1]\n- Safety barriers should be in place before operation [2]\n- All operators must wear appropriate PPE [3]\n\n**During Operation:**\n- Maintain 2-meter safety zone around moving parts [4]\n- Monitor system status indicators continuously [5]\n- Never bypass safety interlocks [6]\n\n**Emergency Procedures:**\n- Press E-STOP for immediate shutdown\n- Follow lockout/tagout procedures for maintenance\n- Report all safety incidents immediately',
+          citations: [
+            'Safety Manual Ch. 1',
+            'OSHA Guidelines',
+            'PPE Requirements',
+            'Operating Procedures 4.2',
+            'System Monitoring Guide',
+            'Safety Compliance Doc',
+          ],
         },
       ],
     },

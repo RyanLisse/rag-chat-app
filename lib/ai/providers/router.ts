@@ -435,13 +435,13 @@ export class ModelRouterImpl implements ModelRouter {
   async cleanup(): Promise<void> {
     // Clear health cache
     this.healthCache.clear();
-    
+
     // Reset circuit breakers
     this.circuitBreakers.clear();
-    
+
     // Clear providers map (the factory will handle cleanup)
     this.providers.clear();
-    
+
     // Reset timestamps
     this.lastHealthCheck = 0;
   }

@@ -16,5 +16,4 @@ interface RequestSuggestionsProps {
 export const requestSuggestions = ({
   session,
   dataStream,
-}: RequestSuggestionsProps) =>
-  undefined;
+}: RequestSuggestionsProps) => undefined;

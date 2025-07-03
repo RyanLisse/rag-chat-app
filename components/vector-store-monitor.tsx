@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search, CheckCircle, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, CheckCircle, Search } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface VectorStoreStats {
   totalSearches: number;
@@ -79,11 +79,15 @@ export function VectorStoreMonitor() {
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Success Rate:</span>
-          <span className="font-mono">{(stats.successRate * 100).toFixed(1)}%</span>
+          <span className="font-mono">
+            {(stats.successRate * 100).toFixed(1)}%
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Avg Response Time:</span>
-          <span className="font-mono">{stats.averageResponseTime.toFixed(0)}ms</span>
+          <span className="font-mono">
+            {stats.averageResponseTime.toFixed(0)}ms
+          </span>
         </div>
         {stats.lastQuery && (
           <div className="pt-2 border-t">

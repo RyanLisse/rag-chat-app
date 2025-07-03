@@ -20,8 +20,8 @@ import { Messages } from './messages';
 import { MultimodalInput } from './multimodal-input';
 import { getChatHistoryPaginationKey } from './sidebar-history';
 import { toast } from './toast';
-import type { VisibilityType } from './visibility-selector';
 import { VectorStoreMonitor } from './vector-store-monitor';
+import type { VisibilityType } from './visibility-selector';
 
 export function Chat({
   id,
@@ -69,22 +69,22 @@ export function Chat({
     // fetch: fetchWithErrorHandlers, // TODO: Fix for AI SDK 5.0
     // experimental_prepareRequestBody: (body) => {
     //   const lastMessage = body.messages.at(-1);
-    //   
+    //
     //   // Ensure the message has the correct format
     //   const formattedMessage = {
     //     ...lastMessage,
     //     parts: lastMessage.parts || [{ type: 'text', text: lastMessage.content || '' }],
     //   };
-    //   
+    //
     //   const requestBody = {
     //     id,
     //     message: formattedMessage,
     //     selectedChatModel: initialChatModel,
     //     selectedVisibilityType: visibilityType,
     //   };
-    //   
+    //
     //   console.log('Sending message to API:', JSON.stringify(requestBody, null, 2));
-    //   
+    //
     //   return requestBody;
     // }, // TODO: Fix for AI SDK 5.0
     onFinish: () => {
@@ -103,24 +103,28 @@ export function Chat({
   // TODO: Implement these for AI SDK 5.0
   const [input, setInput] = useState('');
   const data = undefined; // TODO: Fix for AI SDK 5.0
-  
+
   // Convert chatStatus to expected format
-  const status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted' = 
-    chatStatus === 'error' ? 'idle' : (chatStatus as any); // TODO: Fix proper type conversion
-  
+  const status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted' = chatStatus === 'error' ? 'idle' : (chatStatus as any); // TODO: Fix proper type conversion
+
   const append = (message: UIMessage) => {
     // Handle message append - to be implemented
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission - to be implemented
   };
-  
+
   const reload = () => {
     // Handle reload - to be implemented
   };
-  
+
   const experimental_resume = () => {
     // Handle resume - to be implemented
   };

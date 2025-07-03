@@ -8,7 +8,7 @@ import { DEFAULT_CHAT_MODEL, chatModels } from '@/lib/ai/models';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import type { DBMessage } from '@/lib/db/schema';
 import type { UIMessage } from 'ai';
-import type { FilePart } from '@ai-sdk/provider-utils';
+import type { FileUIPart } from 'ai';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -47,17 +47,19 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
       // Note: content will soon be deprecated in @ai-sdk/react
       content: '',
       createdAt: message.createdAt,
-      experimental_attachments: (message.attachments as FilePart[]) ?? [],
+      experimental_attachments: (message.attachments as FileUIPart[]) ?? [],
     }));
   }
 
   const cookieStore = await cookies();
   const chatModelFromCookie = cookieStore.get('chat-model');
-  
+
   // Validate that the model from cookie exists, otherwise use default
   let initialChatModel = DEFAULT_CHAT_MODEL;
   if (chatModelFromCookie) {
-    const modelExists = chatModels.some(model => model.id === chatModelFromCookie.value);
+    const modelExists = chatModels.some(
+      (model) => model.id === chatModelFromCookie.value
+    );
     if (modelExists) {
       initialChatModel = chatModelFromCookie.value;
     }

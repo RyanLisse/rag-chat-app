@@ -25,7 +25,7 @@ export type DataStreamDelta = {
 };
 
 export function DataStreamHandler({ id }: { id: string }) {
-  const { /* data: dataStream */ } = useChat({ id });
+  const {/* data: dataStream */} = useChat({ id });
   const dataStream: any[] = []; // TODO: Fix data stream for AI SDK 5.0
   const { artifact, setArtifact, setMetadata } = useArtifact();
   const lastProcessedIndex = useRef(-1);

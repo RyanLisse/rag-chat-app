@@ -2,6 +2,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from 'sonner';
+import Script from 'next/script';
 
 import './globals.css';
 import { SessionProvider } from 'next-auth/react';
@@ -64,11 +65,9 @@ export default async function RootLayout({
       className={`${geist.variable} ${geistMono.variable}`}
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: THEME_COLOR_SCRIPT,
-          }}
-        />
+        <Script id="theme-color-script" strategy="beforeInteractive">
+          {THEME_COLOR_SCRIPT}
+        </Script>
       </head>
       <body className="antialiased">
         <ThemeProvider

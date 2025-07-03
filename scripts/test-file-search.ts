@@ -4,23 +4,23 @@
  * Run with: bun run scripts/test-file-search.ts
  */
 
-import OpenAI from 'openai';
+import { resolve } from 'node:path';
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import OpenAI from 'openai';
 
 // Load environment variables
 config({ path: resolve(process.cwd(), '.env.local') });
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-  dangerouslyAllowBrowser: true
+  apiKey: process.env.OPENAI_API_KEY || '',
+  dangerouslyAllowBrowser: true,
 });
 
 async function testFileSearch() {
   console.log('🔍 Testing OpenAI File Search...\n');
 
   const vectorStoreId = process.env.OPENAI_VECTORSTORE_ID;
-  
+
   if (!vectorStoreId) {
     console.error('❌ OPENAI_VECTORSTORE_ID not set in environment variables');
     process.exit(1);
@@ -38,18 +38,20 @@ async function testFileSearch() {
 
     // 2. List files in vector store
     console.log('\n📁 Listing files in vector store...');
-    const files = await openai.vectorStores.files.list(vectorStoreId, { limit: 10 });
+    const files = await openai.vectorStores.files.list(vectorStoreId, {
+      limit: 10,
+    });
     console.log(`✅ Found ${files.data.length} files:`);
-    
+
     for (const file of files.data) {
       console.log(`   - ${file.id}: Status=${file.status}`);
     }
 
     // 3. Create or retrieve assistant
     console.log('\n🤖 Setting up assistant...');
-    let assistant;
+    let assistant: OpenAI.Beta.Assistant | undefined;
     const assistantId = process.env.OPENAI_ASSISTANT_ID;
-    
+
     if (assistantId) {
       try {
         assistant = await openai.beta.assistants.retrieve(assistantId);
@@ -58,11 +60,12 @@ async function testFileSearch() {
         console.log('⚠️  Assistant not found, creating new one...');
       }
     }
-    
+
     if (!assistant) {
       assistant = await openai.beta.assistants.create({
         name: 'Test File Search Assistant',
-        instructions: 'You are a helpful assistant that searches through documents.',
+        instructions:
+          'You are a helpful assistant that searches through documents.',
         model: 'gpt-4o',
         tools: [{ type: 'file_search' }],
       });
@@ -99,14 +102,18 @@ async function testFileSearch() {
     // Wait for completion
     let runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
     let attempts = 0;
-    
-    while (runStatus.status !== 'completed' && runStatus.status !== 'failed' && attempts < 30) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+
+    while (
+      runStatus.status !== 'completed' &&
+      runStatus.status !== 'failed' &&
+      attempts < 30
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
       attempts++;
       process.stdout.write(`\r⏳ Status: ${runStatus.status} (${attempts}s)`);
     }
-    
+
     console.log(''); // New line after status updates
 
     if (runStatus.status === 'failed') {
@@ -123,16 +130,18 @@ async function testFileSearch() {
 
     // Get the response
     const messages = await openai.beta.threads.messages.list(thread.id);
-    const assistantMessage = messages.data.find(msg => msg.role === 'assistant');
+    const assistantMessage = messages.data.find(
+      (msg) => msg.role === 'assistant'
+    );
 
     if (assistantMessage && assistantMessage.content[0].type === 'text') {
       const content = assistantMessage.content[0].text;
       console.log('\n📝 Response:');
       console.log(content.value);
-      
+
       if (content.annotations && content.annotations.length > 0) {
         console.log(`\n📎 Found ${content.annotations.length} citations`);
-        
+
         for (const annotation of content.annotations) {
           if (annotation.type === 'file_citation') {
             console.log(`   - File: ${annotation.file_citation.file_id}`);
@@ -145,7 +154,6 @@ async function testFileSearch() {
     }
 
     console.log('\n✅ File search test completed successfully!');
-
   } catch (error) {
     console.error('\n❌ Error:', error);
     if (error instanceof Error) {

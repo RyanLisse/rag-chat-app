@@ -9,7 +9,7 @@ interface ReadinessStatus {
     environment: boolean;
     dependencies: boolean;
   };
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 export async function GET() {
@@ -38,7 +38,11 @@ export async function GET() {
     let databaseReady = false;
     try {
       const { default: postgres } = await import('postgres');
-      const sql = postgres(process.env.POSTGRES_URL!);
+      const postgresUrl = process.env.POSTGRES_URL;
+      if (!postgresUrl) {
+        throw new Error('POSTGRES_URL is not set');
+      }
+      const sql = postgres(postgresUrl);
       await sql`SELECT 1`;
       await sql.end();
       databaseReady = true;

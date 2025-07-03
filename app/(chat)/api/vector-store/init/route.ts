@@ -18,7 +18,9 @@ export async function POST(request: Request) {
   try {
     // Get or create vector store
     let vectorStoreId = process.env.OPENAI_VECTORSTORE_ID;
-    let vectorStore;
+    let vectorStore:
+      | { id?: string; status?: string; file_counts?: unknown }
+      | undefined;
 
     try {
       if (vectorStoreId) {

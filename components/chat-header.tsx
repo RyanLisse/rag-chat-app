@@ -3,12 +3,12 @@
 import { useRouter } from 'next/navigation';
 import { useWindowSize } from 'usehooks-ts';
 
+import { FileManagerDialog } from '@/components/file-manager-dialog';
 import { ModelSelector } from '@/components/model-selector';
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Button } from '@/components/ui/button';
-import { FileManagerDialog } from '@/components/file-manager-dialog';
 import type { Session } from 'next-auth';
-import { memo, useState, useEffect } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { FileIcon, PlusIcon } from './icons';
 import { useSidebar } from './ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
@@ -41,7 +41,7 @@ function PureChatHeader({
         const response = await fetch('/api/vector-store/init', {
           method: 'POST',
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.vectorStoreId) {

@@ -98,7 +98,9 @@ const PurePreviewMessage = ({
                   <MessageReasoning
                     key={key}
                     isLoading={isLoading}
-                    reasoning={(part as any).content || (part as any).text || ''} // TODO: Fix reasoning type for AI SDK 5.0
+                    reasoning={
+                      (part as any).content || (part as any).text || ''
+                    } // TODO: Fix reasoning type for AI SDK 5.0
                   />
                 );
               }
@@ -187,9 +189,7 @@ const PurePreviewMessage = ({
                           isReadonly={isReadonly}
                         />
                       ) : toolName === 'fileSearch' ? (
-                        <div className="skeleton">
-                          Searching documents...
-                        </div>
+                        <div className="skeleton">Searching documents...</div>
                       ) : null}
                     </div>
                   );

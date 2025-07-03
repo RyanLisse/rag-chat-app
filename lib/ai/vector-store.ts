@@ -42,9 +42,9 @@ export class VectorStoreClient {
       throw new Error('API key is required');
     }
     // Add dangerouslyAllowBrowser for test environments and browser usage
-    this.openai = new OpenAI({ 
+    this.openai = new OpenAI({
       apiKey,
-      dangerouslyAllowBrowser: true 
+      dangerouslyAllowBrowser: true,
     });
     this.vectorStoreId = vectorStoreId;
   }

@@ -6,7 +6,12 @@ export function useMessages({
   status,
 }: {
   chatId: string;
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix for AI SDK 5.0
 }) {
   const {
     containerRef,

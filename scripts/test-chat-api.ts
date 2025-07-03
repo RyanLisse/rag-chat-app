@@ -10,20 +10,20 @@ async function testChatAPI() {
   const authResponse = await fetch('http://localhost:3000/api/auth/guest', {
     redirect: 'follow',
   });
-  
+
   const cookies = authResponse.headers.get('set-cookie');
   if (!cookies) {
     console.error('❌ Failed to get session cookie');
     return;
   }
-  
+
   console.log('✅ Got session cookie\n');
 
   // Test the chat API
   console.log('2️⃣ Testing chat API...');
   const chatId = generateUUID();
   const messageId = generateUUID();
-  
+
   const chatRequest = {
     id: chatId,
     message: {
@@ -48,13 +48,16 @@ async function testChatAPI() {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Cookie': cookies,
+      Cookie: cookies,
     },
     body: JSON.stringify(chatRequest),
   });
 
   console.log('\nResponse status:', response.status);
-  console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+  console.log(
+    'Response headers:',
+    Object.fromEntries(response.headers.entries())
+  );
 
   if (!response.ok) {
     const text = await response.text();
@@ -63,7 +66,7 @@ async function testChatAPI() {
   }
 
   console.log('\n✅ Chat API is working!');
-  
+
   // Read the stream
   const reader = response.body?.getReader();
   if (!reader) {
@@ -73,14 +76,14 @@ async function testChatAPI() {
 
   console.log('\n3️⃣ Reading stream response...');
   const decoder = new TextDecoder();
-  
+
   while (true) {
     const { done, value } = await reader.read();
     if (done) break;
-    
+
     const chunk = decoder.decode(value);
-    const lines = chunk.split('\n').filter(line => line.trim());
-    
+    const lines = chunk.split('\n').filter((line) => line.trim());
+
     for (const line of lines) {
       if (line.startsWith('0:')) {
         console.log('Message:', line.substring(2));
