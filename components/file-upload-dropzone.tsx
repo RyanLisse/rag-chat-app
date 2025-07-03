@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
-import { Dropzone, type FileUploadProgress } from '@/components/ui/dropzone';
+import { useCallback, useRef, useState } from 'react';
 import { toast } from 'sonner';
+import { Dropzone, type FileUploadProgress } from '@/components/ui/dropzone';
 
 interface FileUploadDropzoneProps {
   onUploadComplete?: (files: any[]) => void;
@@ -21,13 +21,26 @@ export function FileUploadDropzone({
   const [isUploading, setIsUploading] = useState(false);
   const pollIntervalRef = useRef<NodeJS.Timeout>();
 
-  const updateFileProgress = (file: File, updates: Partial<FileUploadProgress>) => {
+  const updateFileProgress = (
+    file: File,
+    updates: Partial<FileUploadProgress>
+  ) => {
     setFileProgress((prev) => {
       const existing = prev.find((fp) => fp.file === file);
       if (existing) {
-        return prev.map((fp) => (fp.file === file ? { ...fp, ...updates } : fp));
+        return prev.map((fp) =>
+          fp.file === file ? { ...fp, ...updates } : fp
+        );
       }
-      return [...prev, { file, progress: 0, status: 'pending', ...updates } as FileUploadProgress];
+      return [
+        ...prev,
+        {
+          file,
+          progress: 0,
+          status: 'pending',
+          ...updates,
+        } as FileUploadProgress,
+      ];
     });
   };
 
@@ -91,7 +104,8 @@ export function FileUploadDropzone({
           onUploadComplete?.(data.files);
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Upload failed';
+        const errorMessage =
+          error instanceof Error ? error.message : 'Upload failed';
         onError?.(errorMessage);
 
         // Update all files to failed status
@@ -101,7 +115,14 @@ export function FileUploadDropzone({
         setIsUploading(false);
       }
     },
-    [maxFiles, maxFileSize, onError, onUploadComplete]
+    [
+      maxFiles,
+      maxFileSize,
+      onError,
+      onUploadComplete,
+      startPolling,
+      updateFileProgress,
+    ]
   );
 
   const startPolling = useCallback(
@@ -129,16 +150,18 @@ export function FileUploadDropzone({
           }
 
           // Update progress for all files
-          const progress = ((data.completedCount + data.failedCount) / files.length) * 100;
-          
+          const progress =
+            ((data.completedCount + data.failedCount) / files.length) * 100;
+
           files.forEach((file) => {
             updateFileProgress(file, {
               progress: Math.min(50 + progress / 2, 100), // 50-100% for processing
-              status: data.status === 'completed' 
-                ? 'completed' 
-                : data.status === 'failed' 
-                  ? 'failed' 
-                  : 'processing',
+              status:
+                data.status === 'completed'
+                  ? 'completed'
+                  : data.status === 'failed'
+                    ? 'failed'
+                    : 'processing',
             });
           });
 
@@ -170,7 +193,9 @@ export function FileUploadDropzone({
         } catch (error) {
           clearInterval(pollIntervalRef.current);
           setIsUploading(false);
-          onError?.(error instanceof Error ? error.message : 'Status check failed');
+          onError?.(
+            error instanceof Error ? error.message : 'Status check failed'
+          );
         }
       };
 
@@ -178,7 +203,7 @@ export function FileUploadDropzone({
       poll();
       pollIntervalRef.current = setInterval(poll, 2000);
     },
-    [onUploadComplete, onError]
+    [onUploadComplete, onError, updateFileProgress]
   );
 
   const handleRemoveFile = useCallback((file: File) => {

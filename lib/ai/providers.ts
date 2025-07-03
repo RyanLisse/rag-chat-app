@@ -1,6 +1,6 @@
-import { openai } from '@ai-sdk/openai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { google } from '@ai-sdk/google';
+import { openai } from '@ai-sdk/openai';
 import {
   customProvider,
   extractReasoningMiddleware,
@@ -34,14 +34,14 @@ export const myProvider = isTestEnvironment
         // OpenAI models
         'gpt-4.1': openai('gpt-4.1'),
         'o4-mini': openai('o4-mini'),
-        
+
         // Anthropic models
         'claude-4': anthropic('claude-4'),
-        
+
         // Google models
         'gemini-2.5-pro': google('gemini-2.5-pro'),
         'gemini-2.5-flash': google('gemini-2.5-flash'),
-        
+
         // Legacy model aliases for backward compatibility
         'chat-model': openai('gpt-4.1'),
         'chat-model-reasoning': wrapLanguageModel({

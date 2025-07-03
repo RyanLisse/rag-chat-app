@@ -14,6 +14,7 @@ import {
   Sparkles,
   Zap,
 } from 'lucide-react';
+import type { Session } from 'next-auth';
 import {
   startTransition,
   useCallback,
@@ -21,7 +22,6 @@ import {
   useOptimistic,
   useState,
 } from 'react';
-
 import { saveChatModelAsCookie } from '@/app/(chat)/actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,6 @@ import { Separator } from '@/components/ui/separator';
 import { entitlementsByUserType } from '@/lib/ai/entitlements';
 import { chatModels } from '@/lib/ai/models';
 import { cn } from '@/lib/utils';
-import type { Session } from 'next-auth';
 
 const providerConfig = {
   openai: {
@@ -74,7 +73,7 @@ const modelSpeedConfig = {
   'gpt-4o': 'balanced',
   'gpt-4o-2025-07-01': 'balanced',
   'claude-4': 'balanced',
-  'o1': 'thorough',
+  o1: 'thorough',
   'o1-preview': 'thorough',
   'gemini-2.5-pro': 'thorough',
 } as const;
@@ -236,7 +235,7 @@ export function ModelSelector({
         setIsChangingModel(false);
       }
     },
-    [disabled, isChangingModel, onModelChange]
+    [disabled, isChangingModel, onModelChange, setOptimisticModelId]
   );
 
   const handleKeyDown = useCallback((event: React.KeyboardEvent) => {

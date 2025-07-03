@@ -1,7 +1,7 @@
-import type { Document } from '@/lib/db/schema';
 import type { CoreAssistantMessage, CoreToolMessage, UIMessage } from 'ai';
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import type { Document } from '@/lib/db/schema';
 import { ChatSDKError, type ErrorCode } from './errors';
 
 export function cn(...inputs: ClassValue[]) {
@@ -30,10 +30,13 @@ export async function fetchWithErrorHandlers(
       try {
         const { code, cause } = await response.json();
         throw new ChatSDKError(code as ErrorCode, cause);
-      } catch (parseError) {
+      } catch (_parseError) {
         // If response is not JSON, throw a generic error
         console.error('API Error:', response.status, response.statusText);
-        throw new ChatSDKError('bad_request:api', `HTTP ${response.status}: ${response.statusText}`);
+        throw new ChatSDKError(
+          'bad_request:api',
+          `HTTP ${response.status}: ${response.statusText}`
+        );
       }
     }
 

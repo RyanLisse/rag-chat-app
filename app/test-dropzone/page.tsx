@@ -1,7 +1,7 @@
 'use client';
 
-import { FileUploadDropzone } from '@/components/file-upload-dropzone';
 import { toast } from 'sonner';
+import { FileUploadDropzone } from '@/components/file-upload-dropzone';
 
 export default function TestDropzonePage() {
   return (

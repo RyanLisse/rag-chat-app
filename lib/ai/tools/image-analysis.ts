@@ -1,10 +1,7 @@
-import { tool } from 'ai';
 import OpenAI from 'openai';
-import { z } from 'zod';
-import { generateUUID } from '@/lib/utils';
 
 // Initialize OpenAI client
-const openai = new OpenAI({
+const _openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 

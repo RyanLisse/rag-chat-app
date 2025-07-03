@@ -1,6 +1,6 @@
 import { createOpenAI } from '@ai-sdk/openai';
-import { generateText, streamText } from 'ai';
 import type { LanguageModel } from 'ai';
+import { generateText, streamText } from 'ai';
 import {
   type ChatParams,
   type ModelConfig,

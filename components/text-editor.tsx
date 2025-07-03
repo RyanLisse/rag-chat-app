@@ -4,7 +4,7 @@ import { exampleSetup } from 'prosemirror-example-setup';
 import { inputRules } from 'prosemirror-inputrules';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import React, { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
 
 import type { Suggestion } from '@/lib/db/schema';
 import {
@@ -74,7 +74,7 @@ function PureEditor({
     };
     // NOTE: we only want to run this effect once
     // eslint-disable-next-line
-  }, []);
+  }, [content]);
 
   useEffect(() => {
     if (editorRef.current) {

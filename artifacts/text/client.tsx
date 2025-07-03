@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { Artifact } from '@/components/create-artifact';
 import { DiffView } from '@/components/diffview';
 import { DocumentSkeleton } from '@/components/document-skeleton';
@@ -11,7 +12,6 @@ import {
 } from '@/components/icons';
 import { Editor } from '@/components/text-editor';
 import type { Suggestion } from '@/lib/db/schema';
-import { toast } from 'sonner';
 import { getSuggestions } from '../actions';
 
 interface TextArtifactMetadata {
@@ -79,22 +79,20 @@ export const textArtifact = new Artifact<'text', TextArtifactMetadata>({
     }
 
     return (
-      <>
-        <div className="flex flex-row px-4 py-8 md:p-20">
-          <Editor
-            content={content}
-            suggestions={metadata ? metadata.suggestions : []}
-            isCurrentVersion={isCurrentVersion}
-            currentVersionIndex={currentVersionIndex}
-            status={status}
-            onSaveContent={onSaveContent}
-          />
+      <div className="flex flex-row px-4 py-8 md:p-20">
+        <Editor
+          content={content}
+          suggestions={metadata ? metadata.suggestions : []}
+          isCurrentVersion={isCurrentVersion}
+          currentVersionIndex={currentVersionIndex}
+          status={status}
+          onSaveContent={onSaveContent}
+        />
 
-          {metadata?.suggestions && metadata.suggestions.length > 0 ? (
-            <div className="h-dvh w-12 shrink-0 md:hidden" />
-          ) : null}
-        </div>
-      </>
+        {metadata?.suggestions && metadata.suggestions.length > 0 ? (
+          <div className="h-dvh w-12 shrink-0 md:hidden" />
+        ) : null}
+      </div>
     );
   },
   actions: [

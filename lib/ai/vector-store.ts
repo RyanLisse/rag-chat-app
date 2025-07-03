@@ -42,9 +42,9 @@ export class VectorStoreClient {
       throw new Error('API key is required');
     }
     // Add dangerouslyAllowBrowser for test environments and browser usage
-    this.openai = new OpenAI({ 
+    this.openai = new OpenAI({
       apiKey,
-      dangerouslyAllowBrowser: true 
+      dangerouslyAllowBrowser: true,
     });
     this.vectorStoreId = vectorStoreId;
   }
@@ -58,7 +58,7 @@ export class VectorStoreClient {
         // Verify the vector store exists
         await this.openai.vectorStores.retrieve(this.vectorStoreId);
         return this.vectorStoreId;
-      } catch (error) {
+      } catch (_error) {
         console.log('Vector store not found, creating new one');
       }
     }
@@ -91,7 +91,7 @@ export class VectorStoreClient {
       });
 
       // Add file to vector store
-      const vectorFile = await this.openai.vectorStores.files.create(
+      const _vectorFile = await this.openai.vectorStores.files.create(
         vectorStoreId,
         {
           file_id: uploadedFile.id,
@@ -231,7 +231,7 @@ export class VectorStoreClient {
                   : 'processing',
             createdAt: new Date(file.created_at * 1000),
           };
-        } catch (error) {
+        } catch (_error) {
           return {
             id: fileId,
             filename: fileId,

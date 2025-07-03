@@ -1,9 +1,9 @@
+import { ArrowRight, MessageSquare } from 'lucide-react';
+import Link from 'next/link';
 import { ChatExamples } from '@/components/chat-examples';
 import { ChatFeatures } from '@/components/chat-features';
-import { VectorStoreExample } from '@/components/vector-store-example';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { ArrowRight, MessageSquare } from 'lucide-react';
+import { VectorStoreExample } from '@/components/vector-store-example';
 
 export default function ExamplesPage() {
   return (
@@ -51,7 +51,10 @@ export default function ExamplesPage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <section
+        id="features"
+        className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8"
+      >
         <ChatFeatures />
       </section>
 
@@ -60,7 +63,8 @@ export default function ExamplesPage() {
         <div className="mx-auto max-w-7xl px-4 py-16 text-center sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold">Ready to Get Started?</h2>
           <p className="mt-4 text-lg text-muted-foreground">
-            Upload your documents and start asking questions with AI-powered retrieval.
+            Upload your documents and start asking questions with AI-powered
+            retrieval.
           </p>
           <Button size="lg" className="mt-8" asChild>
             <Link href="/">

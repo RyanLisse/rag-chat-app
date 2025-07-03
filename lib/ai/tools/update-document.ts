@@ -1,8 +1,4 @@
-import { documentHandlersByArtifactKind } from '@/lib/artifacts/server';
-import { getDocumentById } from '@/lib/db/queries';
-import { tool } from 'ai';
 import type { Session } from 'next-auth';
-import { z } from 'zod';
 
 interface UpdateDocumentProps {
   session: Session;
@@ -10,6 +6,6 @@ interface UpdateDocumentProps {
 }
 
 // TODO: Reimplement updateDocument for AI SDK 5.0
-// Tool execution signature has changed  
+// Tool execution signature has changed
 export const updateDocument = ({ session, dataStream }: UpdateDocumentProps) =>
   undefined;

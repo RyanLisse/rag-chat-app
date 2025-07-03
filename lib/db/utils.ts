@@ -1,4 +1,3 @@
-import { generateId } from 'ai';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 
 export function generateHashedPassword(password: string) {

@@ -1,11 +1,9 @@
 /**
  * Mock Infrastructure Validation Script
- * 
+ *
  * This script validates that the mock system is working correctly
  * and can identify potential conflicts before running tests.
  */
-
-import { vi } from 'vitest';
 
 // Mock validation results
 interface MockValidationResult {
@@ -30,7 +28,12 @@ const expectedMockStructures = {
     mustHaveConstructor: false,
   },
   'ai-sdk': {
-    expectedMethods: ['streamObject', 'streamText', 'convertToCoreMessages', 'tool'],
+    expectedMethods: [
+      'streamObject',
+      'streamText',
+      'convertToCoreMessages',
+      'tool',
+    ],
     mustHaveConstructor: false,
   },
   'vector-store': {
@@ -42,7 +45,12 @@ const expectedMockStructures = {
     mustHaveConstructor: false,
   },
   'provider-utils': {
-    expectedMethods: ['validateApiKey', 'retryWithBackoff', 'measureExecutionTime', 'CircuitBreaker'],
+    expectedMethods: [
+      'validateApiKey',
+      'retryWithBackoff',
+      'measureExecutionTime',
+      'CircuitBreaker',
+    ],
     mustHaveConstructor: false,
   },
 };
@@ -50,7 +58,10 @@ const expectedMockStructures = {
 /**
  * Validate a single mock structure
  */
-function validateMockStructure(mockName: string, mock: any): MockValidationResult {
+function validateMockStructure(
+  mockName: string,
+  mock: any
+): MockValidationResult {
   const result: MockValidationResult = {
     mockName,
     isValid: false,
@@ -62,7 +73,8 @@ function validateMockStructure(mockName: string, mock: any): MockValidationResul
       return result;
     }
 
-    const expectedStructure = expectedMockStructures[mockName as keyof typeof expectedMockStructures];
+    const expectedStructure =
+      expectedMockStructures[mockName as keyof typeof expectedMockStructures];
     if (!expectedStructure) {
       result.error = 'No expected structure defined for this mock';
       return result;
@@ -114,7 +126,13 @@ function validateMockStructure(mockName: string, mock: any): MockValidationResul
 
       try {
         const client = new mock.VectorStoreClient('test-key');
-        const expectedClientMethods = ['ensureVectorStore', 'uploadFile', 'uploadFiles', 'checkBatchStatus', 'checkFileStatus'];
+        const expectedClientMethods = [
+          'ensureVectorStore',
+          'uploadFile',
+          'uploadFiles',
+          'checkBatchStatus',
+          'checkFileStatus',
+        ];
         for (const method of expectedClientMethods) {
           if (!(method in client)) {
             result.error = `VectorStoreClient missing expected method: ${method}`;
@@ -154,11 +172,13 @@ export async function validateMockInfrastructure(): Promise<{
   } catch (error) {
     return {
       allValid: false,
-      results: [{
-        mockName: 'mock-registry',
-        isValid: false,
-        error: `Failed to import mock registry: ${error}`,
-      }],
+      results: [
+        {
+          mockName: 'mock-registry',
+          isValid: false,
+          error: `Failed to import mock registry: ${error}`,
+        },
+      ],
       summary: 'Critical error: Cannot import mock infrastructure',
     };
   }
@@ -168,7 +188,7 @@ export async function validateMockInfrastructure(): Promise<{
     const mock = mockRegistry.get(mockName);
     const result = validateMockStructure(mockName, mock);
     results.push(result);
-    
+
     if (result.isValid) {
       validCount++;
     }
@@ -187,37 +207,39 @@ export async function validateMockInfrastructure(): Promise<{
 /**
  * Generate validation report
  */
-export function generateValidationReport(validationResult: Awaited<ReturnType<typeof validateMockInfrastructure>>): string {
+export function generateValidationReport(
+  validationResult: Awaited<ReturnType<typeof validateMockInfrastructure>>
+): string {
   const { allValid, results, summary } = validationResult;
-  
-  let report = `Mock Infrastructure Validation Report\n`;
-  report += `==========================================\n\n`;
+
+  let report = 'Mock Infrastructure Validation Report\n';
+  report += '==========================================\n\n';
   report += `${summary}\n`;
   report += `Overall Status: ${allValid ? '✅ PASS' : '❌ FAIL'}\n\n`;
 
   for (const result of results) {
     report += `Mock: ${result.mockName}\n`;
     report += `Status: ${result.isValid ? '✅ Valid' : '❌ Invalid'}\n`;
-    
+
     if (result.error) {
       report += `Error: ${result.error}\n`;
     }
-    
+
     if (result.structure) {
       report += `Properties: ${result.structure.properties.join(', ')}\n`;
       report += `Method Count: ${result.structure.methodCount}\n`;
       report += `Has Expected Methods: ${result.structure.hasExpectedMethods ? '✅' : '❌'}\n`;
     }
-    
+
     report += '\n';
   }
 
   if (!allValid) {
-    report += `\n🔧 Recommendations:\n`;
-    report += `- Check that all global mocks are properly defined\n`;
-    report += `- Ensure mock factory functions return expected structures\n`;
-    report += `- Verify no hoisting issues with vi.mock() calls\n`;
-    report += `- Run tests with --reporter=verbose for detailed errors\n`;
+    report += '\n🔧 Recommendations:\n';
+    report += '- Check that all global mocks are properly defined\n';
+    report += '- Ensure mock factory functions return expected structures\n';
+    report += '- Verify no hoisting issues with vi.mock() calls\n';
+    report += '- Run tests with --reporter=verbose for detailed errors\n';
   }
 
   return report;

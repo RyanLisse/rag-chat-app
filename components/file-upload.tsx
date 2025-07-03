@@ -1,8 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { cn } from '@/lib/utils';
 import {
   AlertCircle,
   CheckCircle,
@@ -12,6 +9,9 @@ import {
   X,
 } from 'lucide-react';
 import { useCallback, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { cn } from '@/lib/utils';
 
 interface FileUploadStatus {
   id: string;
@@ -123,7 +123,7 @@ export function FileUpload({
         setIsUploading(false);
       }
     },
-    [maxFiles, maxFileSize, onError]
+    [maxFiles, maxFileSize, onError, startPolling]
   );
 
   const startPolling = useCallback(

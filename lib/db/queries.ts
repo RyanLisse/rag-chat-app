@@ -1,7 +1,6 @@
 import 'server-only';
 
 import {
-  type SQL,
   and,
   asc,
   count,
@@ -11,23 +10,23 @@ import {
   gte,
   inArray,
   lt,
+  type SQL,
 } from 'drizzle-orm';
-import { db } from './connection';
-
 import type { ArtifactKind } from '@/components/artifact';
 import type { VisibilityType } from '@/components/visibility-selector';
 import { ChatSDKError } from '../errors';
 import { generateUUID } from '../utils';
+import { db } from './connection';
 import {
-  stream,
   type Chat,
-  type DBMessage,
-  type Suggestion,
-  type User,
   chat,
+  type DBMessage,
   document,
   message,
+  type Suggestion,
+  stream,
   suggestion,
+  type User,
   user,
   vote,
 } from './schema';
@@ -205,11 +204,7 @@ export async function getChatById({ id }: { id: string }) {
   }
 }
 
-export async function saveMessages({
-  messages,
-}: {
-  messages: DBMessage[];
-}) {
+export async function saveMessages({ messages }: { messages: DBMessage[] }) {
   try {
     return await db.insert(message).values(messages);
   } catch (_error) {
@@ -469,7 +464,10 @@ export async function updateChatVisiblityById({
 export async function getMessageCountByUserId({
   id,
   differenceInHours,
-}: { id: string; differenceInHours: number }) {
+}: {
+  id: string;
+  differenceInHours: number;
+}) {
   try {
     const twentyFourHoursAgo = new Date(
       Date.now() - differenceInHours * 60 * 60 * 1000

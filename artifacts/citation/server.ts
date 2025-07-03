@@ -1,8 +1,8 @@
-import { myProvider } from '@/lib/ai/providers';
-import type { Citation, CitationSource } from '@/lib/types/citation';
 // TODO: Find correct type for DataStreamWriter in AI SDK 5.0
 import { convertToCoreMessages, streamObject, streamText } from 'ai';
 import { z } from 'zod';
+import { myProvider } from '@/lib/ai/providers';
+import type { Citation, CitationSource } from '@/lib/types/citation';
 
 const citationExtractionSchema = z.object({
   citations: z.array(
@@ -75,8 +75,9 @@ Instructions:
       }
 
       if (delta.object.sources) {
-        const validSources = delta.object.sources.filter((source): source is CitationSource => 
-          source !== undefined && source !== null
+        const validSources = delta.object.sources.filter(
+          (source): source is CitationSource =>
+            source !== undefined && source !== null
         );
         sources.push(...validSources);
         dataStream.writeData({

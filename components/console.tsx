@@ -1,5 +1,3 @@
-import { useArtifactSelector } from '@/hooks/use-artifact';
-import { cn } from '@/lib/utils';
 import {
   type Dispatch,
   type SetStateAction,
@@ -8,6 +6,8 @@ import {
   useRef,
   useState,
 } from 'react';
+import { useArtifactSelector } from '@/hooks/use-artifact';
+import { cn } from '@/lib/utils';
 import { CrossSmallIcon, LoaderIcon, TerminalWindowIcon } from './icons';
 import { Button } from './ui/button';
 
@@ -68,7 +68,7 @@ export function Console({ consoleOutputs, setConsoleOutputs }: ConsoleProps) {
 
   useEffect(() => {
     consoleEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [consoleOutputs]);
+  }, []);
 
   useEffect(() => {
     if (!isArtifactVisible) {

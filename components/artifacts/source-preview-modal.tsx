@@ -1,10 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import type { Citation, CitationSource } from '@/lib/types/citation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   CalendarIcon,
@@ -21,6 +16,11 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import type { Citation, CitationSource } from '@/lib/types/citation';
 
 interface SourcePreviewModalProps {
   source: CitationSource;
@@ -33,8 +33,8 @@ export function SourcePreviewModal({
   citations,
   onClose,
 }: SourcePreviewModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [_isLoading, _setIsLoading] = useState(false);
+  const [_previewContent, _setPreviewContent] = useState<string | null>(null);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {

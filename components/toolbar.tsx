@@ -1,10 +1,6 @@
 'use client';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+
+import type { UIMessage } from 'ai';
 import cx from 'classnames';
 import {
   AnimatePresence,
@@ -15,16 +11,20 @@ import {
 import { nanoid } from 'nanoid';
 import {
   type Dispatch,
+  memo,
   type ReactNode,
   type SetStateAction,
-  memo,
   useEffect,
   useRef,
   useState,
 } from 'react';
 import { useOnClickOutside } from 'usehooks-ts';
-
-import type { UIMessage } from 'ai';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { type ArtifactKind, artifactDefinitions } from './artifact';
 import type { ArtifactToolbarItem } from './create-artifact';
 import { ArrowUpIcon, StopIcon, SummarizeIcon } from './icons';
@@ -217,7 +217,12 @@ const ReadingLevelSelector = ({
                   append({
                     id: `reading-level-${Date.now()}`,
                     role: 'user',
-                    parts: [{ type: 'text', text: `Please adjust the reading level to ${LEVELS[currentLevel]} level.` }], // Updated for AI SDK 5.0
+                    parts: [
+                      {
+                        type: 'text',
+                        text: `Please adjust the reading level to ${LEVELS[currentLevel]} level.`,
+                      },
+                    ], // Updated for AI SDK 5.0
                   });
 
                   setSelectedTool(null);
@@ -308,7 +313,12 @@ const PureToolbar = ({
 }: {
   isToolbarVisible: boolean;
   setIsToolbarVisible: Dispatch<SetStateAction<boolean>>;
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix for AI SDK 5.0
   append: (message: UIMessage) => void; // TODO: Fix for AI SDK 5.0
   stop: () => void; // TODO: Fix for AI SDK 5.0
   setMessages: (messages: UIMessage[]) => void; // TODO: Fix for AI SDK 5.0

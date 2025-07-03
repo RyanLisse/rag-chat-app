@@ -1,7 +1,7 @@
-import { cn } from '@/lib/utils';
-import { type Dispatch, type SetStateAction, memo, useState } from 'react';
+import { type Dispatch, memo, type SetStateAction, useState } from 'react';
 import { toast } from 'sonner';
-import { type UIArtifact, artifactDefinitions } from './artifact';
+import { cn } from '@/lib/utils';
+import { artifactDefinitions, type UIArtifact } from './artifact';
 import type { ArtifactActionContext } from './create-artifact';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';

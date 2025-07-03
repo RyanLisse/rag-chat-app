@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { CodeEditor } from '@/components/code-editor';
 import {
   Console,
@@ -14,7 +15,6 @@ import {
   UndoIcon,
 } from '@/components/icons';
 import { generateUUID } from '@/lib/utils';
-import { toast } from 'sonner';
 
 const OUTPUT_HANDLERS = {
   matplotlib: `

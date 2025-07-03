@@ -1,7 +1,7 @@
-import { useChatVisibility } from '@/hooks/use-chat-visibility';
-import type { Chat } from '@/lib/db/schema';
 import Link from 'next/link';
 import { memo } from 'react';
+import { useChatVisibility } from '@/hooks/use-chat-visibility';
+import type { Chat } from '@/lib/db/schema';
 import {
   CheckCircleFillIcon,
   GlobeIcon,

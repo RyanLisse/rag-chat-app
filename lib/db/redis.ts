@@ -10,11 +10,11 @@ async function initRedis() {
       redisClient = createClient({
         url: process.env.REDIS_URL,
       });
-      
+
       redisClient.on('error', (err) => {
         console.error('Redis Client Error:', err);
       });
-      
+
       await redisClient.connect();
       console.log('Redis connected successfully');
       return redisClient;
@@ -37,8 +37,13 @@ export const redis = {
     const result = await client.get(key);
     return typeof result === 'string' ? result : null;
   },
-  
-  async set(key: string, value: string, mode?: 'EX', duration?: number): Promise<void> {
+
+  async set(
+    key: string,
+    value: string,
+    mode?: 'EX',
+    duration?: number
+  ): Promise<void> {
     const client = await redisPromise;
     if (!client) return;
     if (mode === 'EX' && duration) {
@@ -47,25 +52,25 @@ export const redis = {
       await client.set(key, value);
     }
   },
-  
+
   async lrange(key: string, start: number, stop: number): Promise<string[]> {
     const client = await redisPromise;
     if (!client) return [];
     return client.lRange(key, start, stop);
   },
-  
+
   async lpush(key: string, ...values: string[]): Promise<number> {
     const client = await redisPromise;
     if (!client) return 0;
     return client.lPush(key, values);
   },
-  
+
   async ltrim(key: string, start: number, stop: number): Promise<void> {
     const client = await redisPromise;
     if (!client) return;
     await client.lTrim(key, start, stop);
   },
-  
+
   async expire(key: string, seconds: number): Promise<void> {
     const client = await redisPromise;
     if (!client) return;

@@ -1,9 +1,9 @@
-import { DUMMY_PASSWORD } from '@/lib/constants';
-import { createGuestUser, getUser } from '@/lib/db/queries';
 import { compare } from 'bcrypt-ts';
 import NextAuth, { type DefaultSession } from 'next-auth';
 import type { DefaultJWT } from 'next-auth/jwt';
 import Credentials from 'next-auth/providers/credentials';
+import { DUMMY_PASSWORD } from '@/lib/constants';
+import { createGuestUser, getUser } from '@/lib/db/queries';
 import { authConfig } from './auth.config';
 
 export type UserType = 'guest' | 'regular';
@@ -40,7 +40,12 @@ export const {
   providers: [
     Credentials({
       credentials: {},
-      async authorize({ email, password }: any) {
+      async authorize(credentials: { email: string; password: string } | null) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        const { email, password } = credentials;
         const users = await getUser(email);
 
         if (users.length === 0) {
@@ -74,7 +79,7 @@ export const {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    jwt({ token, user }) {
       if (user) {
         token.id = user.id as string;
         token.type = user.type;
@@ -82,7 +87,7 @@ export const {
 
       return token;
     },
-    async session({ session, token }) {
+    session({ session, token }) {
       if (session.user && token) {
         session.user.id = token.id as string;
         session.user.type = token.type as UserType;

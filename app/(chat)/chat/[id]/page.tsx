@@ -1,14 +1,13 @@
+import type { FilePart } from '@ai-sdk/provider-utils';
+import type { UIMessage } from 'ai';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-
 import { auth } from '@/app/(auth)/auth';
 import { Chat } from '@/components/chat';
 import { DataStreamHandler } from '@/components/data-stream-handler';
-import { DEFAULT_CHAT_MODEL, chatModels } from '@/lib/ai/models';
+import { chatModels, DEFAULT_CHAT_MODEL } from '@/lib/ai/models';
 import { getChatById, getMessagesByChatId } from '@/lib/db/queries';
 import type { DBMessage } from '@/lib/db/schema';
-import type { UIMessage } from 'ai';
-import type { FilePart } from '@ai-sdk/provider-utils';
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -53,11 +52,13 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   const cookieStore = await cookies();
   const chatModelFromCookie = cookieStore.get('chat-model');
-  
+
   // Validate that the model from cookie exists, otherwise use default
   let initialChatModel = DEFAULT_CHAT_MODEL;
   if (chatModelFromCookie) {
-    const modelExists = chatModels.some(model => model.id === chatModelFromCookie.value);
+    const modelExists = chatModels.some(
+      (model) => model.id === chatModelFromCookie.value
+    );
     if (modelExists) {
       initialChatModel = chatModelFromCookie.value;
     }

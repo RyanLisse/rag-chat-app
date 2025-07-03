@@ -1,8 +1,14 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Brain, Code, FileSearch, Globe, Shield, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Brain, Zap, Shield, Globe, FileSearch, Code } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export function ChatFeatures() {
   const features = [
@@ -21,7 +27,7 @@ export function ChatFeatures() {
     {
       icon: <Zap className="h-5 w-5" />,
       title: 'Real-time Streaming',
-      description: 'See responses as they\'re generated with smooth streaming',
+      description: "See responses as they're generated with smooth streaming",
       badge: 'Performance',
     },
     {
@@ -52,7 +58,7 @@ export function ChatFeatures() {
           Everything you need for production-ready AI conversations
         </p>
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {features.map((feature, index) => (
           <Card key={index} className="relative overflow-hidden">

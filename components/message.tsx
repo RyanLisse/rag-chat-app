@@ -1,13 +1,12 @@
 'use client';
 
-import type { Vote } from '@/lib/db/schema';
-import { cn, sanitizeText } from '@/lib/utils';
-import type { UseChatHelpers } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import cx from 'classnames';
 import equal from 'fast-deep-equal';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState } from 'react';
+import type { Vote } from '@/lib/db/schema';
+import { cn, sanitizeText } from '@/lib/utils';
 import { CitationDisplay } from './citation-display';
 import { DocumentToolCall, DocumentToolResult } from './document';
 import { DocumentPreview } from './document-preview';
@@ -16,7 +15,6 @@ import { Markdown } from './markdown';
 import { MessageActions } from './message-actions';
 import { MessageEditor } from './message-editor';
 import { MessageReasoning } from './message-reasoning';
-import { PreviewAttachment } from './preview-attachment';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { Weather } from './weather';
@@ -98,7 +96,9 @@ const PurePreviewMessage = ({
                   <MessageReasoning
                     key={key}
                     isLoading={isLoading}
-                    reasoning={(part as any).content || (part as any).text || ''} // TODO: Fix reasoning type for AI SDK 5.0
+                    reasoning={
+                      (part as any).content || (part as any).text || ''
+                    } // TODO: Fix reasoning type for AI SDK 5.0
                   />
                 );
               }
@@ -187,9 +187,7 @@ const PurePreviewMessage = ({
                           isReadonly={isReadonly}
                         />
                       ) : toolName === 'fileSearch' ? (
-                        <div className="skeleton">
-                          Searching documents...
-                        </div>
+                        <div className="skeleton">Searching documents...</div>
                       ) : null}
                     </div>
                   );

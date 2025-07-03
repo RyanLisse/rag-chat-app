@@ -1,12 +1,12 @@
 'use client';
 
-import type { Suggestion } from '@/lib/db/schema';
 import { python } from '@codemirror/lang-python';
 import { EditorState, Transaction } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView } from '@codemirror/view';
 import { basicSetup } from 'codemirror';
-import React, { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from 'react';
+import type { Suggestion } from '@/lib/db/schema';
 
 type EditorProps = {
   content: string;
@@ -42,7 +42,7 @@ function PureCodeEditor({ content, onSaveContent, status }: EditorProps) {
     };
     // NOTE: we only want to run this effect once
     // eslint-disable-next-line
-  }, []);
+  }, [content]);
 
   useEffect(() => {
     if (editorRef.current) {

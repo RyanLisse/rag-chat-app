@@ -1,7 +1,5 @@
 'use client';
 
-import { deleteTrailingMessages } from '@/app/(chat)/actions';
-import type { UseChatHelpers } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import {
   type Dispatch,
@@ -10,6 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
+import { deleteTrailingMessages } from '@/app/(chat)/actions';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 
@@ -29,7 +28,7 @@ export function MessageEditor({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [draftContent, setDraftContent] = useState<string>(
-    message.parts?.find(part => part.type === 'text')?.text || '' // Extract text from parts for AI SDK 5.0
+    message.parts?.find((part) => part.type === 'text')?.text || '' // Extract text from parts for AI SDK 5.0
   );
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -37,7 +36,7 @@ export function MessageEditor({
     if (textareaRef.current) {
       adjustHeight();
     }
-  }, []);
+  }, [adjustHeight]);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -85,7 +84,9 @@ export function MessageEditor({
 
             // @ts-expect-error todo: support UIMessage in setMessages
             setMessages((messages: UIMessage[]) => {
-              const index = messages.findIndex((m: UIMessage) => m.id === message.id);
+              const index = messages.findIndex(
+                (m: UIMessage) => m.id === message.id
+              );
 
               if (index !== -1) {
                 const updatedMessage = {

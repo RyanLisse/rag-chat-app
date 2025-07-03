@@ -1,6 +1,6 @@
 /**
  * Vector Store Configuration and Optimization Settings
- * 
+ *
  * This configuration ensures that the vector store is always queried
  * on every request for optimal RAG functionality.
  */
@@ -8,13 +8,13 @@
 export const VECTOR_STORE_CONFIG = {
   // Enforce vector search on every request
   enforceSearch: true,
-  
+
   // Always search first before any other action
   searchPriority: 'immediate' as const,
-  
+
   // Minimum confidence threshold (0 = always search)
   minConfidenceThreshold: 0,
-  
+
   // Search strategy
   searchStrategy: {
     // Always use the user's query
@@ -26,7 +26,7 @@ export const VECTOR_STORE_CONFIG = {
     // Timeout for each search (ms)
     searchTimeout: 10000,
   },
-  
+
   // Result handling
   resultHandling: {
     // Always create citation artifacts
@@ -36,7 +36,7 @@ export const VECTOR_STORE_CONFIG = {
     // Include all results regardless of relevance
     includeAllResults: true,
   },
-  
+
   // Logging and monitoring
   monitoring: {
     // Log every search request
@@ -46,12 +46,12 @@ export const VECTOR_STORE_CONFIG = {
     // Alert on search failures
     alertOnFailure: true,
   },
-  
+
   // System prompts to enforce search
   prompts: {
-    enforceSearch: "You MUST call fileSearch immediately before any response.",
-    searchFirst: "Search the vector store FIRST, then formulate your response.",
-    citeSources: "Always cite sources from the vector store when available.",
+    enforceSearch: 'You MUST call fileSearch immediately before any response.',
+    searchFirst: 'Search the vector store FIRST, then formulate your response.',
+    citeSources: 'Always cite sources from the vector store when available.',
   },
 };
 

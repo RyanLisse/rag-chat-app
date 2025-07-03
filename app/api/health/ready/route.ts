@@ -1,5 +1,5 @@
-import { logger } from '@/lib/monitoring';
 import { NextResponse } from 'next/server';
+import { logger } from '@/lib/monitoring';
 
 interface ReadinessStatus {
   ready: boolean;

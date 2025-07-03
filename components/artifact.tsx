@@ -1,3 +1,18 @@
+import type { UIMessage } from 'ai';
+// TODO: Find correct Attachment type in AI SDK 5.0
+import { formatDistance } from 'date-fns';
+import equal from 'fast-deep-equal';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  type Dispatch,
+  memo,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react';
+import useSWR, { useSWRConfig } from 'swr';
+import { useDebounceCallback, useWindowSize } from 'usehooks-ts';
 import { citationArtifact } from '@/artifacts/citation/client';
 import { codeArtifact } from '@/artifacts/code/client';
 import { imageArtifact } from '@/artifacts/image/client';
@@ -6,22 +21,6 @@ import { textArtifact } from '@/artifacts/text/client';
 import { useArtifact } from '@/hooks/use-artifact';
 import type { Document, Vote } from '@/lib/db/schema';
 import { fetcher } from '@/lib/utils';
-import type { UseChatHelpers } from '@ai-sdk/react';
-import type { UIMessage } from 'ai';
-// TODO: Find correct Attachment type in AI SDK 5.0
-import { formatDistance } from 'date-fns';
-import equal from 'fast-deep-equal';
-import { AnimatePresence, motion } from 'framer-motion';
-import {
-  type Dispatch,
-  type SetStateAction,
-  memo,
-  useCallback,
-  useEffect,
-  useState,
-} from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import { useDebounceCallback, useWindowSize } from 'usehooks-ts';
 import { ArtifactActions } from './artifact-actions';
 import { ArtifactCloseButton } from './artifact-close-button';
 import { ArtifactMessages } from './artifact-messages';
@@ -75,7 +74,12 @@ function PureArtifact({
   chatId: string;
   input: string;
   setInput: (input: string) => void; // TODO: Fix type for AI SDK 5.0
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix type for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix type for AI SDK 5.0
   stop: () => void;
   attachments: any[]; // TODO: Fix Attachment type for AI SDK 5.0
   setAttachments: Dispatch<SetStateAction<any[]>>;
@@ -124,7 +128,7 @@ function PureArtifact({
 
   useEffect(() => {
     mutateDocuments();
-  }, [artifact.status, mutateDocuments]);
+  }, [mutateDocuments]);
 
   const { mutate } = useSWRConfig();
   const [isContentDirty, setIsContentDirty] = useState(false);

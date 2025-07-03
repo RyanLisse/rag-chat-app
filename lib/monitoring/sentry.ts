@@ -9,20 +9,24 @@ export function initializeSentry() {
 
 // Helper to capture exceptions with additional context
 export function captureException(error: Error, context?: Record<string, any>) {
-  logger.error('Exception captured (Sentry disabled)', { 
-    error: error.message, 
+  logger.error('Exception captured (Sentry disabled)', {
+    error: error.message,
     stack: error.stack,
-    context 
+    context,
   });
 }
 
 // Helper to capture messages
 export function captureMessage(
   message: string,
-  level: string = 'info',
+  level = 'info',
   context?: Record<string, any>
 ) {
-  logger.info('Message captured (Sentry disabled)', { message, level, ...context });
+  logger.info('Message captured (Sentry disabled)', {
+    message,
+    level,
+    ...context,
+  });
 }
 
 // Helper to set user context
@@ -42,7 +46,10 @@ export function addBreadcrumb(breadcrumb: any) {
 // Helper to measure transactions
 export function startTransaction(name: string, op: string) {
   logger.info('Transaction started (Sentry disabled)', { name, op });
-  return { finish: () => logger.info('Transaction finished (Sentry disabled)', { name, op }) };
+  return {
+    finish: () =>
+      logger.info('Transaction finished (Sentry disabled)', { name, op }),
+  };
 }
 
 // RAG-specific error tracking

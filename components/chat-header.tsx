@@ -1,14 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import type { Session } from 'next-auth';
+import { memo, useEffect, useState } from 'react';
 import { useWindowSize } from 'usehooks-ts';
-
+import { FileManagerDialog } from '@/components/file-manager-dialog';
 import { ModelSelector } from '@/components/model-selector';
 import { SidebarToggle } from '@/components/sidebar-toggle';
 import { Button } from '@/components/ui/button';
-import { FileManagerDialog } from '@/components/file-manager-dialog';
-import type { Session } from 'next-auth';
-import { memo, useState, useEffect } from 'react';
 import { FileIcon, PlusIcon } from './icons';
 import { useSidebar } from './ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
@@ -41,7 +40,7 @@ function PureChatHeader({
         const response = await fetch('/api/vector-store/init', {
           method: 'POST',
         });
-        
+
         if (response.ok) {
           const data = await response.json();
           if (data.vectorStoreId) {
@@ -56,7 +55,7 @@ function PureChatHeader({
     if (!vectorStoreId) {
       initVectorStore();
     }
-  }, []);
+  }, [vectorStoreId]);
 
   return (
     <header className="sticky top-0 z-10 flex items-center gap-1 sm:gap-2 bg-background px-2 py-1 sm:py-1.5 md:px-2 border-b">

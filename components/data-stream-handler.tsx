@@ -1,9 +1,9 @@
 'use client';
 
-import { initialArtifactData, useArtifact } from '@/hooks/use-artifact';
-import type { Suggestion } from '@/lib/db/schema';
 import { useChat } from '@ai-sdk/react';
 import { useEffect, useRef } from 'react';
+import { initialArtifactData, useArtifact } from '@/hooks/use-artifact';
+import type { Suggestion } from '@/lib/db/schema';
 import { type ArtifactKind, artifactDefinitions } from './artifact';
 
 export type DataStreamDelta = {
@@ -25,7 +25,7 @@ export type DataStreamDelta = {
 };
 
 export function DataStreamHandler({ id }: { id: string }) {
-  const { /* data: dataStream */ } = useChat({ id });
+  const {/* data: dataStream */} = useChat({ id });
   const dataStream: any[] = []; // TODO: Fix data stream for AI SDK 5.0
   const { artifact, setArtifact, setMetadata } = useArtifact();
   const lastProcessedIndex = useRef(-1);
@@ -96,7 +96,7 @@ export function DataStreamHandler({ id }: { id: string }) {
         }
       });
     });
-  }, [dataStream, setArtifact, setMetadata, artifact]);
+  }, [setArtifact, setMetadata, artifact]);
 
   return null;
 }

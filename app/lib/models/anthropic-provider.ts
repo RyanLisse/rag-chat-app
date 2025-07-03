@@ -1,7 +1,6 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
-import { generateText, streamText, tool } from 'ai';
 import type { LanguageModel } from 'ai';
-import { z } from 'zod';
+import { generateText, streamText } from 'ai';
 import {
   type ChatParams,
   type ModelConfig,
@@ -151,12 +150,13 @@ export class AnthropicProvider implements ModelProvider {
   private formatMessages(messages: ChatParams['messages']) {
     // Anthropic requires alternating user/assistant messages
     // and system messages must be at the beginning
-    
+
     // Filter out any function messages as they're not supported in AI SDK 5.0
-    const filteredMessages = messages.filter(msg => 
-      msg.role === 'system' || msg.role === 'user' || msg.role === 'assistant'
+    const filteredMessages = messages.filter(
+      (msg) =>
+        msg.role === 'system' || msg.role === 'user' || msg.role === 'assistant'
     );
-    
+
     const formattedMessages = [...filteredMessages];
 
     // Ensure we don't have consecutive messages of the same role

@@ -11,11 +11,13 @@ const tursoAuthToken = process.env.TURSO_AUTH_TOKEN;
 
 // Determine which database we're using
 const isPostgres = databaseUrl?.startsWith('postgres');
-const isSQLite = databaseUrl?.startsWith('file:');
+const _isSQLite = databaseUrl?.startsWith('file:');
 const isTurso = !!tursoUrl;
 
 if (!databaseUrl && !tursoUrl) {
-  throw new Error('DATABASE_URL, POSTGRES_URL, or TURSO_DATABASE_URL must be defined');
+  throw new Error(
+    'DATABASE_URL, POSTGRES_URL, or TURSO_DATABASE_URL must be defined'
+  );
 }
 
 // Use different config based on database type
@@ -30,7 +32,7 @@ const configs = {
     schema: './lib/db/schema.ts',
     out: './lib/db/migrations',
     dialect: 'sqlite' as const,
-    dbCredentials: { url: databaseUrl!.replace('file:', '') },
+    dbCredentials: { url: databaseUrl?.replace('file:', '') },
   },
   turso: {
     schema: './lib/db/turso-schema.ts',
@@ -43,6 +45,10 @@ const configs = {
   },
 };
 
-const activeConfig = isTurso ? configs.turso : (isPostgres ? configs.postgres : configs.sqlite);
+const activeConfig = isTurso
+  ? configs.turso
+  : isPostgres
+    ? configs.postgres
+    : configs.sqlite;
 
 export default defineConfig(activeConfig);

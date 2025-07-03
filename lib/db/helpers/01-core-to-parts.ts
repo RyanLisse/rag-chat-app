@@ -1,12 +1,12 @@
-import { type UIMessage } from 'ai';
+import type { UIMessage } from 'ai';
 // TODO: appendResponseMessages removed in AI SDK 5.0 - need alternative
 import { config } from 'dotenv';
 import { inArray } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import {
-  type MessageDeprecated,
   chat,
+  type MessageDeprecated,
   message,
   messageDeprecated,
   vote,
@@ -73,7 +73,7 @@ function getMessageRank(message: MessageDeprecated): number {
   return 3;
 }
 
-function dedupeParts<T extends { type: string; [k: string]: any }>(
+function _dedupeParts<T extends { type: string; [k: string]: any }>(
   parts: T[]
 ): T[] {
   const seen = new Set<string>();
@@ -87,7 +87,7 @@ function dedupeParts<T extends { type: string; [k: string]: any }>(
   });
 }
 
-function sanitizeParts<T extends { type: string; [k: string]: any }>(
+function _sanitizeParts<T extends { type: string; [k: string]: any }>(
   parts: T[]
 ): T[] {
   return parts.filter(
@@ -133,7 +133,7 @@ async function migrateMessages() {
           return getMessageRank(a) - getMessageRank(b);
         });
 
-      const votes = allVotes.filter((v) => v.chatId === chat.id);
+      const _votes = allVotes.filter((v) => v.chatId === chat.id);
 
       const messageSection: UIMessage[] = [];
       const messageSections: UIMessage[][] = [];
@@ -155,13 +155,15 @@ async function migrateMessages() {
       }
 
       for (const section of messageSections) {
-        const [userMessage, ...assistantMessages] = section;
+        const [_userMessage, ...assistantMessages] = section;
 
-        const [firstAssistantMessage] = assistantMessages;
+        const [_firstAssistantMessage] = assistantMessages;
 
         try {
           // TODO: Reimplement with AI SDK 5.0 - appendResponseMessages removed
-          console.log(`Skipping chat ${chat.id} migration due to AI SDK 5.0 compatibility`);
+          console.log(
+            `Skipping chat ${chat.id} migration due to AI SDK 5.0 compatibility`
+          );
           /*
           const uiSection = appendResponseMessages({
             messages: [userMessage],

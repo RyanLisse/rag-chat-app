@@ -1,14 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import type {
-  CitationArtifactMetadata,
-  CitationSource,
-} from '@/lib/types/citation';
-import { cn } from '@/lib/utils';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   BarChart2Icon,
@@ -19,8 +10,17 @@ import {
   LinkIcon,
   UserIcon,
 } from 'lucide-react';
-import { useCallback, useMemo, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import type {
+  CitationArtifactMetadata,
+  CitationSource,
+} from '@/lib/types/citation';
+import { cn } from '@/lib/utils';
 import { CitationStatisticsPanel } from './citation-statistics-panel';
 import { SourcePreviewModal } from './source-preview-modal';
 
@@ -86,7 +86,7 @@ export function CitationContent({
     if (!metadata.citations.length) return content;
 
     let result = content;
-    const citationElements: JSX.Element[] = [];
+    const _citationElements: JSX.Element[] = [];
 
     metadata.citations.forEach((citation, index) => {
       const citationNumber = index + 1;
@@ -129,7 +129,8 @@ export function CitationContent({
               'backdrop-blur-sm border',
               isHighlighted &&
                 'bg-gradient-to-br from-blue-500 to-purple-500 text-white border-blue-400 shadow-blue-500/30 shadow-md',
-              isSelected && 'bg-gradient-to-br from-purple-600 to-pink-600 text-white border-purple-500 shadow-purple-500/30 shadow-lg scale-110',
+              isSelected &&
+                'bg-gradient-to-br from-purple-600 to-pink-600 text-white border-purple-500 shadow-purple-500/30 shadow-lg scale-110',
               !isHighlighted &&
                 !isSelected &&
                 'bg-white/80 text-gray-700 border-gray-300 dark:bg-gray-800/80 dark:text-gray-300 dark:border-gray-600 hover:border-blue-400'
@@ -143,8 +144,6 @@ export function CitationContent({
                 handleCitationClick(citationId);
               }
             }}
-            tabIndex={0}
-            role="button"
             aria-label={`Citation ${citationNumber}${source ? `: ${source.title}` : ''}`}
             aria-pressed={isSelected}
             aria-describedby={`citation-desc-${citationId}`}
@@ -196,9 +195,7 @@ export function CitationContent({
           </div>
 
           <div className="prose prose-gray dark:prose-invert max-w-none">
-            <div
-              className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-gray-200/50 dark:border-gray-700/50"
-            >
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-6 shadow-sm border border-gray-200/50 dark:border-gray-700/50">
               <div
                 className="whitespace-pre-wrap leading-relaxed text-gray-800 dark:text-gray-200"
                 role="article"

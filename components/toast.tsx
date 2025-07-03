@@ -1,8 +1,8 @@
 'use client';
 
-import { cn } from '@/lib/utils';
-import React, { useEffect, useRef, useState, type ReactNode } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { toast as sonnerToast } from 'sonner';
+import { cn } from '@/lib/utils';
 import { CheckCircleFillIcon, WarningIcon } from './icons';
 
 const iconsByType: Record<'success' | 'error', ReactNode> = {
@@ -39,7 +39,7 @@ function Toast(props: ToastProps) {
     ro.observe(el);
 
     return () => ro.disconnect();
-  }, [description]);
+  }, []);
 
   return (
     <div className="flex toast-mobile:w-[356px] w-full justify-center">

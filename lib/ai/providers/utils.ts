@@ -110,10 +110,16 @@ export function validateApiKey(apiKey: string, provider: string): boolean {
   switch (provider) {
     case 'openai':
       // OpenAI keys start with 'sk-' and are typically 40+ chars total
-      return apiKey.startsWith('sk-') && apiKey.length >= 15 && !/\s/.test(apiKey);
+      return (
+        apiKey.startsWith('sk-') && apiKey.length >= 15 && !/\s/.test(apiKey)
+      );
     case 'anthropic':
       // Anthropic keys start with 'sk-ant-' and are longer
-      return apiKey.startsWith('sk-ant-') && apiKey.length >= 20 && !/\s/.test(apiKey);
+      return (
+        apiKey.startsWith('sk-ant-') &&
+        apiKey.length >= 20 &&
+        !/\s/.test(apiKey)
+      );
     case 'google':
       // Google API keys don't have a standard prefix but have minimum length
       return apiKey.length > 10 && !/\s/.test(apiKey);

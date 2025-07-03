@@ -1,7 +1,7 @@
-import type { Citation, CitationSource } from '@/lib/types/citation';
 import { tool } from 'ai';
 import OpenAI from 'openai';
 import { z } from 'zod';
+import type { Citation, CitationSource } from '@/lib/types/citation';
 
 interface FileSearchResult {
   success: boolean;
@@ -35,7 +35,7 @@ async function getOrCreateAssistant() {
   if (assistantId) {
     try {
       return await openai.beta.assistants.retrieve(assistantId);
-    } catch (error) {
+    } catch (_error) {
       console.log('Assistant not found, creating new one');
     }
   }
@@ -64,7 +64,7 @@ export const fileSearchTool = tool({
       .default(5)
       .describe('Maximum number of results to return'),
   }),
-  execute: async (params: { query: string; limit?: number }, options: any) => {
+  execute: async (params: { query: string; limit?: number }, _options: any) => {
     const { query, limit = 5 } = params;
     try {
       if (!openai) throw new Error('OpenAI client not initialized');

@@ -1,16 +1,20 @@
-import { useMessages } from '@/hooks/use-messages';
-import type { Vote } from '@/lib/db/schema';
-import type { UseChatHelpers } from '@ai-sdk/react';
 import type { UIMessage } from 'ai';
 import equal from 'fast-deep-equal';
 import { motion } from 'framer-motion';
 import { memo } from 'react';
+import { useMessages } from '@/hooks/use-messages';
+import type { Vote } from '@/lib/db/schema';
 import type { UIArtifact } from './artifact';
 import { PreviewMessage, ThinkingMessage } from './message';
 
 interface ArtifactMessagesProps {
   chatId: string;
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix type for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix type for AI SDK 5.0
   votes: Vote[] | undefined;
   messages: UIMessage[];
   setMessages: (messages: UIMessage[]) => void; // TODO: Fix type for AI SDK 5.0

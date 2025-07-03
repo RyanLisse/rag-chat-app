@@ -32,7 +32,7 @@ interface UploadRecord {
   fileId?: string;
 }
 
-export async function GET(request: Request) {
+export async function GET(_request: Request) {
   const session = await auth();
 
   if (!session) {
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
 
   try {
     const vectorStoreId = process.env.OPENAI_VECTORSTORE_ID;
-    
+
     if (!vectorStoreId) {
       return NextResponse.json({
         totalDocuments: 0,
@@ -58,7 +58,7 @@ export async function GET(request: Request) {
 
     // Try to get vector store info
     let vectorStoreStatus: 'connected' | 'disconnected' | 'error' = 'connected';
-    let fileStats = {
+    const fileStats = {
       total: 0,
       completed: 0,
       processing: 0,
@@ -68,8 +68,8 @@ export async function GET(request: Request) {
 
     try {
       // Get vector store details
-      const vectorStore = await openai.vectorStores.retrieve(vectorStoreId);
-      
+      const _vectorStore = await openai.vectorStores.retrieve(vectorStoreId);
+
       // Get file list with pagination handling
       let hasMore = true;
       let after: string | undefined;
@@ -90,7 +90,7 @@ export async function GET(request: Request) {
 
       // Calculate file statistics
       fileStats.total = allFiles.length;
-      
+
       for (const file of allFiles) {
         if (file.status === 'completed') {
           fileStats.completed++;
@@ -99,7 +99,7 @@ export async function GET(request: Request) {
         } else if (file.status === 'failed') {
           fileStats.failed++;
         }
-        
+
         // Try to get file size (this might not be available from vector store file object)
         try {
           const fileDetails = await openai.files.retrieve(file.id);

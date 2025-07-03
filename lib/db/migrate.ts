@@ -1,10 +1,10 @@
-import { config } from 'dotenv';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { drizzle as drizzleTurso } from 'drizzle-orm/libsql';
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
-import { migrate as migrateTurso } from 'drizzle-orm/libsql/migrator';
-import postgres from 'postgres';
 import { createClient } from '@libsql/client';
+import { config } from 'dotenv';
+import { drizzle as drizzleTurso } from 'drizzle-orm/libsql';
+import { migrate as migrateTurso } from 'drizzle-orm/libsql/migrator';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import postgres from 'postgres';
 
 config({
   path: '.env.local',
@@ -14,9 +14,11 @@ const runMigrate = async () => {
   const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
   const tursoUrl = process.env.TURSO_DATABASE_URL;
   const tursoAuthToken = process.env.TURSO_AUTH_TOKEN;
-  
+
   if (!databaseUrl && !tursoUrl) {
-    throw new Error('DATABASE_URL, POSTGRES_URL, or TURSO_DATABASE_URL must be defined');
+    throw new Error(
+      'DATABASE_URL, POSTGRES_URL, or TURSO_DATABASE_URL must be defined'
+    );
   }
 
   const isTurso = !!tursoUrl;
@@ -26,7 +28,9 @@ const runMigrate = async () => {
   console.log('⏳ Running migrations...');
 
   if (!isTurso && isFileUrl) {
-    console.log('Mock database detected - skipping migrations for local development');
+    console.log(
+      'Mock database detected - skipping migrations for local development'
+    );
     console.log('✅ Mock database ready for local development');
     return;
   }

@@ -1,29 +1,39 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileText, Upload, Search, MessageSquare } from 'lucide-react';
+import { FileText, MessageSquare, Search, Upload } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 export function VectorStoreExample() {
   const steps = [
     {
       icon: <Upload className="h-5 w-5" />,
       title: 'Upload Documents',
-      description: 'Drop your PDFs, Word docs, or text files into the knowledge base',
+      description:
+        'Drop your PDFs, Word docs, or text files into the knowledge base',
     },
     {
       icon: <FileText className="h-5 w-5" />,
       title: 'Automatic Processing',
-      description: 'Documents are chunked and converted to embeddings automatically',
+      description:
+        'Documents are chunked and converted to embeddings automatically',
     },
     {
       icon: <Search className="h-5 w-5" />,
       title: 'Intelligent Search',
-      description: 'AI searches through your documents to find relevant information',
+      description:
+        'AI searches through your documents to find relevant information',
     },
     {
       icon: <MessageSquare className="h-5 w-5" />,
       title: 'Cited Responses',
-      description: 'Get answers with numbered citations linking to source documents',
+      description:
+        'Get answers with numbered citations linking to source documents',
     },
   ];
 

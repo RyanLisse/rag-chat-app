@@ -1,7 +1,7 @@
-import { config } from 'dotenv';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { drizzle as drizzleTurso } from 'drizzle-orm/libsql';
 import { createClient } from '@libsql/client';
+import { config } from 'dotenv';
+import { drizzle as drizzleTurso } from 'drizzle-orm/libsql';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import * as pgSchema from './schema';
 import * as tursoSchema from './turso-schema';
@@ -20,7 +20,9 @@ const isFileUrl = databaseUrl?.startsWith('file:');
 const isPostgres = databaseUrl?.startsWith('postgres');
 
 if (!databaseUrl && !tursoUrl) {
-  throw new Error('DATABASE_URL, POSTGRES_URL, or TURSO_DATABASE_URL must be defined');
+  throw new Error(
+    'DATABASE_URL, POSTGRES_URL, or TURSO_DATABASE_URL must be defined'
+  );
 }
 
 let db: any;
@@ -43,13 +45,13 @@ if (isTurso) {
 } else if (isPostgres) {
   // Use actual PostgreSQL connection
   try {
-    const connection = postgres(databaseUrl!, { 
+    const connection = postgres(databaseUrl!, {
       max: 1,
       connect_timeout: 5,
     });
     db = drizzle(connection, { schema: pgSchema });
     databaseType = 'postgres';
-  } catch (error) {
+  } catch (_error) {
     console.warn('Database connection failed, using mock database');
     db = createMockDB();
     databaseType = 'mock';
@@ -60,7 +62,7 @@ if (isTurso) {
 
 // Mock database for local development without PostgreSQL
 function createMockDB() {
-  const userId = 'guest-user-' + Date.now();
+  const userId = `guest-user-${Date.now()}`;
   const mockUser = {
     id: userId,
     email: 'guest@localhost',
@@ -82,16 +84,16 @@ function createMockDB() {
   const schema = isTurso ? tursoSchema : pgSchema;
 
   const mockDB = {
-    select: (fields?: any) => ({
+    select: (_fields?: any) => ({
       from: (table: any) => ({
-        where: (condition?: any) => {
+        where: (_condition?: any) => {
           // Return mock user for auth queries
           if (table === schema.user) {
             return Promise.resolve([mockUser]);
           }
           // Return empty chats for chat queries
           if (table === schema.chat) {
-            const userChats = mockData.chats.filter(c => c.userId === userId);
+            const userChats = mockData.chats.filter((c) => c.userId === userId);
             return Promise.resolve(userChats);
           }
           // Return messages for message queries
@@ -102,24 +104,30 @@ function createMockDB() {
         },
         limit: (n: number) => {
           if (table === schema.chat) {
-            const userChats = mockData.chats.filter(c => c.userId === userId);
+            const userChats = mockData.chats.filter((c) => c.userId === userId);
             return Promise.resolve(userChats.slice(0, n));
           }
           return Promise.resolve([]);
         },
-        orderBy: (order: any) => ({
+        orderBy: (_order: any) => ({
           limit: (n: number) => {
             if (table === schema.chat) {
               const userChats = mockData.chats
-                .filter(c => c.userId === userId)
-                .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                .filter((c) => c.userId === userId)
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                );
               return Promise.resolve(userChats.slice(0, n));
             }
             return Promise.resolve([]);
           },
-          where: (condition?: any) => {
+          where: (_condition?: any) => {
             if (table === schema.chat) {
-              const userChats = mockData.chats.filter(c => c.userId === userId);
+              const userChats = mockData.chats.filter(
+                (c) => c.userId === userId
+              );
               return Promise.resolve(userChats);
             }
             return Promise.resolve([]);
@@ -130,7 +138,7 @@ function createMockDB() {
     insert: (table: any) => ({
       values: (values: any) => {
         const newItem = { ...values, id: values.id || crypto.randomUUID() };
-        
+
         if (table === schema.user) {
           return {
             returning: () => Promise.resolve([{ ...mockUser, ...values }]),
@@ -155,13 +163,13 @@ function createMockDB() {
         };
       },
     }),
-    update: (table: any) => ({
-      set: (values: any) => ({
-        where: (condition: any) => Promise.resolve([]),
+    update: (_table: any) => ({
+      set: (_values: any) => ({
+        where: (_condition: any) => Promise.resolve([]),
       }),
     }),
-    delete: (table: any) => ({
-      where: (condition: any) => Promise.resolve([]),
+    delete: (_table: any) => ({
+      where: (_condition: any) => Promise.resolve([]),
     }),
   };
 

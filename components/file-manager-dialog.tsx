@@ -1,18 +1,5 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { FileUploadDropzone } from '@/components/file-upload-dropzone';
-import { VectorStoreClient } from '@/lib/ai/vector-store';
 import {
   AlertCircle,
   CheckCircle2,
@@ -23,6 +10,18 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { FileUploadDropzone } from '@/components/file-upload-dropzone';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 interface FileInfo {
   id: string;
@@ -52,7 +51,7 @@ export function FileManagerDialog({
     if (open) {
       loadFiles();
     }
-  }, [open]);
+  }, [open, loadFiles]);
 
   const loadFiles = async () => {
     if (!vectorStoreId) return;
@@ -89,7 +88,10 @@ export function FileManagerDialog({
         `Successfully uploaded ${uploadedFiles.filter((f) => f.status === 'completed').length} files`
       );
     },
-    [vectorStoreId]
+    [
+      // Refresh the file list after upload
+      loadFiles,
+    ]
   );
 
   const handleDelete = async (fileId: string) => {

@@ -1,19 +1,19 @@
+import { toast } from 'sonner';
 import { CitationContent } from '@/components/artifacts/citation-artifact';
 import { Artifact } from '@/components/create-artifact';
 import { DiffView } from '@/components/diffview';
 import { DocumentSkeleton } from '@/components/document-skeleton';
 import {
-  LineChartIcon,
   ClockRewind,
   CopyIcon,
   FileIcon,
   GlobeIcon,
+  LineChartIcon,
   RedoIcon,
-  WarningIcon,
   UndoIcon,
+  WarningIcon,
 } from '@/components/icons';
 import type { CitationArtifactMetadata } from '@/lib/types/citation';
-import { toast } from 'sonner';
 
 export const citationArtifact = new Artifact<
   'citation',

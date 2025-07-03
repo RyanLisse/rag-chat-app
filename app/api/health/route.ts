@@ -1,5 +1,5 @@
-import { databaseType } from '@/lib/db/connection';
 import { NextResponse } from 'next/server';
+import { databaseType } from '@/lib/db/connection';
 
 export async function GET() {
   try {

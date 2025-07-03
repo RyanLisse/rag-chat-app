@@ -1,6 +1,6 @@
+import { createClient } from '@libsql/client';
 import { config } from 'dotenv';
 import { drizzle } from 'drizzle-orm/libsql';
-import { createClient } from '@libsql/client';
 import * as schema from './turso-schema';
 
 config({

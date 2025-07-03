@@ -2,13 +2,11 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useActionState, useEffect, useState } from 'react';
-
 import { AuthForm } from '@/components/auth-form';
 import { SubmitButton } from '@/components/submit-button';
-
 import { toast } from '@/components/toast';
-import { useSession } from 'next-auth/react';
 import { type RegisterActionState, register } from '../actions';
 
 export default function Page() {
@@ -43,7 +41,7 @@ export default function Page() {
       updateSession();
       router.refresh();
     }
-  }, [state]);
+  }, [state, updateSession, router]);
 
   const handleSubmit = (formData: FormData) => {
     setEmail(formData.get('email') as string);

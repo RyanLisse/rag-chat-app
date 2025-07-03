@@ -1,14 +1,24 @@
-import { type UserType, auth } from '@/app/(auth)/auth';
+import { geolocation } from '@vercel/functions';
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  createUIMessageStreamResponse,
+  smoothStream,
+  streamText,
+  type UIMessage,
+} from 'ai';
+import { differenceInSeconds } from 'date-fns';
+import { after } from 'next/server';
+import {
+  createResumableStreamContext,
+  type ResumableStreamContext,
+} from 'resumable-stream';
+import { auth, type UserType } from '@/app/(auth)/auth';
 import { entitlementsByUserType } from '@/lib/ai/entitlements';
+import { enforceVectorSearch } from '@/lib/ai/middleware/enforce-vector-search';
 import { type RequestHints, systemPrompt } from '@/lib/ai/prompts';
 import { myProvider } from '@/lib/ai/providers';
-import { createDocument } from '@/lib/ai/tools/create-document';
-import { getWeather } from '@/lib/ai/tools/get-weather';
-import { requestSuggestions } from '@/lib/ai/tools/request-suggestions';
-import { updateDocument } from '@/lib/ai/tools/update-document';
-import { retrievalSearchTool } from '@/lib/ai/tools/retrieval-search';
-import { createCitationTool } from '@/lib/ai/tools/create-citation';
-import { imageAnalysisTool } from '@/lib/ai/tools/image-analysis';
+import { injectFileSearchDirective } from '@/lib/ai/tools/force-file-search';
 import { isProductionEnvironment } from '@/lib/constants';
 import {
   createStreamId,
@@ -22,25 +32,7 @@ import {
 } from '@/lib/db/queries';
 import type { Chat } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/errors';
-import { generateUUID, getTrailingMessageId } from '@/lib/utils';
-import { enforceVectorSearch } from '@/lib/ai/middleware/enforce-vector-search';
-import { injectFileSearchDirective } from '@/lib/ai/tools/force-file-search';
-import { geolocation } from '@vercel/functions';
-import {
-  convertToModelMessages,
-  createUIMessageStream,
-  createUIMessageStreamResponse,
-  smoothStream,
-  streamText,
-  type UIMessage,
-  type CoreMessage,
-} from 'ai';
-import { differenceInSeconds } from 'date-fns';
-import { after } from 'next/server';
-import {
-  type ResumableStreamContext,
-  createResumableStreamContext,
-} from 'resumable-stream';
+import { generateUUID } from '@/lib/utils';
 import { generateTitleFromUserMessage } from '../../actions';
 import { type PostRequestBody, postRequestBodySchema } from './schema';
 
@@ -118,14 +110,14 @@ export async function POST(request: Request) {
 
     const previousMessages = await getMessagesByChatId({ id });
 
-    let messages = [...previousMessages, message] as UIMessage[];
-    
+    const messages = [...previousMessages, message] as UIMessage[];
+
     // Convert UI messages to Core messages for processing
     const modelMessages = convertToModelMessages(messages);
-    
+
     // Enforce vector search on every request (CoreMessage is an alias for ModelMessage)
     const coreMessages = enforceVectorSearch(modelMessages);
-    
+
     // Also inject a directive to ensure immediate file search
     const messagesWithDirective = injectFileSearchDirective(coreMessages);
 
@@ -154,7 +146,7 @@ export async function POST(request: Request) {
     const streamId = generateUUID();
     await createStreamId({ streamId, chatId: id });
 
-    const streamContext = getStreamContext();
+    const _streamContext = getStreamContext();
 
     const stream = createUIMessageStream({
       execute: async ({ writer }) => {
@@ -199,30 +191,31 @@ export async function POST(request: Request) {
                 const assistantId = generateUUID();
 
                 // Convert content to parts format for database
-                const parts = content.map(part => {
+                const parts = content.map((part) => {
                   if (part.type === 'text') {
                     return { type: 'text', text: part.text };
-                  } else if (part.type === 'reasoning') {
+                  }
+                  if (part.type === 'reasoning') {
                     return { type: 'text', text: part.text };
                   }
                   // TODO: Re-enable tool-related parts after AI SDK 5.0 migration
                   // else if (part.type === 'tool-call') {
-                  //   return { 
-                  //     type: 'tool-call', 
+                  //   return {
+                  //     type: 'tool-call',
                   //     toolCallId: part.toolCallId,
                   //     toolName: part.toolName,
                   //     args: part.input,
                   //   };
                   // } else if (part.type === 'tool-result') {
-                  //   return { 
-                  //     type: 'tool-result', 
+                  //   return {
+                  //     type: 'tool-result',
                   //     toolCallId: part.toolCallId,
                   //     toolName: part.toolName,
                   //     result: part.output,
                   //   };
-                  else if (part.type === 'file') {
-                    return { 
-                      type: 'file', 
+                  if (part.type === 'file') {
+                    return {
+                      type: 'file',
                       mediaType: part.file.mediaType,
                       data: part.file.base64,
                     };
@@ -258,9 +251,11 @@ export async function POST(request: Request) {
           },
         });
 
-        writer.merge(result.toUIMessageStream({
-          sendReasoning: true,
-        }));
+        writer.merge(
+          result.toUIMessageStream({
+            sendReasoning: true,
+          })
+        );
       },
       onError: () => {
         return 'Oops, an error occurred!';

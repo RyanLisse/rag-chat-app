@@ -103,7 +103,7 @@ export function extractUserInfo(request: NextRequest): {
   sessionId?: string;
 } {
   // Try to get user ID from various sources
-  const authHeader = request.headers.get('authorization');
+  const _authHeader = request.headers.get('authorization');
   const sessionCookie = request.cookies.get('session');
 
   return {

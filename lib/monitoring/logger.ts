@@ -3,11 +3,11 @@ let trace: any = null;
 try {
   const otelApi = require('@opentelemetry/api');
   trace = otelApi.trace;
-} catch (error) {
+} catch (_error) {
   // OpenTelemetry not available, use no-op implementation
   trace = {
     getActiveSpan: () => null,
-    setSpan: (context: any, span: any) => context,
+    setSpan: (context: any, _span: any) => context,
   };
 }
 

@@ -1,27 +1,27 @@
 'use client';
 
+import { useChat } from '@ai-sdk/react';
+import type { UIMessage } from 'ai';
+import { useSearchParams } from 'next/navigation';
+// TODO: Find correct Attachment type in AI SDK 5.0
+import type { Session } from 'next-auth';
+import { useEffect, useState } from 'react';
+import useSWR, { useSWRConfig } from 'swr';
+import { unstable_serialize } from 'swr/infinite';
 import { ChatHeader } from '@/components/chat-header';
 import { useArtifactSelector } from '@/hooks/use-artifact';
 import { useAutoResume } from '@/hooks/use-auto-resume';
 import { useChatVisibility } from '@/hooks/use-chat-visibility';
 import type { Vote } from '@/lib/db/schema';
 import { ChatSDKError } from '@/lib/errors';
-import { fetchWithErrorHandlers, fetcher, generateUUID } from '@/lib/utils';
-import { useChat } from '@ai-sdk/react';
-import type { UIMessage } from 'ai';
-// TODO: Find correct Attachment type in AI SDK 5.0
-import type { Session } from 'next-auth';
-import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import useSWR, { useSWRConfig } from 'swr';
-import { unstable_serialize } from 'swr/infinite';
+import { fetcher, generateUUID } from '@/lib/utils';
 import { Artifact } from './artifact';
 import { Messages } from './messages';
 import { MultimodalInput } from './multimodal-input';
 import { getChatHistoryPaginationKey } from './sidebar-history';
 import { toast } from './toast';
-import type { VisibilityType } from './visibility-selector';
 import { VectorStoreMonitor } from './vector-store-monitor';
+import type { VisibilityType } from './visibility-selector';
 
 export function Chat({
   id,
@@ -69,22 +69,22 @@ export function Chat({
     // fetch: fetchWithErrorHandlers, // TODO: Fix for AI SDK 5.0
     // experimental_prepareRequestBody: (body) => {
     //   const lastMessage = body.messages.at(-1);
-    //   
+    //
     //   // Ensure the message has the correct format
     //   const formattedMessage = {
     //     ...lastMessage,
     //     parts: lastMessage.parts || [{ type: 'text', text: lastMessage.content || '' }],
     //   };
-    //   
+    //
     //   const requestBody = {
     //     id,
     //     message: formattedMessage,
     //     selectedChatModel: initialChatModel,
     //     selectedVisibilityType: visibilityType,
     //   };
-    //   
+    //
     //   console.log('Sending message to API:', JSON.stringify(requestBody, null, 2));
-    //   
+    //
     //   return requestBody;
     // }, // TODO: Fix for AI SDK 5.0
     onFinish: () => {
@@ -103,25 +103,29 @@ export function Chat({
   // TODO: Implement these for AI SDK 5.0
   const [input, setInput] = useState('');
   const data = undefined; // TODO: Fix for AI SDK 5.0
-  
+
   // Convert chatStatus to expected format
-  const status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted' = 
-    chatStatus === 'error' ? 'idle' : (chatStatus as any); // TODO: Fix proper type conversion
-  
-  const append = (message: UIMessage) => {
+  const status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted' = chatStatus === 'error' ? 'idle' : (chatStatus as any); // TODO: Fix proper type conversion
+
+  const append = (_message: UIMessage) => {
     // Handle message append - to be implemented
   };
-  
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle form submission - to be implemented
   };
-  
+
   const reload = () => {
     // Handle reload - to be implemented
   };
-  
-  const experimental_resume = () => {
+
+  const experimentalResume = () => {
     // Handle resume - to be implemented
   };
 
@@ -154,7 +158,7 @@ export function Chat({
   useAutoResume({
     autoResume,
     initialMessages,
-    experimental_resume,
+    experimental_resume: experimentalResume,
     data,
     setMessages,
   });

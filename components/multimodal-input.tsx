@@ -1,15 +1,21 @@
 'use client';
 
 import type { UIMessage } from 'ai';
+
 // TODO: Define Attachment type for AI SDK 5.0
 type Attachment = any;
+
 import cx from 'classnames';
+// TODO: Remove UseChatHelpers import for AI SDK 5.0
+import equal from 'fast-deep-equal';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowDown } from 'lucide-react';
 import type React from 'react';
 import {
   type ChangeEvent,
   type Dispatch,
-  type SetStateAction,
   memo,
+  type SetStateAction,
   useCallback,
   useEffect,
   useRef,
@@ -17,12 +23,7 @@ import {
 } from 'react';
 import { toast } from 'sonner';
 import { useLocalStorage, useWindowSize } from 'usehooks-ts';
-
 import { useScrollToBottom } from '@/hooks/use-scroll-to-bottom';
-// TODO: Remove UseChatHelpers import for AI SDK 5.0
-import equal from 'fast-deep-equal';
-import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowDown } from 'lucide-react';
 import { ArrowUpIcon, PaperclipIcon, StopIcon } from './icons';
 import { PreviewAttachment } from './preview-attachment';
 import { Button } from './ui/button';
@@ -47,7 +48,12 @@ function PureMultimodalInput({
   chatId: string;
   input: string; // TODO: Fix for AI SDK 5.0
   setInput: (input: string) => void; // TODO: Fix for AI SDK 5.0
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix for AI SDK 5.0
   stop: () => void;
   attachments: Attachment[];
   setAttachments: Dispatch<SetStateAction<Attachment[]>>;
@@ -65,7 +71,7 @@ function PureMultimodalInput({
     if (textareaRef.current) {
       adjustHeight();
     }
-  }, []);
+  }, [adjustHeight]);
 
   const adjustHeight = () => {
     if (textareaRef.current) {
@@ -96,7 +102,7 @@ function PureMultimodalInput({
     }
     // Only run once after hydration
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [adjustHeight, localStorageInput, setInput]);
 
   useEffect(() => {
     setLocalStorageInput(input);
@@ -125,12 +131,12 @@ function PureMultimodalInput({
       textareaRef.current?.focus();
     }
   }, [
-    attachments,
     handleSubmit,
     setAttachments,
     setLocalStorageInput,
     width,
     chatId,
+    resetHeight,
   ]);
 
   const uploadFile = async (file: File) => {
@@ -183,7 +189,7 @@ function PureMultimodalInput({
         setUploadQueue([]);
       }
     },
-    [setAttachments]
+    [setAttachments, uploadFile]
   );
 
   const { isAtBottom, scrollToBottom } = useScrollToBottom();
@@ -220,7 +226,6 @@ function PureMultimodalInput({
           </motion.div>
         )}
       </AnimatePresence>
-
 
       <input
         type="file"
@@ -327,7 +332,12 @@ function PureAttachmentsButton({
   status,
 }: {
   fileInputRef: React.MutableRefObject<HTMLInputElement | null>;
-  status: 'idle' | 'in_progress' | 'streaming' | 'awaiting_message' | 'submitted'; // TODO: Fix for AI SDK 5.0
+  status:
+    | 'idle'
+    | 'in_progress'
+    | 'streaming'
+    | 'awaiting_message'
+    | 'submitted'; // TODO: Fix for AI SDK 5.0
 }) {
   return (
     <Button

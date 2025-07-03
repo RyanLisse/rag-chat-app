@@ -1,8 +1,8 @@
 'use client';
 
-import type { DataPart } from '@/lib/types';
 import type { UIMessage } from 'ai';
 import { useEffect } from 'react';
+import type { DataPart } from '@/lib/types';
 
 export interface UseAutoResumeParams {
   autoResume: boolean;
@@ -32,7 +32,7 @@ export function useAutoResume({
 
     // we intentionally run this once
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [autoResume, experimental_resume, initialMessages.at]);
 
   useEffect(() => {
     if (!data) {

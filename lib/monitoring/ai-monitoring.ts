@@ -1,6 +1,6 @@
 // TODO: StreamData removed in AI SDK 5.0 - need alternative
 // import type { StreamData } from 'ai';
-import { logger, ragMetrics, trackRAGOperation } from './index';
+import { logger, ragMetrics } from './index';
 import { captureModelError } from './sentry';
 
 interface ModelCallMetadata {
@@ -136,7 +136,7 @@ export function monitorStreamingResponse(
 
 // Monitor vector search operations
 export async function monitorVectorSearch<T>(
-  query: string,
+  _query: string,
   metadata: Record<string, any>,
   operation: () => Promise<T & { resultCount?: number }>
 ): Promise<T> {
@@ -147,7 +147,10 @@ export async function monitorVectorSearch<T>(
   if ('resultCount' in result && typeof result.resultCount === 'number') {
     // TODO: Fix ragMetrics compatibility with monitoring system
     if ('vectorSearchResults' in ragMetrics) {
-      (ragMetrics as any).vectorSearchResults.record(result.resultCount, metadata);
+      (ragMetrics as any).vectorSearchResults.record(
+        result.resultCount,
+        metadata
+      );
     }
   }
 
@@ -156,7 +159,7 @@ export async function monitorVectorSearch<T>(
 
 // Monitor document processing
 export async function monitorDocumentProcessing<T>(
-  documentId: string,
+  _documentId: string,
   documentType: string,
   operation: () => Promise<T & { chunkCount?: number }>
 ): Promise<T> {

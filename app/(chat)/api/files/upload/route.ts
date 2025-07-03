@@ -112,10 +112,13 @@ export async function POST(request: Request) {
         name: 'RAG Chat Vector Store',
       });
       vectorStoreId = vectorStore?.id;
-      
+
       if (!vectorStoreId) {
         return NextResponse.json(
-          { error: 'Failed to create vector store', details: 'Vector store creation returned no ID' },
+          {
+            error: 'Failed to create vector store',
+            details: 'Vector store creation returned no ID',
+          },
           { status: 500 }
         );
       }

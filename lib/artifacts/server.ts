@@ -1,11 +1,11 @@
+// TODO: Update import for AI SDK 5.0 - DataStreamWriter removed
+// import type { DataStreamWriter } from 'ai';
+import type { Session } from 'next-auth';
 import { codeDocumentHandler } from '@/artifacts/code/server';
 import { imageDocumentHandler } from '@/artifacts/image/server';
 import { sheetDocumentHandler } from '@/artifacts/sheet/server';
 import { textDocumentHandler } from '@/artifacts/text/server';
 import type { ArtifactKind } from '@/components/artifact';
-// TODO: Update import for AI SDK 5.0 - DataStreamWriter removed
-// import type { DataStreamWriter } from 'ai';
-import type { Session } from 'next-auth';
 import { saveDocument } from '../db/queries';
 import type { Document } from '../db/schema';
 
