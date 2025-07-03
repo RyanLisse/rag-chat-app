@@ -136,7 +136,7 @@
         "noUnusedLabels": "warn",
         "noUnusedVariables": "warn",
         "useHookAtTopLevel": "error",
-        "useIsNan": "error",
+        "useIsNaN": "error",
         "useValidForDirection": "error",
         "useYield": "error"
       },
@@ -179,7 +179,7 @@
         "useConst": "warn",
         "useEnumInitializers": "warn",
         "useExportType": "warn",
-        "useFilenamingConvention": {
+        "useFilenameConvention": {
           "level": "warn",
           "options": {
             "strictCase": false,
@@ -240,7 +240,7 @@
         "noCompareNegZero": "error",
         "noConfusingLabels": "error",
         "noConfusingVoidType": "warn",
-        "noConsoleLog": "warn",
+        "noConsole": "warn",
         "noConstEnum": "off",
         "noControlCharactersInRegex": "error",
         "noDebugger": "error",
@@ -428,7 +428,7 @@
         "rules": {
           "suspicious": {
             "noExplicitAny": "off",
-            "noConsoleLog": "off"
+            "noConsole": "off"
           }
         }
       }
