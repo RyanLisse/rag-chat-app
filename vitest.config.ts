@@ -8,7 +8,6 @@ export default defineConfig({
     jsxFragment: 'React.Fragment',
     target: 'node20',
     keepNames: false,
-    minify: false,
   },
   test: {
     globals: true,
@@ -16,17 +15,22 @@ export default defineConfig({
     // Replace deprecated environmentMatchGlobs with projects
     projects: [
       {
-        name: 'unit-browser',
-        testMatch: ['tests/unit/**/*.{test,spec}.{ts,tsx}'],
-        environment: 'happy-dom',
-        setupFiles: ['./tests/setup/test-setup.ts'],
+        test: {
+          include: ['tests/unit/**/*.{test,spec}.{ts,tsx}'],
+          environment: 'happy-dom',
+          setupFiles: ['./tests/setup/test-setup.ts'],
+        },
       },
       {
-        name: 'unit-node',
-        testMatch: ['tests/unit/**/upload-route.{test,spec}.{ts,tsx}', 'tests/unit/**/status-route.{test,spec}.{ts,tsx}'],
-        environment: 'node',
-        setupFiles: ['./tests/setup/test-setup.ts'],
-      }
+        test: {
+          include: [
+            'tests/unit/**/upload-route.{test,spec}.{ts,tsx}',
+            'tests/unit/**/status-route.{test,spec}.{ts,tsx}',
+          ],
+          environment: 'node',
+          setupFiles: ['./tests/setup/test-setup.ts'],
+        },
+      },
     ],
     setupFiles: ['./tests/setup/test-setup.ts'],
     testTimeout: 3000, // Reduced from 5000ms for faster execution
